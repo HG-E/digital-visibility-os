@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: dvos-proxy
+    runtime: node
+    rootDir: proxy
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false        # you paste this manually in Render dashboard
+      - key: PORT
+        value: 3001

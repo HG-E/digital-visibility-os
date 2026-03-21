@@ -1,0 +1,14 @@
+# Environment variables — NEVER commit these
+proxy/.env
+.env
+
+# Dependencies
+proxy/node_modules/
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Old versions
+dvos_v3.html

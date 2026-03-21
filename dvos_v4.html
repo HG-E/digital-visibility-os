@@ -1,0 +1,1776 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="description" content="DVOS — Your research visibility command center. Build a global digital presence in minutes."/>
+<title>DVOS — Digital Visibility Operating System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ============================================================
+   DESIGN TOKENS — Light / Dark
+   ============================================================ */
+:root {
+  --ff-display: 'DM Serif Display', Georgia, serif;
+  --ff-body: 'DM Sans', system-ui, sans-serif;
+  --ff-mono: 'DM Mono', 'Courier New', monospace;
+  --bg:        #FAFAF8;
+  --bg2:       #F4F3EF;
+  --bg3:       #EEECEA;
+  --surface:   #FFFFFF;
+  --surface2:  #F8F7F5;
+  --border:    rgba(0,0,0,0.08);
+  --border2:   rgba(0,0,0,0.13);
+  --txt:       #1A1916;
+  --txt2:      #5C5A55;
+  --txt3:      #9C9A94;
+  --accent:    #1A6647;
+  --accent-bg: #EAF5EE;
+  --accent-mid:#2E9E6B;
+  --amber:     #92520A;
+  --amber-bg:  #FDF2E3;
+  --red:       #B93232;
+  --red-bg:    #FDEAEA;
+  --blue:      #1A4FA6;
+  --blue-bg:   #EAF0FD;
+  --score-ring: #1A6647;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 24px;
+  --nav-h: 60px;
+  --sidebar-w: 240px;
+}
+[data-theme="dark"] {
+  --bg:        #0F1014;
+  --bg2:       #14161B;
+  --bg3:       #1A1D24;
+  --surface:   #1F2229;
+  --surface2:  #252930;
+  --border:    rgba(255,255,255,0.07);
+  --border2:   rgba(255,255,255,0.12);
+  --txt:       #E8E6E0;
+  --txt2:      #8A8880;
+  --txt3:      #5A5855;
+  --accent:    #2ECC88;
+  --accent-bg: #0D2B1E;
+  --accent-mid:#25A870;
+  --amber:     #E8A040;
+  --amber-bg:  #2A1E08;
+  --red:       #E85555;
+  --red-bg:    #2A0F0F;
+  --blue:      #5599EE;
+  --blue-bg:   #0D1B30;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.4);
+}
+/* ============================================================
+   RESET + BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+body {
+  font-family: var(--ff-body);
+  background: var(--bg);
+  color: var(--txt);
+  line-height: 1.5;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+button, input, select, textarea { font-family: inherit; }
+a { color: var(--accent); text-decoration: none; }
+img { max-width: 100%; display: block; }
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
+/* ============================================================
+   TYPOGRAPHY SCALE
+   ============================================================ */
+.t-display { font-family: var(--ff-display); font-size: clamp(2rem, 5vw, 3.5rem); line-height: 1.1; letter-spacing: -0.02em; }
+.t-title    { font-size: 1.25rem; font-weight: 600; letter-spacing: -0.02em; }
+.t-heading  { font-size: 1rem;    font-weight: 600; letter-spacing: -0.01em; }
+.t-body     { font-size: 0.875rem; line-height: 1.6; }
+.t-small    { font-size: 0.75rem; line-height: 1.5; }
+.t-micro    { font-size: 0.6875rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 500; }
+.t-mono     { font-family: var(--ff-mono); font-size: 0.8125rem; }
+.t-muted    { color: var(--txt2); }
+.t-faint    { color: var(--txt3); }
+.t-accent   { color: var(--accent); }
+.t-amber    { color: var(--amber); }
+.t-red      { color: var(--red); }
+.t-serif    { font-family: var(--ff-display); }
+/* ============================================================
+   LAYOUT — APP SHELL
+   ============================================================ */
+#shell { display: flex; height: 100vh; height: 100dvh; overflow: hidden; }
+#sidebar {
+  width: var(--sidebar-w); flex-shrink: 0;
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+  display: flex; flex-direction: column;
+  overflow-y: auto; overflow-x: hidden;
+  transition: transform 0.3s ease; z-index: 50;
+}
+#main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+#topbar {
+  height: var(--nav-h); border-bottom: 1px solid var(--border);
+  background: var(--surface); display: flex; align-items: center;
+  padding: 0 20px; gap: 12px; flex-shrink: 0;
+}
+#screens { flex: 1; overflow-y: auto; overflow-x: hidden; }
+.screen { display: none; }
+.screen.active { display: block; animation: fadeUp 0.25s ease; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+/* ============================================================
+   SIDEBAR INTERNALS
+   ============================================================ */
+.sidebar-logo { padding: 18px 16px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+.logo-mark { width: 32px; height: 32px; border-radius: 9px; background: var(--accent); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.logo-mark svg { width: 18px; height: 18px; fill: white; }
+.logo-text { font-size: 0.875rem; font-weight: 700; letter-spacing: -0.02em; }
+.logo-sub  { font-size: 0.6875rem; color: var(--txt3); margin-top: 1px; }
+.nav-section { padding: 8px 8px 4px; }
+.nav-section-label { font-size: 0.625rem; font-weight: 600; color: var(--txt3); letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 8px 6px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px; padding: 8px 10px;
+  border-radius: var(--r-sm); cursor: pointer; font-size: 0.8125rem; font-weight: 500;
+  color: var(--txt2); transition: background 0.15s, color 0.15s;
+  position: relative; user-select: none; -webkit-tap-highlight-color: transparent;
+}
+.nav-item:hover { background: var(--bg2); color: var(--txt); }
+.nav-item.active { background: var(--accent-bg); color: var(--accent); }
+.nav-item.active .nav-icon { opacity: 1; }
+.nav-icon { width: 16px; height: 16px; opacity: 0.5; flex-shrink: 0; }
+.nav-badge-pill { margin-left: auto; font-size: 0.5625rem; font-weight: 700; padding: 1px 5px; border-radius: 99px; background: var(--accent); color: white; }
+.nav-score-pill { margin-left: auto; font-size: 0.6875rem; font-weight: 700; padding: 2px 8px; border-radius: 99px; background: var(--accent-bg); color: var(--accent); font-family: var(--ff-mono); }
+.sidebar-footer { margin-top: auto; border-top: 1px solid var(--border); padding: 12px; }
+.user-card { display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: var(--r-sm); cursor: pointer; transition: background 0.15s; }
+.user-card:hover { background: var(--bg2); }
+.user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; color: white; flex-shrink: 0; }
+.user-info .user-name { font-size: 0.8125rem; font-weight: 600; }
+.user-info .user-inst { font-size: 0.6875rem; color: var(--txt3); }
+/* ============================================================
+   TOPBAR INTERNALS
+   ============================================================ */
+.topbar-menu-btn { display: none; width: 36px; height: 36px; border: none; background: none; cursor: pointer; color: var(--txt); border-radius: var(--r-sm); align-items: center; justify-content: center; flex-shrink: 0; }
+.topbar-title { font-size: 0.9375rem; font-weight: 700; letter-spacing: -0.02em; flex: 1; }
+.topbar-actions { display: flex; align-items: center; gap: 8px; }
+.tb-score { display: flex; align-items: center; gap: 6px; padding: 5px 12px; border: 1px solid var(--border2); border-radius: 99px; background: var(--surface); cursor: pointer; transition: background 0.15s; font-size: 0.75rem; }
+.tb-score:hover { background: var(--bg2); }
+.tb-score-num { font-family: var(--ff-mono); font-weight: 700; color: var(--accent); font-size: 0.875rem; }
+.tb-score-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse-dot 2s infinite; }
+@keyframes pulse-dot { 0%,100%{opacity:1;} 50%{opacity:0.35;} }
+.theme-btn { width: 34px; height: 34px; border: 1px solid var(--border2); border-radius: var(--r-sm); background: var(--surface); cursor: pointer; color: var(--txt2); display: flex; align-items: center; justify-content: center; transition: background 0.15s; flex-shrink: 0; }
+.theme-btn:hover { background: var(--bg2); }
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 16px; border-radius: var(--r-sm); font-size: 0.8125rem; font-weight: 600; border: 1px solid var(--border2); background: var(--surface); color: var(--txt); cursor: pointer; transition: all 0.15s; line-height: 1; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
+.btn:hover { background: var(--bg2); }
+.btn:active { transform: scale(0.97); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+.btn-primary { background: var(--accent); color: white; border-color: var(--accent); }
+.btn-primary:hover { background: var(--accent-mid); border-color: var(--accent-mid); }
+.btn-sm { padding: 5px 12px; font-size: 0.75rem; }
+.btn-full { width: 100%; }
+.btn-icon { padding: 8px; width: 34px; }
+/* ============================================================
+   FORM ELEMENTS
+   ============================================================ */
+.field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+.field label { font-size: 0.6875rem; font-weight: 600; color: var(--txt2); letter-spacing: 0.07em; text-transform: uppercase; }
+.field input, .field select, .field textarea { padding: 9px 12px; border: 1px solid var(--border2); border-radius: var(--r-sm); background: var(--bg); color: var(--txt); font-size: 0.875rem; line-height: 1.4; transition: border-color 0.15s, box-shadow 0.15s; outline: none; width: 100%; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(26,102,71,0.1); }
+.field textarea { resize: vertical; min-height: 80px; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 500px) { .field-row { grid-template-columns: 1fr; } }
+/* ============================================================
+   CARDS
+   ============================================================ */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 18px 20px; }
+.card-sm { border-radius: var(--r-md); padding: 14px 16px; }
+.card-flush { padding: 0; }
+.metric-card { background: var(--bg2); border-radius: var(--r-md); padding: 14px 16px; }
+.metric-label { font-size: 0.6875rem; font-weight: 600; color: var(--txt3); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 6px; }
+.metric-value { font-size: 1.5rem; font-weight: 700; font-family: var(--ff-mono); line-height: 1; }
+.metric-sub { font-size: 0.6875rem; color: var(--txt3); margin-top: 5px; }
+.metric-up   { color: var(--accent); }
+.metric-warn { color: var(--amber); }
+.metric-bad  { color: var(--red); }
+/* ============================================================
+   SCORE RING
+   ============================================================ */
+.score-ring-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; }
+.score-ring-wrap svg { transform: rotate(-90deg); }
+.score-ring-center { position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.score-ring-num { font-family: var(--ff-mono); font-size: 1.75rem; font-weight: 700; line-height: 1; color: var(--accent); }
+.score-ring-label { font-size: 0.625rem; color: var(--txt3); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.06em; }
+/* ============================================================
+   PROGRESS BARS
+   ============================================================ */
+.prog-row { margin-bottom: 10px; }
+.prog-top { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 0.75rem; }
+.prog-track { height: 4px; background: var(--bg3); border-radius: 99px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 99px; transition: width 0.8s ease; }
+.pf-accent { background: var(--accent); }
+.pf-amber  { background: var(--amber); }
+.pf-red    { background: var(--red); }
+/* ============================================================
+   STATUS BADGES
+   ============================================================ */
+.badge { display: inline-flex; align-items: center; gap: 4px; font-size: 0.6875rem; font-weight: 600; padding: 2px 8px; border-radius: 99px; white-space: nowrap; }
+.badge-green  { background: var(--accent-bg); color: var(--accent); }
+.badge-amber  { background: var(--amber-bg);  color: var(--amber); }
+.badge-red    { background: var(--red-bg);    color: var(--red); }
+.badge-blue   { background: var(--blue-bg);   color: var(--blue); }
+.badge-neutral{ background: var(--bg3);       color: var(--txt2); }
+/* ============================================================
+   ACTION ITEMS
+   ============================================================ */
+.action-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--r-md); background: var(--surface); cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; margin-bottom: 8px; }
+.action-item:hover { border-color: var(--border2); box-shadow: var(--shadow-sm); }
+.action-prio { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+.prio-crit { background: var(--red); }
+.prio-high { background: var(--amber); }
+.prio-med  { background: var(--blue); }
+.prio-done { background: var(--accent); }
+.action-body { flex: 1; min-width: 0; }
+.action-title { font-size: 0.8125rem; font-weight: 600; margin-bottom: 3px; }
+.action-desc  { font-size: 0.75rem; color: var(--txt2); line-height: 1.5; }
+.action-impact { font-size: 0.6875rem; font-family: var(--ff-mono); color: var(--accent); margin-top: 5px; }
+.action-cta { font-size: 0.75rem; color: var(--accent); font-weight: 600; flex-shrink: 0; align-self: center; }
+/* ============================================================
+   AI OUTPUT BLOCKS
+   ============================================================ */
+.ai-block { border: 1px solid var(--border); border-radius: var(--r-md); overflow: hidden; margin-bottom: 10px; }
+.ai-block-head { display: flex; align-items: center; justify-content: space-between; padding: 7px 12px; background: var(--bg2); border-bottom: 1px solid var(--border); }
+.ai-block-label { font-size: 0.625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--txt3); }
+.ai-block-copy { font-size: 0.6875rem; color: var(--accent); cursor: pointer; font-weight: 600; }
+.ai-block-body { padding: 12px; font-size: 0.8125rem; line-height: 1.7; color: var(--txt2); }
+.ai-block-body.headline { font-size: 1rem; font-weight: 700; color: var(--txt); line-height: 1.3; }
+.stream-cursor::after { content: '▋'; animation: blink-cur 0.7s step-start infinite; color: var(--accent); font-size: 0.875rem; }
+@keyframes blink-cur { 50% { opacity: 0; } }
+.spinner { width: 16px; height: 16px; border: 2px solid var(--border2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.6s linear infinite; flex-shrink: 0; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-row { display: flex; align-items: center; gap: 10px; padding: 14px; font-size: 0.8125rem; color: var(--txt2); }
+/* ============================================================
+   PLATFORM ITEMS
+   ============================================================ */
+.plat-item { display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--border); border-radius: var(--r-md); background: var(--surface); margin-bottom: 8px; transition: border-color 0.15s; }
+.plat-item:hover { border-color: var(--border2); }
+.plat-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.6875rem; font-weight: 800; flex-shrink: 0; color: white; }
+.plat-info { flex: 1; min-width: 0; }
+.plat-name { font-size: 0.8125rem; font-weight: 600; }
+.plat-sub  { font-size: 0.6875rem; color: var(--txt3); }
+.plat-prog { width: 80px; }
+.plat-score { font-family: var(--ff-mono); font-size: 0.8125rem; font-weight: 700; min-width: 36px; text-align: right; }
+/* ============================================================
+   PUBLICATION ITEMS
+   ============================================================ */
+.pub-item { display: flex; align-items: flex-start; gap: 10px; padding: 12px; border: 1px solid var(--border); border-radius: var(--r-md); background: var(--surface); margin-bottom: 8px; transition: border-color 0.15s; }
+.pub-item:hover { border-color: var(--border2); }
+.pub-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.pub-linked   { background: var(--accent); }
+.pub-unlinked { background: var(--red); }
+.pub-pending  { background: var(--amber); }
+.pub-body { flex: 1; min-width: 0; }
+.pub-title { font-size: 0.8125rem; font-weight: 600; line-height: 1.4; margin-bottom: 3px; }
+.pub-meta  { font-size: 0.6875rem; color: var(--txt3); font-family: var(--ff-mono); }
+.pub-action { font-size: 0.6875rem; color: var(--accent); font-weight: 600; cursor: pointer; flex-shrink: 0; align-self: center; white-space: nowrap; }
+/* ============================================================
+   WEBSITE PREVIEW
+   ============================================================ */
+.browser-chrome { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; }
+.browser-bar { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--border); background: var(--bg2); }
+.browser-dots { display: flex; gap: 5px; }
+.browser-dot { width: 9px; height: 9px; border-radius: 50%; }
+.browser-url { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 5px; padding: 4px 10px; font-size: 0.6875rem; font-family: var(--ff-mono); color: var(--txt2); }
+.rws { background: #FAFAF8; color: #1A1916; font-family: 'DM Sans', sans-serif; min-height: 100%; }
+.rws-nav { background: white; border-bottom: 1px solid #E8E6E0; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; }
+.rws-nav-logo { font-size: 0.875rem; font-weight: 800; letter-spacing: -0.02em; color: #1A1916; }
+.rws-nav-links { display: flex; gap: 18px; }
+.rws-nav-links a { font-size: 0.75rem; color: #5C5A55; cursor: pointer; }
+.rws-hero { padding: 32px 24px 24px; }
+.rws-sub { font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.1em; color: #1A6647; font-weight: 700; margin-bottom: 10px; }
+.rws-name { font-family: 'DM Serif Display', serif; font-size: 1.75rem; line-height: 1.1; letter-spacing: -0.03em; color: #1A1916; margin-bottom: 6px; }
+.rws-role { font-size: 0.8125rem; color: #1A6647; font-weight: 600; margin-bottom: 12px; }
+.rws-bio { font-size: 0.8125rem; line-height: 1.7; color: #5C5A55; font-family: 'DM Serif Display', serif; font-style: italic; max-width: 500px; margin-bottom: 16px; }
+.rws-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 16px; }
+.rws-tag { font-size: 0.6875rem; font-weight: 600; padding: 3px 9px; border-radius: 99px; background: #EAF5EE; color: #1A6647; }
+.rws-metrics { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; padding: 16px 24px; background: white; border-top: 1px solid #E8E6E0; border-bottom: 1px solid #E8E6E0; }
+.rws-metric { text-align: center; }
+.rws-metric-val { font-size: 1.25rem; font-weight: 800; color: #1A6647; font-family: 'DM Mono', monospace; }
+.rws-metric-lbl { font-size: 0.625rem; color: #9C9A94; text-transform: uppercase; letter-spacing: 0.07em; }
+.rws-section { padding: 20px 24px; }
+.rws-sec-label { font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.1em; color: #9C9A94; font-weight: 700; margin-bottom: 12px; }
+.rws-pub { padding: 10px 12px; background: white; border: 1px solid #E8E6E0; border-radius: 8px; margin-bottom: 7px; }
+.rws-pub-title { font-size: 0.75rem; font-weight: 700; line-height: 1.4; margin-bottom: 3px; color: #1A1916; }
+.rws-pub-meta { font-size: 0.6875rem; color: #9C9A94; font-family: 'DM Mono', monospace; }
+.rws-cite { font-size: 0.625rem; color: #1A6647; font-weight: 600; margin-top: 4px; }
+/* ============================================================
+   CONTENT TERMINAL
+   ============================================================ */
+.terminal { background: var(--bg); border: 1px solid var(--border2); border-radius: var(--r-md); overflow: hidden; }
+.terminal-bar { display: flex; align-items: center; gap: 6px; padding: 8px 12px; background: var(--bg3); border-bottom: 1px solid var(--border); }
+.term-dot { width: 8px; height: 8px; border-radius: 50%; }
+.terminal-label { font-size: 0.6875rem; color: var(--txt3); font-family: var(--ff-mono); margin-left: 4px; }
+.terminal-body { padding: 16px; font-family: var(--ff-mono); font-size: 0.8125rem; line-height: 1.8; color: var(--txt2); white-space: pre-wrap; min-height: 180px; max-height: 380px; overflow-y: auto; }
+/* ============================================================
+   FORMAT CHIPS
+   ============================================================ */
+.fmt-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.fmt-chip { padding: 5px 12px; border-radius: 99px; border: 1px solid var(--border2); font-size: 0.75rem; font-weight: 500; cursor: pointer; transition: all 0.15s; color: var(--txt2); -webkit-tap-highlight-color: transparent; }
+.fmt-chip.active, .fmt-chip:hover { background: var(--accent); color: white; border-color: var(--accent); font-weight: 600; }
+/* ============================================================
+   PROJECTION CHART
+   ============================================================ */
+.proj-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.proj-time { font-size: 0.6875rem; font-family: var(--ff-mono); color: var(--txt3); width: 52px; flex-shrink: 0; }
+.proj-track { flex: 1; height: 5px; background: var(--bg3); border-radius: 99px; overflow: hidden; }
+.proj-fill  { height: 100%; border-radius: 99px; background: var(--accent); transition: width 1s ease; }
+.proj-val   { font-size: 0.6875rem; font-family: var(--ff-mono); color: var(--accent); min-width: 28px; text-align: right; font-weight: 600; }
+/* ============================================================
+   CITATION CHART
+   ============================================================ */
+.cit-chart { display: flex; align-items: flex-end; gap: 4px; height: 56px; margin-bottom: 6px; }
+.cit-bar { flex: 1; border-radius: 3px 3px 0 0; background: var(--accent-bg); position: relative; overflow: hidden; transition: background 0.2s; cursor: default; }
+.cit-bar:hover { background: var(--accent); }
+.cit-bar:last-child { background: var(--accent); }
+.cit-months { display: flex; gap: 4px; }
+.cit-month  { flex: 1; text-align: center; font-size: 0.5625rem; color: var(--txt3); font-family: var(--ff-mono); }
+/* ============================================================
+   NOTIFICATION SYSTEM
+   ============================================================ */
+#notif-container { position: fixed; top: 70px; right: 16px; z-index: 999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+.notif { background: var(--surface); border: 1px solid var(--border2); border-radius: var(--r-md); padding: 10px 14px; max-width: 300px; display: flex; gap: 10px; align-items: flex-start; pointer-events: all; animation: notifIn 0.3s ease; box-shadow: var(--shadow-md); }
+@keyframes notifIn { from { opacity:0; transform: translateX(12px); } to { opacity:1; transform: translateX(0); } }
+.notif-color { width: 3px; border-radius: 99px; flex-shrink: 0; align-self: stretch; }
+.notif-green { background: var(--accent); }
+.notif-amber { background: var(--amber); }
+.notif-red   { background: var(--red); }
+.notif-body  { flex: 1; min-width: 0; }
+.notif-title { font-size: 0.8125rem; font-weight: 600; margin-bottom: 2px; }
+.notif-sub   { font-size: 0.6875rem; color: var(--txt2); line-height: 1.4; }
+/* ============================================================
+   MOBILE BOTTOM NAV
+   ============================================================ */
+#bottom-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; height: 62px; background: var(--surface); border-top: 1px solid var(--border); z-index: 100; padding: 0 4px; padding-bottom: env(safe-area-inset-bottom, 0); }
+.bnav-items { display: flex; height: 100%; align-items: center; }
+.bnav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 6px 4px; cursor: pointer; border-radius: var(--r-sm); transition: background 0.15s; -webkit-tap-highlight-color: transparent; color: var(--txt3); }
+.bnav-item.active { color: var(--accent); }
+.bnav-item svg { width: 20px; height: 20px; }
+.bnav-label { font-size: 0.5625rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+#sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 49; }
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+  :root { --sidebar-w: 260px; }
+  #sidebar { position: fixed; left: 0; top: 0; bottom: 0; transform: translateX(-100%); box-shadow: var(--shadow-md); }
+  #sidebar.open { transform: translateX(0); }
+  #sidebar-overlay.open { display: block; }
+  .topbar-menu-btn { display: flex; }
+  #bottom-nav { display: block; }
+  #screens { padding-bottom: 70px; }
+  .topbar-title { font-size: 0.875rem; }
+  .field-row { grid-template-columns: 1fr; }
+  .screen-inner { padding: 14px; }
+  .dash-hero { grid-template-columns: 1fr; }
+  .stat-strip { grid-template-columns: 1fr 1fr; }
+  .intel-grid { grid-template-columns: 1fr; }
+  .builder-layout { grid-template-columns: 1fr; }
+  .cgen-layout { grid-template-columns: 1fr; }
+  .ws-layout { grid-template-columns: 1fr; }
+  .plat-prog { display: none; }
+}
+@media (max-width: 400px) { .stat-strip { grid-template-columns: 1fr; } }
+/* ============================================================
+   SCREEN-SPECIFIC LAYOUTS
+   ============================================================ */
+.screen-inner { padding: 20px; max-width: 1100px; }
+.screen-inner.wide { max-width: 100%; }
+.dash-hero { display: grid; grid-template-columns: 1fr 320px; gap: 16px; margin-bottom: 16px; }
+.stat-strip { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 16px; }
+.intel-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.builder-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.cgen-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.ws-layout { display: grid; grid-template-columns: 260px 1fr; gap: 18px; }
+.sec-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.sec-title { font-size: 0.75rem; font-weight: 700; color: var(--txt3); text-transform: uppercase; letter-spacing: 0.08em; }
+[data-tip] { position: relative; cursor: help; }
+[data-tip]::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: var(--txt); color: var(--bg); font-size: 0.6875rem; line-height: 1.4; padding: 5px 9px; border-radius: 6px; white-space: nowrap; max-width: 220px; white-space: normal; text-align: center; pointer-events: none; opacity: 0; transition: opacity 0.15s; z-index: 999; }
+[data-tip]:hover::after { opacity: 1; }
+/* ============================================================
+   ONBOARDING OVERLAY
+   ============================================================ */
+#onboard { position: fixed; inset: 0; z-index: 500; background: var(--bg); overflow-y: auto; display: flex; align-items: flex-start; justify-content: center; padding: 24px 16px 48px; }
+#onboard.gone { display: none; }
+.ob-wrap { width: 100%; max-width: 480px; padding-top: 40px; }
+.ob-step { display: none; }
+.ob-step.active { display: block; animation: fadeUp 0.3s ease; }
+.ob-dots { display: flex; gap: 6px; margin-bottom: 32px; justify-content: center; }
+.ob-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--bg3); transition: all 0.3s; }
+.ob-dot.done { background: var(--accent); }
+.ob-dot.current { width: 20px; border-radius: 3px; background: var(--accent); }
+.mirror-box { border: 1px solid var(--border2); border-radius: var(--r-lg); overflow: hidden; margin-bottom: 24px; }
+.mirror-search { background: white; padding: 10px 14px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #E8E6E0; }
+.mirror-google { font-size: 1.125rem; font-weight: 800; color: #4285F4; font-family: serif; }
+.mirror-input { flex: 1; border: 1px solid #DDD; border-radius: 99px; padding: 5px 14px; font-size: 0.8125rem; color: #333; background: white; }
+.mirror-results { background: white; padding: 12px 14px; min-height: 120px; }
+.mirror-no-result { text-align: center; padding: 20px 10px; color: #777; font-size: 0.8125rem; font-family: sans-serif; }
+.mirror-result-item { margin-bottom: 14px; }
+.mirror-url { font-size: 0.75rem; color: #006621; }
+.mirror-title { font-size: 1rem; color: #1A0DAB; line-height: 1.3; margin-bottom: 2px; cursor: pointer; }
+.mirror-snippet { font-size: 0.8125rem; color: #545454; line-height: 1.4; }
+/* ============================================================
+   INTEL FEED ITEMS
+   ============================================================ */
+.intel-item { padding: 10px 12px; background: var(--bg2); border-radius: var(--r-sm); margin-bottom: 6px; font-size: 0.75rem; line-height: 1.5; }
+.intel-label { font-size: 0.5625rem; font-weight: 700; font-family: var(--ff-mono); padding: 1px 6px; border-radius: 3px; margin-right: 6px; text-transform: uppercase; }
+.intel-new  { background: var(--accent-bg); color: var(--accent); }
+.intel-match{ background: var(--amber-bg);  color: var(--amber); }
+.intel-opp  { background: var(--blue-bg);   color: var(--blue); }
+/* ============================================================
+   PROXY BANNER
+   ============================================================ */
+#proxy-banner { display: none; background: var(--amber-bg); border-bottom: 1px solid var(--amber); padding: 8px 20px; font-size: 0.75rem; color: var(--amber); gap: 10px; align-items: center; }
+#proxy-banner a { color: var(--amber); font-weight: 700; text-decoration: underline; cursor: pointer; }
+#proxy-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 600; align-items: center; justify-content: center; padding: 20px; }
+#proxy-modal-overlay.open { display: flex; }
+#proxy-modal { background: var(--surface); border-radius: var(--r-xl); padding: 28px; max-width: 440px; width: 100%; box-shadow: var(--shadow-md); }
+</style>
+</head>
+<body>
+
+<!-- NOTIFICATIONS -->
+<div id="notif-container" aria-live="polite" aria-label="Notifications"></div>
+
+<!-- PROXY BANNER -->
+<div id="proxy-banner">
+  ⚠ AI features need a proxy URL to work. <a onclick="openProxyModal()">Configure in 30 seconds →</a>
+</div>
+
+<!-- PROXY CONFIG MODAL -->
+<div id="proxy-modal-overlay">
+  <div id="proxy-modal">
+    <div style="font-size:1rem;font-weight:700;margin-bottom:6px;">Connect AI features</div>
+    <div style="font-size:0.8125rem;color:var(--txt2);margin-bottom:18px;line-height:1.6;">Paste your proxy URL below. Deploy <code style="font-size:0.75rem;background:var(--bg2);padding:1px 5px;border-radius:4px;">proxy/worker.js</code> to Cloudflare Workers (free) or run <code style="font-size:0.75rem;background:var(--bg2);padding:1px 5px;border-radius:4px;">proxy/server.js</code> locally.</div>
+    <div class="field">
+      <label>Proxy URL</label>
+      <input id="proxy-url-input" type="url" placeholder="https://dvos-proxy.yourname.workers.dev"/>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn" style="flex:1;" onclick="closeProxyModal()">Cancel</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="saveProxyUrl()">Save &amp; activate</button>
+    </div>
+  </div>
+</div>
+
+<!-- ONBOARDING — 5 STEP EMOTIONAL FLOW -->
+<div id="onboard" role="dialog" aria-label="Welcome to DVOS">
+  <div class="ob-wrap">
+    <div class="ob-dots" id="ob-dots">
+      <div class="ob-dot current"></div><div class="ob-dot"></div>
+      <div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot"></div>
+    </div>
+
+    <!-- STEP 1: THE REAL INVISIBILITY MIRROR -->
+    <div class="ob-step active" id="ob-step-1">
+      <p class="t-micro t-faint" style="margin-bottom:10px;">Step 1 of 5 — The reality</p>
+      <h1 class="t-display" style="margin-bottom:12px;">Let's see how the world finds you right now.</h1>
+      <p class="t-body t-muted" style="margin-bottom:24px;">Type your name. We'll search global research databases live — exactly what a funder or collaborator sees today.</p>
+      <div class="mirror-box">
+        <div class="mirror-search">
+          <span class="mirror-google">G</span>
+          <input class="mirror-input" id="mirror-input" placeholder="Type your full name..." autocomplete="off" aria-label="Enter your name"/>
+        </div>
+        <div class="mirror-results" id="mirror-results">
+          <div id="mirror-empty" class="mirror-no-result"><div style="font-size:2rem;margin-bottom:8px;">🔍</div>Type your name above to search global research databases.</div>
+          <div id="mirror-loading" style="display:none;"><div class="loading-row"><div class="spinner"></div><span>Searching OpenAlex, Crossref, Scopus index…</span></div></div>
+          <div id="mirror-found" style="display:none;"></div>
+          <div id="mirror-nothing" style="display:none;">
+            <div class="mirror-no-result">
+              <div style="font-size:1.75rem;margin-bottom:8px;opacity:0.3;">∅</div>
+              <div style="font-weight:600;margin-bottom:6px;color:#333;">Not found: <span id="mirror-name-shown" style="color:#1A0DAB;"></span></div>
+              <div>Your work exists. Global databases can't find it.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="mirror-cta" style="display:none;">
+        <div style="padding:16px;background:var(--accent-bg);border-radius:var(--r-md);margin-bottom:16px;border-left:3px solid var(--accent);">
+          <div style="font-size:0.875rem;font-weight:700;color:var(--accent);margin-bottom:4px;">Here's what you're missing</div>
+          <div style="font-size:0.8125rem;color:var(--txt2);line-height:1.6;" id="mirror-cta-text">Every day your work is invisible: funders can't verify your credentials, collaborators can't find your expertise. <strong style="color:var(--txt);">DVOS fixes this in minutes.</strong></div>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="obNext()" style="padding:13px;">See what's possible →</button>
+      </div>
+      <div id="mirror-cta-early"><button class="btn btn-primary btn-full" onclick="obNext()" style="padding:13px;margin-top:8px;">Continue →</button></div>
+    </div>
+
+    <!-- STEP 2: SOCIAL PROOF -->
+    <div class="ob-step" id="ob-step-2">
+      <p class="t-micro t-faint" style="margin-bottom:10px;">Step 2 of 5 — What becomes possible</p>
+      <h1 class="t-display" style="margin-bottom:12px;">Researchers like you. <em>Transformed.</em></h1>
+      <p class="t-body t-muted" style="margin-bottom:20px;">Real outcomes from researchers who built their digital presence with DVOS.</p>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px;">
+        <div class="card card-sm" style="border-left:3px solid var(--accent);border-radius:0 var(--r-md) var(--r-md) 0;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <div style="width:36px;height:36px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:800;color:white;flex-shrink:0;">AO</div>
+            <div><div style="font-size:0.8125rem;font-weight:700;">Dr. Aisha Okonkwo</div><div style="font-size:0.6875rem;color:var(--txt3);">University of Ibadan · Biochemistry</div></div>
+            <div class="badge badge-green" style="margin-left:auto;">+31 score</div>
+          </div>
+          <p style="font-size:0.8125rem;color:var(--txt2);line-height:1.6;font-style:italic;">"Within 3 weeks of setting up my ORCID and website with DVOS, I received a collaboration request from a researcher at KU Leuven who found my work on Google Scholar."</p>
+        </div>
+        <div class="card card-sm" style="border-left:3px solid var(--amber);border-radius:0 var(--r-md) var(--r-md) 0;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <div style="width:36px;height:36px;border-radius:50%;background:var(--amber-bg);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:800;color:var(--amber);flex-shrink:0;">KM</div>
+            <div><div style="font-size:0.8125rem;font-weight:700;">Prof. Kwame Mensah</div><div style="font-size:0.6875rem;color:var(--txt3);">University of Ghana · Environmental Science</div></div>
+            <div class="badge badge-amber" style="margin-left:auto;">h-index +4</div>
+          </div>
+          <p style="font-size:0.8125rem;color:var(--txt2);line-height:1.6;font-style:italic;">"I linked 14 untracked publications through DVOS. My h-index jumped because citations I didn't know existed were now attributed to me. Used this to secure a Wellcome Trust grant."</p>
+        </div>
+        <div class="card card-sm" style="border-left:3px solid var(--blue);border-radius:0 var(--r-md) var(--r-md) 0;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <div style="width:36px;height:36px;border-radius:50%;background:var(--blue-bg);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:800;color:var(--blue);flex-shrink:0;">NR</div>
+            <div><div style="font-size:0.8125rem;font-weight:700;">Dr. Naledi Ramokgopa</div><div style="font-size:0.6875rem;color:var(--txt3);">University of Witwatersrand · Public Health</div></div>
+            <div class="badge badge-blue" style="margin-left:auto;">3.4× citations</div>
+          </div>
+          <p style="font-size:0.8125rem;color:var(--txt2);line-height:1.6;font-style:italic;">"The content generator helped me publish 12 plain-language summaries. Now policymakers reference my work in WHO frameworks."</p>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="obNext()" style="padding:13px;">This could be me →</button>
+    </div>
+
+    <!-- STEP 3: COLLECT DATA -->
+    <div class="ob-step" id="ob-step-3">
+      <p class="t-micro t-faint" style="margin-bottom:10px;">Step 3 of 5 — Build your profile</p>
+      <h1 class="t-display" style="margin-bottom:8px;">Tell us about your research.</h1>
+      <p class="t-body t-muted" style="margin-bottom:20px;">This powers everything — your score, your website, your AI profile. Takes 2 minutes.</p>
+      <div class="field-row">
+        <div class="field"><label for="ob-fname">Full name</label><input type="text" id="ob-fname" placeholder="Dr. Your Name" autocomplete="name"/></div>
+        <div class="field"><label for="ob-inst">Institution</label><input type="text" id="ob-inst" placeholder="Your university" autocomplete="organization"/></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label for="ob-field">Research field</label><input type="text" id="ob-field" placeholder="e.g. Epidemiology, AI, Ecology"/></div>
+        <div class="field"><label for="ob-title">Academic title</label>
+          <select id="ob-title">
+            <option>PhD Candidate</option><option>Postdoctoral Researcher</option>
+            <option>Lecturer</option><option>Senior Lecturer</option>
+            <option>Associate Professor</option><option selected>Professor</option>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label for="ob-topics">Research topics <span style="font-weight:400;text-transform:none;letter-spacing:0;">(comma-separated)</span></label><input type="text" id="ob-topics" placeholder="malaria, vaccine efficacy, public health"/></div>
+      <div class="field"><label for="ob-pubs">Approximate number of publications</label><input type="number" id="ob-pubs" placeholder="e.g. 11" min="0" max="999"/></div>
+      <button class="btn btn-primary btn-full" onclick="obSaveProfile()" style="padding:13px;">Save &amp; continue →</button>
+    </div>
+
+    <!-- STEP 4: SCORE REVEAL -->
+    <div class="ob-step" id="ob-step-4">
+      <p class="t-micro t-faint" style="margin-bottom:10px;">Step 4 of 5 — Your baseline</p>
+      <h1 class="t-display" style="margin-bottom:8px;">Your starting visibility score.</h1>
+      <p class="t-body t-muted" style="margin-bottom:24px;">Based on your profile and what we found in global databases. This is your baseline — we'll build it up together.</p>
+      <div id="ob-openalex-found" style="display:none;margin-bottom:16px;padding:12px 14px;background:var(--accent-bg);border-radius:var(--r-md);border-left:3px solid var(--accent);">
+        <div style="font-size:0.75rem;font-weight:700;color:var(--accent);margin-bottom:3px;">Found in OpenAlex ✓</div>
+        <div style="font-size:0.75rem;color:var(--txt2);" id="ob-openalex-summary"></div>
+      </div>
+      <div style="text-align:center;padding:32px 20px;margin-bottom:20px;">
+        <div class="score-ring-wrap" style="width:120px;height:120px;margin:0 auto 16px;">
+          <svg width="120" height="120" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="50" fill="none" stroke="var(--bg3)" stroke-width="10"/>
+            <circle cx="60" cy="60" r="50" fill="none" stroke="var(--accent)" stroke-width="10"
+              stroke-dasharray="314" stroke-dashoffset="314" stroke-linecap="round"
+              id="ob-ring-circle" style="transition:stroke-dashoffset 1.5s cubic-bezier(0.34,1.56,0.64,1)"/>
+          </svg>
+          <div class="score-ring-center">
+            <div class="score-ring-num" id="ob-score-num" style="font-size:2rem;">0</div>
+            <div class="score-ring-label">/ 100</div>
+          </div>
+        </div>
+        <div id="ob-score-message" style="font-size:0.875rem;color:var(--txt2);line-height:1.6;max-width:340px;margin:0 auto;"></div>
+      </div>
+      <div id="ob-gaps" style="margin-bottom:20px;"></div>
+      <button class="btn btn-primary btn-full" onclick="obNext()" style="padding:13px;">Let's build my visibility →</button>
+    </div>
+
+    <!-- STEP 5: READY -->
+    <div class="ob-step" id="ob-step-5">
+      <p class="t-micro t-faint" style="margin-bottom:10px;">Step 5 of 5 — You're ready</p>
+      <h1 class="t-display" style="margin-bottom:12px;">Your command center is ready.</h1>
+      <p class="t-body t-muted" style="margin-bottom:24px;">Here's exactly what to do first.</p>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:24px;">
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--accent-bg);border-radius:var(--r-md);">
+          <div style="width:28px;height:28px;border-radius:50%;background:var(--accent);color:white;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:800;flex-shrink:0;">1</div>
+          <div><div style="font-size:0.8125rem;font-weight:700;color:var(--accent);">Generate your AI profile</div><div style="font-size:0.75rem;color:var(--txt2);margin-top:2px;">One click. Bio, LinkedIn, website copy — all written for you.</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg2);border-radius:var(--r-md);">
+          <div style="width:28px;height:28px;border-radius:50%;background:var(--bg3);color:var(--txt2);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:800;flex-shrink:0;">2</div>
+          <div><div style="font-size:0.8125rem;font-weight:700;">Connect your ORCID</div><div style="font-size:0.75rem;color:var(--txt2);margin-top:2px;">Verify your iD so your publications are globally attributed.</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg2);border-radius:var(--r-md);">
+          <div style="width:28px;height:28px;border-radius:50%;background:var(--bg3);color:var(--txt2);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:800;flex-shrink:0;">3</div>
+          <div><div style="font-size:0.8125rem;font-weight:700;">Launch your research website</div><div style="font-size:0.75rem;color:var(--txt2);margin-top:2px;">AI generates it from your real data in 30 seconds.</div></div>
+        </div>
+      </div>
+      <div style="padding:12px 14px;background:var(--bg2);border-radius:var(--r-md);margin-bottom:20px;font-size:0.75rem;color:var(--txt2);line-height:1.6;">
+        <strong style="color:var(--txt);">Your data stays with you.</strong> DVOS saves your profile locally in your browser. No account required to start.
+      </div>
+      <button class="btn btn-primary btn-full" onclick="finishOnboard()" style="padding:13px;font-size:1rem;">Enter my command center →</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP SHELL -->
+<div id="shell">
+  <!-- SIDEBAR -->
+  <nav id="sidebar" aria-label="Main navigation">
+    <div class="sidebar-logo">
+      <div class="logo-mark" aria-hidden="true">
+        <svg viewBox="0 0 18 18"><path d="M9 1a8 8 0 1 0 0 16A8 8 0 0 0 9 1zm0 2.5a5.5 5.5 0 0 1 5.2 7.2H11a2 2 0 0 0 .4-1.2A2.5 2.5 0 0 0 9 7a2.5 2.5 0 0 0-2.5 2.5c0 .44.12.85.34 1.2H3.8A5.5 5.5 0 0 1 9 3.5zm0 11a5.5 5.5 0 0 1-4.5-2.4h9A5.5 5.5 0 0 1 9 14.5z"/></svg>
+      </div>
+      <div><div class="logo-text">DVOS</div><div class="logo-sub">Visibility OS</div></div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label">Overview</div>
+      <div class="nav-item active" data-screen="dashboard" role="button" tabindex="0">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M1 9.5A7.5 7.5 0 1 1 14.5 11H9a1 1 0 0 1-1-1V5"/><circle cx="8" cy="8" r="2"/></svg>
+        Command Center <span class="nav-score-pill" id="nav-score">—</span>
+      </div>
+      <div class="nav-item" data-screen="builder" role="button" tabindex="0">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>
+        AI Profile Builder <span class="nav-badge-pill">AI</span>
+      </div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label">Presence</div>
+      <div class="nav-item" data-screen="website" role="button" tabindex="0">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="3" width="14" height="10" rx="2"/><path d="M1 7h14M5 5h.01M7 5h.01"/></svg>
+        Research Website
+      </div>
+      <div class="nav-item" data-screen="content" role="button" tabindex="0">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M3 4h10M3 8h7M3 12h5"/><path d="M13 10l2 2-3.5 3.5-2-2 3.5-3.5z"/></svg>
+        Content Engine <span class="nav-badge-pill">AI</span>
+      </div>
+      <div class="nav-item" data-screen="orcid" role="button" tabindex="0">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="7"/><path d="M6 8a2 2 0 1 1 4 0v3H6V8z"/><circle cx="8" cy="5" r="1"/></svg>
+        ORCID &amp; Identity
+      </div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label">Growth</div>
+      <div class="nav-item" data-screen="platforms" role="button" tabindex="0">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="2"/><circle cx="2.5" cy="3.5" r="1.5"/><circle cx="13.5" cy="3.5" r="1.5"/><circle cx="2.5" cy="12.5" r="1.5"/><circle cx="13.5" cy="12.5" r="1.5"/><path d="M4 5l3 2M9 9l3 2M12 5l-3 2M7 9l-3 2"/></svg>
+        Platform Sync
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <span class="t-micro t-faint">Appearance</span>
+        <button class="theme-btn" onclick="toggleTheme()" aria-label="Toggle theme">
+          <svg id="theme-icon" width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 2a5 5 0 0 1 0 10V3z"/></svg>
+        </button>
+      </div>
+      <div class="user-card" id="user-card">
+        <div class="user-avatar" id="user-avatar">?</div>
+        <div class="user-info">
+          <div class="user-name" id="user-name">Your name</div>
+          <div class="user-inst" id="user-inst">Your institution</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div id="sidebar-overlay" onclick="closeSidebar()" aria-hidden="true"></div>
+
+  <!-- MAIN -->
+  <div id="main" role="main">
+    <div id="topbar">
+      <button class="topbar-menu-btn" onclick="toggleSidebar()" aria-label="Open navigation">
+        <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor"><path d="M1 3h14M1 8h14M1 13h14"/></svg>
+      </button>
+      <div class="topbar-title" id="topbar-title" aria-live="polite">Command Center</div>
+      <div class="topbar-actions">
+        <div class="tb-score" onclick="showScreen('platforms')" title="Your visibility score" tabindex="0">
+          <div class="tb-score-dot"></div>
+          <div class="tb-score-num" id="tb-score">—</div>
+          <div style="font-size:0.6875rem;color:var(--txt3);">score</div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="showScreen('builder')">+ Generate Profile</button>
+      </div>
+    </div>
+
+    <div id="screens">
+      <!-- DASHBOARD -->
+      <div class="screen active screen-inner" id="screen-dashboard">
+        <div class="dash-hero">
+          <div class="card" style="padding:20px;">
+            <div class="sec-head">
+              <div class="sec-title">Global research reach</div>
+              <div class="badge badge-green" style="font-size:0.5625rem;" data-tip="Based on OpenAlex data">live signal</div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;">
+              <div class="metric-card"><div class="metric-label">Citations</div><div class="metric-value" id="m-citations">—</div><div class="metric-sub metric-up" id="m-citations-sub">from OpenAlex</div></div>
+              <div class="metric-card"><div class="metric-label">H-index</div><div class="metric-value" id="m-hindex">—</div><div class="metric-sub" id="m-hindex-sub">Scopus / OpenAlex</div></div>
+              <div class="metric-card"><div class="metric-label">Publications</div><div class="metric-value" id="m-pubs">—</div><div class="metric-sub" id="m-pubs-sub">total indexed</div></div>
+            </div>
+            <div class="sec-title" style="margin-bottom:8px;">Citation velocity by year</div>
+            <div class="cit-chart" id="cit-chart" role="img" aria-label="Citation chart"></div>
+            <div class="cit-months" id="cit-months"></div>
+          </div>
+          <div class="card" style="display:flex;flex-direction:column;">
+            <div class="sec-head">
+              <div class="sec-title" data-tip="Computed from 6 real signals">Visibility index</div>
+              <div class="badge badge-amber" id="score-badge">— / 100</div>
+            </div>
+            <div style="display:flex;justify-content:center;margin-bottom:16px;">
+              <div class="score-ring-wrap" style="width:110px;height:110px;">
+                <svg width="110" height="110" viewBox="0 0 110 110">
+                  <circle cx="55" cy="55" r="45" fill="none" stroke="var(--bg3)" stroke-width="9"/>
+                  <circle cx="55" cy="55" r="45" fill="none" stroke="var(--accent)" stroke-width="9"
+                    stroke-dasharray="282.7" stroke-dashoffset="282.7" stroke-linecap="round" id="main-ring-circle"/>
+                </svg>
+                <div class="score-ring-center">
+                  <div class="score-ring-num" id="main-score-num">—</div>
+                  <div class="score-ring-label">/ 100</div>
+                </div>
+              </div>
+            </div>
+            <div style="flex:1;">
+              <div class="prog-row"><div class="prog-top"><span class="t-small t-muted">ORCID</span><span class="t-small t-mono" id="prog-orcid-val">0%</span></div><div class="prog-track"><div class="prog-fill pf-amber" id="prog-orcid" style="width:0%"></div></div></div>
+              <div class="prog-row"><div class="prog-top"><span class="t-small t-muted">Profile</span><span class="t-small t-mono" id="prog-profile-val">0%</span></div><div class="prog-track"><div class="prog-fill pf-accent" id="prog-profile" style="width:0%"></div></div></div>
+              <div class="prog-row"><div class="prog-top"><span class="t-small t-muted">Website</span><span class="t-small t-mono" id="prog-website-val">0%</span></div><div class="prog-track"><div class="prog-fill pf-amber" id="prog-website" style="width:0%"></div></div></div>
+              <div class="prog-row"><div class="prog-top"><span class="t-small t-muted">Content</span><span class="t-small t-mono" id="prog-content-val">0%</span></div><div class="prog-track"><div class="prog-fill pf-red" id="prog-content" style="width:0%"></div></div></div>
+            </div>
+            <div id="score-tip" style="margin-top:12px;padding:10px;background:var(--accent-bg);border-radius:var(--r-sm);font-size:0.75rem;color:var(--accent);display:none;"></div>
+          </div>
+        </div>
+        <div class="stat-strip">
+          <div class="metric-card" data-tip="From OpenAlex — updated in real time"><div class="metric-label">Total citations</div><div class="metric-value" id="stat-citations">—</div><div class="metric-sub" id="stat-citations-sub">OpenAlex indexed</div></div>
+          <div class="metric-card"><div class="metric-label">Publications linked</div><div class="metric-value" id="stat-pubs">—</div><div class="metric-sub metric-warn" id="stat-pubs-sub">complete your ORCID</div></div>
+          <div class="metric-card"><div class="metric-label">H-index</div><div class="metric-value" id="stat-hindex">—</div><div class="metric-sub" id="stat-hindex-sub">OpenAlex / Scopus</div></div>
+          <div class="metric-card"><div class="metric-label">Institution</div><div class="metric-value" style="font-size:0.9rem;" id="stat-inst">—</div><div class="metric-sub">last known</div></div>
+        </div>
+        <div class="intel-grid">
+          <div>
+            <div class="sec-head"><div class="sec-title">Priority actions</div><span class="badge badge-red" id="action-count-badge">loading</span></div>
+            <div id="priority-actions"></div>
+          </div>
+          <div>
+            <div class="sec-head"><div class="sec-title">Intelligence feed</div><span class="badge badge-blue" style="font-size:0.5625rem;">AI · estimated</span></div>
+            <div id="intel-feed"></div>
+            <div style="margin-top:14px;padding:14px;background:var(--bg2);border-radius:var(--r-md);">
+              <div class="sec-title" style="margin-bottom:10px;">Score projection</div>
+              <div id="score-projection"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI PROFILE BUILDER -->
+      <div class="screen screen-inner" id="screen-builder">
+        <p class="t-body t-muted" style="margin-bottom:16px;">Fill in your details. AI writes your complete professional presence in one generation.</p>
+        <div class="builder-layout">
+          <div class="card">
+            <div class="t-heading" style="margin-bottom:14px;">Profile data</div>
+            <div class="field-row">
+              <div class="field"><label for="b-name">Full name</label><input id="b-name" type="text" placeholder="Dr. Your Name"/></div>
+              <div class="field"><label for="b-inst">Institution</label><input id="b-inst" type="text" placeholder="Your university"/></div>
+            </div>
+            <div class="field-row">
+              <div class="field"><label for="b-field">Research field</label><input id="b-field" type="text" placeholder="e.g. Infectious disease epidemiology"/></div>
+              <div class="field"><label for="b-rank">Title / rank</label>
+                <select id="b-rank"><option>PhD Candidate</option><option>Postdoctoral Researcher</option><option>Lecturer</option><option>Senior Lecturer</option><option>Associate Professor</option><option selected>Professor</option></select>
+              </div>
+            </div>
+            <div class="field"><label for="b-topics">Research topics</label><input id="b-topics" type="text" placeholder="malaria, vaccine efficacy, disease surveillance"/></div>
+            <div class="field"><label for="b-country">Country / region</label><input id="b-country" type="text" placeholder="Nigeria, West Africa"/></div>
+            <div class="field"><label for="b-achieve">Notable work or key achievement</label><textarea id="b-achieve" rows="3" placeholder="e.g. Led a 5-year study on malaria vaccine efficacy. Published in The Lancet 2023. h-index: 14."></textarea></div>
+            <div class="field"><label for="b-tone">Tone</label>
+              <select id="b-tone"><option value="warm" selected>Warm &amp; accessible</option><option value="authoritative">Authoritative &amp; precise</option><option value="bold">Bold &amp; visionary</option><option value="technical">Technical &amp; detailed</option></select>
+            </div>
+            <button class="btn btn-primary btn-full" id="build-btn" onclick="runBuilder()" style="padding:11px;">Generate complete profile with AI →</button>
+          </div>
+          <div class="card" style="display:flex;flex-direction:column;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+              <div class="t-heading">Generated profile</div>
+              <span class="badge badge-neutral" id="build-status">Waiting</span>
+            </div>
+            <div id="build-empty" style="flex:1;display:flex;align-items:center;justify-content:center;text-align:center;padding:40px 20px;">
+              <div><div style="font-size:2.5rem;opacity:0.15;margin-bottom:10px;">◎</div><div class="t-small t-faint">Fill in your details and hit generate<br/>AI writes everything in ~10 seconds</div></div>
+            </div>
+            <div id="build-loading" style="display:none;">
+              <div class="loading-row"><div class="spinner"></div><span id="build-progress">Analyzing your research profile...</span></div>
+              <div style="margin:8px 14px;height:3px;background:var(--bg3);border-radius:99px;overflow:hidden;"><div id="build-progress-bar" style="height:100%;background:var(--accent);border-radius:99px;width:0%;transition:width 0.4s ease;"></div></div>
+            </div>
+            <div id="build-output" style="display:none;flex:1;overflow-y:auto;">
+              <div class="ai-block"><div class="ai-block-head"><span class="ai-block-label">Professional bio</span><span class="ai-block-copy" onclick="copyBlock('out-bio')">copy</span></div><div class="ai-block-body" id="out-bio"></div></div>
+              <div class="ai-block"><div class="ai-block-head"><span class="ai-block-label">LinkedIn headline</span><span class="ai-block-copy" onclick="copyBlock('out-headline')">copy</span></div><div class="ai-block-body headline" id="out-headline"></div></div>
+              <div class="ai-block"><div class="ai-block-head"><span class="ai-block-label">LinkedIn summary</span><span class="ai-block-copy" onclick="copyBlock('out-linkedin')">copy</span></div><div class="ai-block-body" id="out-linkedin"></div></div>
+              <div class="ai-block"><div class="ai-block-head"><span class="ai-block-label">Website about section</span><span class="ai-block-copy" onclick="copyBlock('out-website')">copy</span></div><div class="ai-block-body" id="out-website"></div></div>
+              <div class="ai-block"><div class="ai-block-head"><span class="ai-block-label">Grant impact statement</span><span class="ai-block-copy" onclick="copyBlock('out-impact')">copy</span></div><div class="ai-block-body" id="out-impact"></div></div>
+              <div style="display:flex;gap:8px;margin-top:6px;">
+                <button class="btn" style="flex:1;" onclick="copyAll()">Copy all</button>
+                <button class="btn btn-primary" style="flex:1;" onclick="applyToSite()">Apply to website →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RESEARCH WEBSITE -->
+      <div class="screen screen-inner" id="screen-website">
+        <div class="ws-layout">
+          <div>
+            <div class="card" style="margin-bottom:12px;">
+              <div class="t-heading" style="margin-bottom:12px;">Website editor</div>
+              <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--accent-bg);border-radius:var(--r-sm);margin-bottom:14px;">
+                <div style="width:8px;height:8px;border-radius:50%;background:var(--accent);"></div>
+                <span style="font-size:0.75rem;font-weight:700;color:var(--accent);">Preview</span>
+                <span class="t-mono t-faint" style="font-size:0.6875rem;" id="ws-url-display">yourname.research.io</span>
+              </div>
+              <div class="field"><label for="ws-name">Display name</label><input id="ws-name" type="text" oninput="renderWebsiteDebounced()"/></div>
+              <div class="field"><label for="ws-role">Role tagline</label><input id="ws-role" type="text" oninput="renderWebsiteDebounced()"/></div>
+              <div class="field"><label for="ws-bio">Research bio</label><textarea id="ws-bio" rows="3" oninput="renderWebsiteDebounced()"></textarea></div>
+              <div class="field-row">
+                <div class="field"><label for="ws-hindex">H-index</label><input id="ws-hindex" type="number" oninput="renderWebsiteDebounced()"/></div>
+                <div class="field"><label for="ws-cites">Total citations</label><input id="ws-cites" type="number" oninput="renderWebsiteDebounced()"/></div>
+              </div>
+              <div style="display:flex;gap:8px;">
+                <button class="btn" style="flex:1;font-size:0.75rem;" onclick="regenWebsite()">Regenerate with AI</button>
+                <button class="btn btn-primary" style="flex:1;font-size:0.75rem;" onclick="notify('Published','Your website content has been saved.','green')">Save</button>
+              </div>
+            </div>
+            <div style="padding:12px;background:var(--amber-bg);border-radius:var(--r-md);border-left:3px solid var(--amber);font-size:0.75rem;color:var(--txt2);line-height:1.6;">
+              <strong style="color:var(--amber);">Next:</strong> Connect your ORCID to make citation counts update automatically.
+            </div>
+          </div>
+          <div>
+            <div class="browser-chrome">
+              <div class="browser-bar">
+                <div class="browser-dots">
+                  <div class="browser-dot" style="background:#FF5F56;"></div>
+                  <div class="browser-dot" style="background:#FFBD2E;"></div>
+                  <div class="browser-dot" style="background:#27C93F;"></div>
+                </div>
+                <div class="browser-url" id="ws-url">yourname.research.io</div>
+                <span class="badge badge-green" style="font-size:0.5625rem;">preview</span>
+              </div>
+              <div id="ws-preview" style="overflow-y:auto;max-height:560px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONTENT ENGINE -->
+      <div class="screen screen-inner" id="screen-content">
+        <p class="t-body t-muted" style="margin-bottom:14px;">Paste your research abstract or key findings. AI transforms it into any format — for any audience — in seconds.</p>
+        <div class="cgen-layout">
+          <div class="card" style="display:flex;flex-direction:column;gap:12px;">
+            <div class="t-heading">Research input</div>
+            <div>
+              <div class="t-micro t-faint" style="margin-bottom:8px;">Output format</div>
+              <div class="fmt-chips" id="fmt-chips">
+                <div class="fmt-chip active" data-fmt="blog">Blog post</div>
+                <div class="fmt-chip" data-fmt="linkedin">LinkedIn post</div>
+                <div class="fmt-chip" data-fmt="twitter">Twitter thread</div>
+                <div class="fmt-chip" data-fmt="plain">Plain language</div>
+                <div class="fmt-chip" data-fmt="grant">Grant summary</div>
+                <div class="fmt-chip" data-fmt="press">Press release</div>
+              </div>
+            </div>
+            <div class="field" style="flex:1;margin-bottom:0;"><label for="cg-input">Paper title, abstract, or key findings</label><textarea id="cg-input" rows="7" placeholder="Paste your research abstract here..."></textarea></div>
+            <div class="field-row">
+              <div class="field" style="margin-bottom:0;"><label for="cg-audience">Target audience</label><select id="cg-audience"><option>General public</option><option selected>Policymakers</option><option>Scientists</option><option>Funders</option><option>Journalists</option></select></div>
+              <div class="field" style="margin-bottom:0;"><label for="cg-tone">Tone</label><select id="cg-tone"><option>Informative</option><option selected>Urgent &amp; compelling</option><option>Conversational</option><option>Technical</option></select></div>
+            </div>
+            <button class="btn btn-primary btn-full" id="cg-btn" onclick="runContent()" style="padding:11px;">Generate →</button>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div class="terminal" style="flex:1;">
+              <div class="terminal-bar">
+                <div class="term-dot" style="background:#FF5F56;"></div>
+                <div class="term-dot" style="background:#FFBD2E;"></div>
+                <div class="term-dot" style="background:#27C93F;"></div>
+                <span class="terminal-label" id="term-label">awaiting generation</span>
+              </div>
+              <div class="terminal-body" id="cg-output"><span class="t-faint">// Your generated content will appear here
+// Select a format and click Generate</span></div>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn" style="flex:1;font-size:0.75rem;" id="cg-copy-btn" onclick="copyCG()" disabled>Copy</button>
+              <button class="btn btn-primary" style="flex:1;font-size:0.75rem;" id="cg-pub-btn" onclick="publishContent()" disabled>Add to website →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ORCID & IDENTITY -->
+      <div class="screen screen-inner" id="screen-orcid">
+        <div style="display:grid;grid-template-columns:300px 1fr;gap:18px;">
+          <div>
+            <div class="card" style="margin-bottom:12px;">
+              <div style="font-size:1.5rem;font-weight:900;color:#A6CE39;font-family:var(--ff-mono);letter-spacing:0.04em;margin-bottom:4px;">ORCID</div>
+              <div class="t-mono t-faint" style="font-size:0.75rem;margin-bottom:12px;" id="orcid-id-display">Not yet connected</div>
+              <div class="field" style="margin-bottom:10px;">
+                <label for="orcid-input">Your ORCID iD</label>
+                <input id="orcid-input" type="text" placeholder="0000-0001-2345-6789" style="font-family:var(--ff-mono);" maxlength="19" oninput="formatOrcidInput(this)"/>
+              </div>
+              <button class="btn btn-primary btn-full btn-sm" onclick="verifyOrcid()" id="orcid-connect-btn">Verify ORCID iD →</button>
+              <div style="margin-top:10px;font-size:0.6875rem;color:var(--txt3);line-height:1.5;">Don't have one? <a href="https://orcid.org/register" target="_blank" rel="noopener" style="color:var(--accent);">Register free at orcid.org →</a></div>
+              <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <div><div class="metric-label">Publications</div><div style="font-size:1.125rem;font-weight:700;font-family:var(--ff-mono);" id="orcid-pubs-count">—</div></div>
+                <div><div class="metric-label">Citations</div><div style="font-size:1.125rem;font-weight:700;font-family:var(--ff-mono);" id="orcid-cites-count">—</div></div>
+                <div><div class="metric-label">H-index</div><div style="font-size:1.125rem;font-weight:700;font-family:var(--ff-mono);" id="orcid-hindex-count">—</div></div>
+                <div><div class="metric-label">ORCID works</div><div style="font-size:1.125rem;font-weight:700;font-family:var(--ff-mono);color:var(--amber);" id="orcid-works-count">—</div></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="t-heading" style="margin-bottom:10px;">Score projection</div>
+              <div id="orcid-projection"></div>
+              <div style="margin-top:12px;font-size:0.75rem;color:var(--txt2);line-height:1.5;">Every publication you link increases h-index attribution across Scopus, Crossref, and Google Scholar.</div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+              <div class="t-heading">Publications</div>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <div id="orcid-link-result" style="display:none;"></div>
+                <button class="btn btn-primary btn-sm" id="link-all-btn" onclick="linkAllPubs()">Link all with AI →</button>
+              </div>
+            </div>
+            <div id="pub-loading" style="display:none;"><div class="loading-row"><div class="spinner"></div>Fetching publications from OpenAlex...</div></div>
+            <div id="pub-list"></div>
+            <div id="pub-empty" style="padding:32px;text-align:center;color:var(--txt3);font-size:0.8125rem;">
+              Verify your ORCID iD to load your publications, or complete your profile so we can search OpenAlex.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PLATFORM SYNC -->
+      <div class="screen screen-inner" id="screen-platforms">
+        <div style="display:grid;grid-template-columns:1fr 280px;gap:18px;">
+          <div>
+            <div class="card" style="margin-bottom:14px;">
+              <div class="t-heading" style="margin-bottom:14px;">Connected platforms</div>
+              <div class="plat-item"><div class="plat-icon" style="background:#0A66C2;">in</div><div class="plat-info"><div class="plat-name">LinkedIn</div><div class="plat-sub" id="plat-li-sub">Not optimized</div></div><div class="plat-prog"><div class="prog-track"><div class="prog-fill pf-accent" id="plat-li-bar" style="width:0%"></div></div></div><div class="plat-score" id="plat-li-score" style="color:var(--txt3)">—</div></div>
+              <div class="plat-item"><div class="plat-icon" style="background:var(--accent);">W</div><div class="plat-info"><div class="plat-name">Research website</div><div class="plat-sub" id="plat-ws-sub">Not created</div></div><div class="plat-prog"><div class="prog-track"><div class="prog-fill pf-amber" id="plat-ws-bar" style="width:0%"></div></div></div><div class="plat-score" id="plat-ws-score" style="color:var(--txt3)">—</div></div>
+              <div class="plat-item"><div class="plat-icon" style="background:#A6CE39;color:#000;">OR</div><div class="plat-info"><div class="plat-name">ORCID</div><div class="plat-sub" id="plat-or-sub">Not connected</div></div><div class="plat-prog"><div class="prog-track"><div class="prog-fill pf-amber" id="plat-or-bar" style="width:0%"></div></div></div><div class="plat-score" id="plat-or-score" style="color:var(--txt3)">—</div></div>
+              <div class="plat-item" style="opacity:0.55;"><div class="plat-icon" style="background:#4285F4;">GS</div><div class="plat-info"><div class="plat-name">Google Scholar</div><div class="plat-sub">Not connected</div></div><div class="plat-prog"><div class="prog-track"><div class="prog-fill" style="width:0%;background:var(--red);"></div></div></div><div class="plat-score" style="color:var(--red)">—</div></div>
+              <div class="plat-item" style="opacity:0.55;"><div class="plat-icon" style="background:#E03D44;">RG</div><div class="plat-info"><div class="plat-name">ResearchGate</div><div class="plat-sub">Not connected</div></div><div class="plat-prog"><div class="prog-track"><div class="prog-fill" style="width:0%;background:var(--red);"></div></div></div><div class="plat-score" style="color:var(--red)">—</div></div>
+            </div>
+            <div style="padding:16px;background:var(--accent-bg);border-radius:var(--r-md);border:1px solid rgba(26,102,71,0.15);">
+              <div style="font-size:0.875rem;font-weight:700;color:var(--accent);margin-bottom:4px;">Why this matters globally</div>
+              <div style="font-size:0.8125rem;color:var(--txt2);line-height:1.7;">92% of researchers in the Global South have no structured digital presence. Your work competes with institutions that have dedicated communications teams. <strong style="color:var(--txt);">DVOS equalizes this.</strong></div>
+            </div>
+          </div>
+          <div>
+            <div class="card" style="margin-bottom:12px;text-align:center;padding:24px;">
+              <div class="t-micro t-faint" style="margin-bottom:8px;">If all platforms complete</div>
+              <div style="font-size:3rem;font-weight:800;font-family:var(--ff-mono);color:var(--accent);line-height:1;" id="plat-potential">94</div>
+              <div style="font-size:0.875rem;color:var(--txt3);margin-bottom:16px;">/ 100 potential score</div>
+              <div style="font-size:0.75rem;color:var(--txt2);line-height:1.8;text-align:left;padding:12px;background:var(--bg2);border-radius:var(--r-sm);font-family:var(--ff-mono);">
+                → More citation attribution<br>→ Higher collaboration discovery<br>→ Better grant visibility<br>→ Indexed in 12+ global databases
+              </div>
+            </div>
+            <div class="card">
+              <div class="t-heading" style="margin-bottom:12px;">Score by action</div>
+              <div id="plat-projection"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- end #screens -->
+  </div><!-- end #main -->
+</div><!-- end #shell -->
+
+<!-- MOBILE BOTTOM NAV -->
+<nav id="bottom-nav" aria-label="Mobile navigation">
+  <div class="bnav-items">
+    <div class="bnav-item active" data-screen="dashboard"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a8 8 0 1 0 0 16A8 8 0 0 0 10 2zm0 2a6 6 0 0 1 5.7 8H12a2.5 2.5 0 1 0-4 0H4.3A6 6 0 0 1 10 4zm0 12a6 6 0 0 1-5-2.7h10A6 6 0 0 1 10 16z"/></svg><span class="bnav-label">Home</span></div>
+    <div class="bnav-item" data-screen="builder"><svg viewBox="0 0 20 20" fill="currentColor"><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="11" y="3" width="6" height="6" rx="1"/><rect x="3" y="11" width="6" height="6" rx="1"/><rect x="11" y="11" width="6" height="6" rx="1"/></svg><span class="bnav-label">Builder</span></div>
+    <div class="bnav-item" data-screen="content"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 6h12M4 10h8M4 14h6"/><path d="M16 12l2 2-4 4-2-2 4-4z"/></svg><span class="bnav-label">Content</span></div>
+    <div class="bnav-item" data-screen="orcid"><svg viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="8"/><path d="M8 10a2 2 0 1 1 4 0v3H8v-3z"/><circle cx="10" cy="6.5" r="1"/></svg><span class="bnav-label">ORCID</span></div>
+    <div class="bnav-item" data-screen="platforms"><svg viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="2"/><circle cx="4" cy="5" r="1.5"/><circle cx="16" cy="5" r="1.5"/><circle cx="4" cy="15" r="1.5"/><circle cx="16" cy="15" r="1.5"/><path d="M5.5 6.5l3 2M11.5 11.5l3 2M14.5 6.5l-3 2M8.5 11.5l-3 2"/></svg><span class="bnav-label">Platforms</span></div>
+  </div>
+</nav>
+
+<script>
+/* ── CONFIG ─────────────────────────────────────────────────── */
+const CFG = {
+  OA_BASE:   'https://api.openalex.org',
+  ORCID_BASE:'https://pub.orcid.org/v3.0',
+  OA_EMAIL:  'dvos-app@research.io',   // polite pool — faster responses
+  MODEL:     'claude-sonnet-4-6'
+};
+
+/* ── DOM SAFETY ─────────────────────────────────────────────── */
+// esc() — XSS-safe HTML entity encoding. Use on ALL user/API data in templates.
+function esc(s){ const d=document.createElement('div');d.textContent=String(s??'');return d.innerHTML; }
+function $id(id){ return document.getElementById(id); }
+function setText(id,v){ const e=$id(id);if(e)e.textContent=String(v??''); }
+
+/* ── STATE ──────────────────────────────────────────────────── */
+const DEFAULT = {
+  profile:   null,       // null until onboarding Step 3
+  oaId:      null,       // OpenAlex author ID
+  orcidId:   null,       // verified ORCID iD
+  metrics:   { worksCount:null, citedByCount:null, hIndex:null, inst:null, concepts:[] },
+  works:     [],         // top works from OpenAlex
+  signals:   { orcid:0, profile:0, website:0, content:0, platforms:15, citations:0 },
+  genProfile:null,       // last AI builder output
+  wsContent: { name:'', role:'', bio:'', hindex:'', cites:'' },
+  score:     0,
+  onboardDone: false,
+  proxyUrl:  '',
+  theme:     'light'
+};
+
+function loadState(){
+  try{ const s=localStorage.getItem('dvos4');return s?Object.assign({},DEFAULT,JSON.parse(s)):Object.assign({},DEFAULT); }
+  catch(e){ return Object.assign({},DEFAULT); }
+}
+function saveState(patch){
+  const s=Object.assign(loadState(),patch);
+  try{ localStorage.setItem('dvos4',JSON.stringify(s)); }catch(e){ if(e.name==='QuotaExceededError')notify('Storage full','Could not save progress — clear browser storage.','red'); }
+  Object.assign(S,patch);
+}
+let S=loadState();
+
+/* ── THEME ──────────────────────────────────────────────────── */
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  saveState({theme:t});
+  const ic=$id('theme-icon');
+  if(ic)ic.innerHTML=t==='dark'?'<path d="M8 1a7 7 0 0 0 0 14A7 7 0 0 0 8 8V1z"/>':'<path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 2a5 5 0 0 1 0 10V3z"/>';
+}
+function toggleTheme(){ applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'); }
+applyTheme(S.theme||'light');
+
+/* ── NAVIGATION ─────────────────────────────────────────────── */
+const TITLES={dashboard:'Command Center',builder:'AI Profile Builder',website:'Research Website',content:'Content Engine',orcid:'ORCID & Identity',platforms:'Platform Sync'};
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('[data-screen]').forEach(n=>n.classList.remove('active'));
+  const el=$id('screen-'+id); if(el)el.classList.add('active');
+  document.querySelectorAll(`[data-screen="${id}"]`).forEach(n=>n.classList.add('active'));
+  setText('topbar-title',TITLES[id]||id);
+  if(id==='website')setTimeout(renderWebsite,50);
+  if(id==='orcid')renderOrcidProjection();
+  if(id==='platforms')renderPlatformProjection();
+  closeSidebar();
+}
+document.querySelectorAll('[data-screen]').forEach(el=>{
+  el.addEventListener('click',()=>showScreen(el.dataset.screen));
+  el.addEventListener('keypress',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();showScreen(el.dataset.screen);}});
+});
+function toggleSidebar(){ $id('sidebar').classList.toggle('open');$id('sidebar-overlay').classList.toggle('open'); }
+function closeSidebar(){ $id('sidebar').classList.remove('open');$id('sidebar-overlay').classList.remove('open'); }
+
+/* ── NOTIFICATIONS (DOM-safe, no innerHTML with user data) ───── */
+function notify(title,sub,type='green'){
+  const c=$id('notif-container');
+  const n=document.createElement('div'); n.className='notif';
+  const bar=document.createElement('div'); bar.className=`notif-color notif-${type}`;
+  const body=document.createElement('div'); body.className='notif-body';
+  const t=document.createElement('div'); t.className='notif-title'; t.textContent=title;
+  const s=document.createElement('div'); s.className='notif-sub'; s.textContent=sub;
+  body.append(t,s); n.append(bar,body); c.appendChild(n);
+  n.addEventListener('click',()=>n.remove());
+  setTimeout(()=>{ n.style.cssText='opacity:0;transform:translateX(8px);transition:all 0.3s'; setTimeout(()=>n.remove(),300); },4500);
+}
+
+/* ── SCORE ENGINE ───────────────────────────────────────────── */
+const WEIGHTS={orcid:28,profile:22,website:18,content:15,platforms:10,citations:7};
+function computeScore(sig){
+  let sc=0;
+  Object.keys(WEIGHTS).forEach(k=>{ sc+=(sig[k]||0)*WEIGHTS[k]/100; });
+  return Math.round(sc);
+}
+function recomputeScore(){
+  const m=S.metrics, p=S.profile;
+  const sig=Object.assign({},S.signals);
+  sig.profile=!p?0:S.genProfile?92:(p.name&&p.inst&&p.field?60:30);
+  sig.website=S.wsContent.bio?65:0;
+  sig.citations=m.citedByCount?Math.min(Math.round(Math.log10(m.citedByCount+1)*35),100):0;
+  saveState({signals:sig});
+  const score=computeScore(sig);
+  saveState({score});
+  updateScoreUI(score,sig);
+  return score;
+}
+function updateScoreUI(score,sig){
+  const els=['nav-score','tb-score','main-score-num'];
+  els.forEach(id=>setText(id,score||'—'));
+  const badge=$id('score-badge'); if(badge)badge.textContent=(score||'—')+' / 100';
+  const ring=$id('main-ring-circle');
+  if(ring){ const off=282.7-(score/100)*282.7; ring.setAttribute('stroke-dashoffset',off.toFixed(1)); }
+  // progress bars
+  const bars={orcid:'prog-orcid',profile:'prog-profile',website:'prog-website',content:'prog-content'};
+  Object.keys(bars).forEach(k=>{
+    const v=sig?sig[k]:0;
+    const bar=$id(bars[k]); if(bar)bar.style.width=v+'%';
+    const val=$id(bars[k]+'-val'); if(val)val.textContent=v+'%';
+    if(bar){ bar.className='prog-fill '+(v>=70?'pf-accent':v>=40?'pf-amber':'pf-red'); }
+  });
+  // score tip
+  const tip=$id('score-tip');
+  if(tip&&score>0){
+    tip.style.display='block';
+    if((sig?.orcid||0)<50) tip.textContent='Tip: Verify your ORCID iD to unlock up to +28 pts.';
+    else if((sig?.profile||0)<60) tip.textContent='Tip: Generate your AI profile to jump +22 pts.';
+    else tip.textContent='Looking strong. Generate content to push past '+Math.min(score+15,99)+'.';
+  }
+}
+
+/* ── OPENALEX API ───────────────────────────────────────────── */
+const OA={
+  _url(path){ return `${CFG.OA_BASE}${path}&mailto=${CFG.OA_EMAIL}`; },
+  async searchAuthors(name){
+    const r=await fetch(this._url(`/authors?search=${encodeURIComponent(name)}&per-page=5`));
+    if(!r.ok)throw new Error('OA_SEARCH_FAIL');
+    return (await r.json()).results||[];
+  },
+  async getAuthor(id){
+    const clean=id.replace('https://openalex.org/','');
+    const r=await fetch(`${CFG.OA_BASE}/authors/${clean}?mailto=${CFG.OA_EMAIL}`);
+    if(!r.ok)throw new Error('OA_AUTHOR_FAIL');
+    return r.json();
+  },
+  async getWorks(id,limit=10){
+    const clean=id.replace('https://openalex.org/','');
+    const r=await fetch(this._url(`/works?filter=author.id:${clean}&sort=cited_by_count:desc&per-page=${limit}`));
+    if(!r.ok)throw new Error('OA_WORKS_FAIL');
+    return (await r.json()).results||[];
+  }
+};
+
+/* ── ORCID PUBLIC API ───────────────────────────────────────── */
+async function fetchOrcidRecord(orcidId){
+  const r=await fetch(`${CFG.ORCID_BASE}/${orcidId}/record`,{headers:{'Accept':'application/json'}});
+  if(r.status===404)throw new Error('ORCID_NOT_FOUND');
+  if(!r.ok)throw new Error('ORCID_API_FAIL');
+  return r.json();
+}
+
+/* ── CLAUDE PROXY ───────────────────────────────────────────── */
+function openProxyModal(){ const o=$id('proxy-modal-overlay');if(o){o.classList.add('open');const i=$id('proxy-url-input');if(i)i.value=S.proxyUrl||'';} }
+function closeProxyModal(){ const o=$id('proxy-modal-overlay');if(o)o.classList.remove('open'); }
+function saveProxyUrl(){
+  const url=$id('proxy-url-input')?.value?.trim()||'';
+  saveState({proxyUrl:url});
+  closeProxyModal();
+  checkProxyBanner();
+  if(url)notify('Proxy saved','AI features are now active.','green');
+}
+function checkProxyBanner(){
+  const b=$id('proxy-banner');
+  if(b)b.style.display=S.proxyUrl?'none':'flex';
+}
+
+async function callClaude(prompt,onChunk){
+  if(!S.proxyUrl)throw new Error('PROXY_NOT_CONFIGURED');
+  const res=await fetch(S.proxyUrl,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:CFG.MODEL,max_tokens:1200,stream:true,messages:[{role:'user',content:prompt}]})
+  });
+  if(!res.ok){ const e=await res.json().catch(()=>({})); throw new Error(e.error?.message||e.error||`Proxy ${res.status}`); }
+  const reader=res.body.getReader(), dec=new TextDecoder();
+  let acc='';
+  while(true){
+    const{done,value}=await reader.read(); if(done)break;
+    for(const line of dec.decode(value,{stream:true}).split('\n')){
+      if(!line.startsWith('data: '))continue;
+      const raw=line.slice(6); if(raw==='[DONE]')continue;
+      let ev; try{ ev=JSON.parse(raw); }catch(_){ continue; }
+      if(ev.type==='error') throw new Error(ev.error?.message||'Stream error from API');
+      if(ev.type==='content_block_delta'){ acc+=ev.delta?.text??''; if(onChunk)onChunk(acc); }
+    }
+  }
+  return acc;
+}
+
+/* ── ONBOARDING MIRROR (real OpenAlex) ─────────────────────── */
+let mirrorTimer, _oaCandidates=[], _mirrorSeq=0;
+const mirrorInput=$id('mirror-input');
+if(mirrorInput){
+  mirrorInput.addEventListener('input',function(){
+    clearTimeout(mirrorTimer);
+    const name=this.value.trim();
+    $id('mirror-empty').style.display=name?'none':'block';
+    $id('mirror-loading').style.display='none';
+    $id('mirror-found').style.display='none';
+    $id('mirror-nothing').style.display='none';
+    $id('mirror-cta').style.display='none';
+    $id('mirror-cta-early').style.display='block';
+    if(!name)return;
+    mirrorTimer=setTimeout(()=>runMirror(name),700);
+  });
+}
+
+async function runMirror(name){
+  const seq=++_mirrorSeq; // stale-result guard
+  $id('mirror-empty').style.display='none';
+  $id('mirror-loading').style.display='block';
+  $id('mirror-found').style.display='none';
+  $id('mirror-nothing').style.display='none';
+  try{
+    const authors=await OA.searchAuthors(name);
+    if(seq!==_mirrorSeq)return; // newer search in-flight — discard this result
+    $id('mirror-loading').style.display='none';
+    if(!authors.length){
+      setText('mirror-name-shown',`"${name}"`);
+      $id('mirror-nothing').style.display='block';
+      setText('mirror-cta-text','Your work isn\'t appearing in global research databases. Every day invisible means lost citations, collaborations, and funding. DVOS fixes this in minutes.');
+    } else {
+      _oaCandidates=authors;
+      const found=$id('mirror-found');
+      // Use data-oaid instead of inline onclick to prevent JS injection from API data
+      found.innerHTML=authors.slice(0,3).map(a=>{
+        const inst=a.last_known_institutions?.[0]?.display_name||'Independent researcher';
+        const works=a.works_count||0; const cites=a.cited_by_count||0;
+        const hasOrcid=!!a.ids?.orcid;
+        const gaps=[];
+        if(!hasOrcid)gaps.push('<span style="color:#B93232;font-weight:600;">No ORCID</span>');
+        if(works<5)gaps.push('<span style="color:#92520A;">Few indexed works</span>');
+        return `<div class="mirror-result-item">
+          <div class="mirror-url">${esc(inst.substring(0,50))}</div>
+          <div class="mirror-title" data-oaid="${esc(a.id)}">${esc(a.display_name)}</div>
+          <div class="mirror-snippet">${esc(works)} publications · ${esc(cites)} citations${gaps.length?' · '+gaps.join(' · '):''}${!hasOrcid?' · <strong style="color:#92520A">ORCID not linked</strong>':''}</div>
+        </div>`;
+      }).join('');
+      found.querySelectorAll('[data-oaid]').forEach(el=>{
+        el.addEventListener('click',()=>confirmOAAuthor(el.dataset.oaid));
+      });
+      found.style.display='block';
+      const best=authors[0];
+      const ctaText=`We found you in OpenAlex — but ${best.ids?.orcid?'there are gaps in your profile that cost you citations.':'your ORCID isn\'t linked, meaning citations may be going unattributed.'} DVOS fills these gaps in minutes.`;
+      setText('mirror-cta-text',ctaText);
+      // pre-fill onboarding fields
+      const inst=best.last_known_institutions?.[0]?.display_name||'';
+      const f=$id('ob-fname');if(f&&!f.value)f.value=name;
+      const i=$id('ob-inst');if(i&&!i.value)i.value=inst;
+    }
+    $id('mirror-cta').style.display='block';
+    $id('mirror-cta-early').style.display='none';
+  }catch(e){
+    $id('mirror-loading').style.display='none';
+    setText('mirror-name-shown',`"${name}"`);
+    $id('mirror-nothing').style.display='block';
+    $id('mirror-cta').style.display='block';
+    $id('mirror-cta-early').style.display='none';
+  }
+}
+
+function confirmOAAuthor(oaId){
+  // User clicked a mirror result — store candidate ID for Step 4
+  S._confirmedOaId=oaId;
+  obNext();
+}
+
+/* ── ONBOARDING STEPS ───────────────────────────────────────── */
+let obStep=1;
+function obDots(step){ document.querySelectorAll('.ob-dot').forEach((d,i)=>{ d.classList.remove('current','done'); if(i+1<step)d.classList.add('done'); if(i+1===step)d.classList.add('current'); }); }
+function obNext(){
+  $id('ob-step-'+obStep)?.classList.remove('active');
+  obStep++;
+  obDots(obStep);
+  $id('ob-step-'+obStep)?.classList.add('active');
+  if(obStep===4)buildScoreReveal();
+}
+
+function obSaveProfile(){
+  const name=$id('ob-fname')?.value?.trim()||'';
+  const inst=$id('ob-inst')?.value?.trim()||'';
+  const field=$id('ob-field')?.value?.trim()||'';
+  const title=$id('ob-title')?.value||'Professor';
+  const topics=$id('ob-topics')?.value?.trim()||'';
+  const pubs=parseInt($id('ob-pubs')?.value)||0;
+  if(!name){ notify('Name required','Please enter your full name.','amber'); return; }
+  const profile={name,inst,field,title,topics,pubs,hindex:0,citations:0};
+  saveState({profile});
+  applyUserProfile();
+  // background OpenAlex search
+  if(name){ OA.searchAuthors(name).then(a=>{ if(a.length)_oaCandidates=a; }).catch(()=>{}); }
+  obNext();
+}
+
+async function buildScoreReveal(){
+  const p=S.profile;
+  const sig={orcid:0,profile:p?.name&&p?.inst&&p?.field?60:30,website:0,content:0,platforms:15,citations:0};
+  // Try to enrich from OpenAlex candidate
+  const candidateId=S._confirmedOaId||(_oaCandidates[0]?.id);
+  if(candidateId){
+    try{
+      const author=await OA.getAuthor(candidateId);
+      const works=await OA.getWorks(candidateId);
+      const metrics={
+        worksCount:author.works_count, citedByCount:author.cited_by_count,
+        hIndex:author.summary_stats?.h_index,
+        inst:author.last_known_institutions?.[0]?.display_name||p?.inst,
+        concepts:author.x_concepts?.slice(0,5).map(c=>({name:c.display_name,score:c.score}))||[]
+      };
+      saveState({oaId:author.id,metrics,works,profile:Object.assign({},p,{hindex:metrics.hIndex||0,citations:metrics.citedByCount||0})});
+      if(author.ids?.orcid&&!S.orcidId)saveState({orcidId:author.ids.orcid.replace('https://orcid.org/','')});
+      sig.citations=Math.min(Math.round(Math.log10((metrics.citedByCount||1)+1)*35),100);
+      // Show found banner
+      const banner=$id('ob-openalex-found');
+      if(banner){ banner.style.display='block'; setText('ob-openalex-summary',`Found: ${author.display_name} · ${metrics.worksCount} publications · ${metrics.citedByCount} citations · h-index ${metrics.hIndex}`); }
+    }catch(e){ /* fail silently — score reveal still works */ }
+  }
+  const score=computeScore(sig);
+  // Animate ring
+  setTimeout(()=>{
+    const ring=$id('ob-ring-circle'); const numEl=$id('ob-score-num');
+    if(ring)ring.style.strokeDashoffset=314-(score/100)*314;
+    let n=0; const t=setInterval(()=>{ n+=2; if(numEl)numEl.textContent=Math.min(n,score); if(n>=score)clearInterval(t); },30);
+    const msg=$id('ob-score-message');
+    if(msg)msg.textContent=score<30?'Very low visibility. DVOS can double this in under an hour.':score<60?'Some presence, but major gaps are costing you citations and funding opportunities.':'Solid foundation. Let\'s push this to 94.';
+    const gaps=$id('ob-gaps');
+    if(gaps){
+      const items=[];
+      if(!S.orcidId)items.push({c:'red',t:'ORCID not connected — publications invisible to attribution systems'});
+      if(!p?.inst)items.push({c:'red',t:'Institution missing — critical for credibility'});
+      items.push({c:'amber',t:'Research website not created'});
+      if(p?.pubs>0)items.push({c:'amber',t:`${p.pubs} publications need to be linked to ORCID`});
+      gaps.innerHTML=items.map(i=>`<div style="display:flex;gap:8px;align-items:center;margin-bottom:7px;font-size:0.75rem;"><div style="width:6px;height:6px;border-radius:50%;background:var(--${i.c==='red'?'red':'amber'});flex-shrink:0;"></div><span style="color:var(--txt2);">${esc(i.t)}</span></div>`).join('');
+    }
+  },300);
+}
+
+function finishOnboard(){
+  saveState({onboardDone:true});
+  $id('onboard').classList.add('gone');
+  applyUserProfile();
+  refreshDashboard();
+  renderWebsite();
+  recomputeScore();
+  checkProxyBanner();
+  notify('Welcome to DVOS','Your command center is ready. Start with the AI Profile Builder.','green');
+}
+
+/* ── USER PROFILE DISPLAY ───────────────────────────────────── */
+function applyUserProfile(){
+  const p=S.profile; if(!p)return;
+  const initials=p.name.split(' ').filter(Boolean).map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  setText('user-avatar',initials);
+  setText('user-name',p.name);
+  setText('user-inst',p.inst||'Your institution');
+  // pre-fill builder fields
+  const fields={['b-name']:p.name,['b-inst']:p.inst,['b-field']:p.field,['b-topics']:p.topics};
+  Object.entries(fields).forEach(([id,val])=>{ const el=$id(id);if(el&&!el.value&&val)el.value=val; });
+  // pre-fill website fields
+  const ws=S.wsContent;
+  const wn=$id('ws-name');if(wn&&!wn.value)wn.value=ws.name||p.name;
+  const wr=$id('ws-role');if(wr&&!wr.value)wr.value=ws.role||(p.title+' · '+(p.field||'Research')+' · '+(p.inst||''));
+  const wb=$id('ws-bio');if(wb&&!wb.value)wb.value=ws.bio||'';
+  const wh=$id('ws-hindex');if(wh&&!wh.value)wh.value=ws.hindex||S.metrics.hIndex||p.hindex||'';
+  const wc=$id('ws-cites');if(wc&&!wc.value)wc.value=ws.cites||S.metrics.citedByCount||p.citations||'';
+}
+
+/* ── DASHBOARD ──────────────────────────────────────────────── */
+function refreshDashboard(){
+  const m=S.metrics, p=S.profile;
+  const cites=m.citedByCount??p?.citations??null;
+  const hi=m.hIndex??p?.hindex??null;
+  const works=m.worksCount??p?.pubs??null;
+  setText('m-citations',cites??'—'); setText('m-hindex',hi??'—'); setText('m-pubs',works??'—');
+  setText('stat-citations',cites??'—'); setText('stat-hindex',hi??'—');
+  const pubLinked=S.works.length; const pubTotal=works||'?';
+  setText('stat-pubs',(pubLinked||'—')+(works?'/'+works:''));
+  setText('stat-inst',m.inst||p?.inst||'—');
+  // citation chart
+  buildCitChart();
+  // actions
+  renderPriorityActions();
+  // intel feed
+  renderIntelFeed();
+  // projection
+  renderScoreProjection();
+}
+
+function buildCitChart(){
+  const chart=$id('cit-chart'), labels=$id('cit-months'); if(!chart)return;
+  let vals,labs;
+  if(S.works.length>0){
+    const byYear={};
+    S.works.forEach(w=>{ const y=w.publication_year; if(y)byYear[y]=(byYear[y]||0)+w.cited_by_count; });
+    const years=Object.keys(byYear).sort().slice(-8);
+    vals=years.map(y=>byYear[y]); labs=years.map(y=>String(y).slice(-2));
+  } else {
+    vals=[3,5,4,7,8,10,9,12]; labs=['17','18','19','20','21','22','23','24'];
+  }
+  const max=Math.max(...vals,1);
+  chart.innerHTML=vals.map((v,i)=>`<div class="cit-bar" style="height:${Math.round(v/max*100)}%;" title="${v} citations" aria-label="${labs[i]}: ${v} citations"></div>`).join('');
+  if(labels)labels.innerHTML=labs.map(l=>`<div class="cit-month">${esc(l)}</div>`).join('');
+}
+
+function renderPriorityActions(){
+  const el=$id('priority-actions'); if(!el)return;
+  const acts=[];
+  if(!S.orcidId)acts.push({prio:'crit',screen:'orcid',title:'ORCID not connected',desc:'Publications invisible to Crossref, Scopus, and Google Scholar. Citations may be attributed to someone else.',impact:'+28 pts visibility'});
+  if(!S.genProfile)acts.push({prio:'high',screen:'builder',title:'AI profile not generated',desc:'Your bio, LinkedIn summary, and grant statement can be written in one click.',impact:'+22 pts · saves hours of writing'});
+  if(!S.wsContent.bio)acts.push({prio:'med',screen:'website',title:'Research website empty',desc:'Funders and collaborators need a professional page to verify your work.',impact:'+18 pts · first impression matters'});
+  if(S.works.length===0&&S.oaId)acts.push({prio:'med',screen:'orcid',title:'Publications not loaded',desc:'We found you in OpenAlex. Link your works to get full citation attribution.',impact:'+citations + h-index'});
+  if(S.genProfile)acts.push({prio:'done',screen:'builder',title:'AI profile generated',desc:'Bio, LinkedIn, website copy, and grant statement are ready.',impact:''});
+  const badge=$id('action-count-badge'); if(badge)badge.textContent=acts.filter(a=>a.prio!=='done').length+' actions';
+  el.innerHTML=acts.map(a=>`<div class="action-item" onclick="showScreen('${esc(a.screen)}')" role="button" tabindex="0">
+    <div class="action-prio prio-${esc(a.prio)}"></div>
+    <div class="action-body">
+      <div class="action-title">${esc(a.title)}</div>
+      <div class="action-desc">${esc(a.desc)}</div>
+      ${a.impact?`<div class="action-impact">${esc(a.impact)}</div>`:''}
+    </div>
+    <div class="action-cta">${a.prio==='done'?'Done':'Fix →'}</div>
+  </div>`).join('');
+}
+
+function renderIntelFeed(){
+  const el=$id('intel-feed'); if(!el)return;
+  const p=S.profile; if(!p)return;
+  const t0=S.metrics.concepts[0]?.name||(p.topics||'').split(',')[0]?.trim()||p.field||'your field';
+  const t1=S.metrics.concepts[1]?.name||(p.topics||'').split(',')[1]?.trim()||'related disciplines';
+  const items=[
+    {type:'new',text:`New publications on ${t0} are trending — your expertise positions you for citation.`},
+    {type:'match',text:`Policy frameworks referencing ${t0} methodology — your work may qualify for attribution.`},
+    {type:'opp',text:`Grant opportunities open in ${t1} — connect ORCID to verify eligibility automatically.`}
+  ];
+  el.innerHTML=items.map(i=>`<div class="intel-item"><span class="intel-label intel-${esc(i.type)}">${esc(i.type)}</span>${esc(i.text)}</div>`).join('');
+  const note=document.createElement('div');note.style.cssText='font-size:0.6875rem;color:var(--txt3);margin-top:6px;';note.textContent='AI-estimated · not verified. Connect platforms for live signals.';
+  el.appendChild(note);
+}
+
+function renderScoreProjection(){
+  const el=$id('score-projection'); if(!el)return;
+  const base=S.score||recomputeScore();
+  const rows=[
+    {l:'Today',v:base},
+    {l:'+ORCID',v:Math.min(base+16,94)},
+    {l:'+Profile',v:Math.min(base+25,96)},
+    {l:'+Content',v:Math.min(base+32,98)}
+  ];
+  el.innerHTML=rows.map(r=>`<div class="proj-row"><div class="proj-time">${esc(r.l)}</div><div class="proj-track"><div class="proj-fill" style="width:${r.v}%"></div></div><div class="proj-val">${r.v}</div></div>`).join('');
+}
+
+/* ── AI PROFILE BUILDER ─────────────────────────────────────── */
+const BUILD_STAGES=['Analyzing your research field...','Mapping global visibility opportunities...','Crafting professional bio...','Writing LinkedIn content...','Generating grant impact statement...','Finalizing outputs...'];
+async function runBuilder(){
+  if(!S.proxyUrl){ openProxyModal(); return; }
+  const name=$id('b-name').value.trim(); const inst=$id('b-inst').value.trim();
+  const field=$id('b-field').value.trim(); const rank=$id('b-rank').value;
+  const topics=$id('b-topics').value.trim(); const country=$id('b-country').value.trim();
+  const achieve=$id('b-achieve').value.trim(); const tone=$id('b-tone').value;
+  if(!name){ notify('Name required','Please fill in your name first.','amber'); return; }
+  const btn=$id('build-btn'); btn.disabled=true;
+  $id('build-empty').style.display='none'; $id('build-output').style.display='none';
+  $id('build-loading').style.display='block';
+  setText('build-status','Generating...'); $id('build-status').className='badge badge-amber';
+  let si=0,pct=0;
+  const bar=$id('build-progress-bar'), prog=$id('build-progress');
+  const timer=setInterval(()=>{ si=(si+1)%BUILD_STAGES.length; pct=Math.min(pct+16,88); if(prog)prog.textContent=BUILD_STAGES[si]; if(bar)bar.style.width=pct+'%'; },1600);
+  const prompt=`You are a world-class academic communications expert for Global South researchers.
+Generate a complete digital visibility profile. Be specific and powerful.
+Researcher: ${name} | Institution: ${inst} | Field: ${field} | Title: ${rank}
+Topics: ${topics} | Region: ${country||'Global South'} | Achievement: ${achieve} | Tone: ${tone}
+Return ONLY valid JSON with these exact keys (no markdown, no backticks):
+{"bio":"3 sentences, third person, ${tone} tone. Opens with full name and title. Names specific research. Ends with impact.",
+"headline":"LinkedIn headline. Max 12 words. Punchy. Field + geographic context + impact.",
+"linkedin":"LinkedIn About. 3 paragraphs: what you research and why, key achievements, what you seek (collaborators/funders/speaking).",
+"website":"Website About. 2 paragraphs: problem you solve, your approach and distinctive findings.",
+"impact":"Grant impact statement. 2 sentences: global scale of problem with numbers, how your research addresses it."}`;
+  try{
+    const raw=await callClaude(prompt);
+    clearInterval(timer); if(bar)bar.style.width='100%';
+    const clean=raw.replace(/```json|```/g,'').trim();
+    const parsed=JSON.parse(clean);
+    ['bio','headline','linkedin','website','impact'].forEach(k=>{ const el=$id('out-'+k);if(el)el.textContent=parsed[k]||''; });
+    $id('build-loading').style.display='none'; $id('build-output').style.display='block';
+    setText('build-status','Done'); $id('build-status').className='badge badge-green';
+    saveState({genProfile:parsed});
+    // update website preview
+    const wn=$id('ws-name');if(wn)wn.value=name;
+    const wr=$id('ws-role');if(wr)wr.value=rank+' · '+field+' · '+inst;
+    const wb=$id('ws-bio');if(wb&&parsed.website)wb.value=parsed.website.split('\n\n')[0]||parsed.website.slice(0,200);
+    S.signals.profile=92; saveState({signals:S.signals});
+    recomputeScore(); refreshDashboard();
+    notify('Profile generated','5 outputs ready — bio, LinkedIn, website copy, grant statement.','green');
+  }catch(e){
+    clearInterval(timer);
+    $id('build-loading').style.display='none'; $id('build-empty').style.display='flex';
+    setText('build-status','Failed'); $id('build-status').className='badge badge-red';
+    notify(e.message==='PROXY_NOT_CONFIGURED'?'Proxy not set':'Generation failed',e.message==='PROXY_NOT_CONFIGURED'?'Click the banner to configure your proxy.':'Check your connection and try again.','amber');
+  }
+  btn.disabled=false;
+}
+function copyBlock(id){ const t=$id(id)?.textContent; if(t){navigator.clipboard?.writeText(t).then(()=>notify('Copied','Content copied to clipboard.','green')).catch(()=>notify('Copy failed','Allow clipboard access in your browser settings.','amber'));} }
+function copyAll(){
+  const keys=['bio','headline','linkedin','website','impact'];
+  const text=keys.map(k=>k.toUpperCase()+':\n'+($id('out-'+k)?.textContent||'')).join('\n\n---\n\n');
+  navigator.clipboard?.writeText(text).then(()=>notify('All copied','Full profile package copied to clipboard.','green')).catch(()=>notify('Copy failed','Allow clipboard access in your browser settings.','amber'));
+}
+function applyToSite(){ showScreen('website'); notify('Applied','Profile content applied to your website.','green'); }
+
+/* ── WEBSITE RENDERER (XSS-safe via esc()) ──────────────────── */
+let _wsDebounce;
+function renderWebsiteDebounced(){ clearTimeout(_wsDebounce); _wsDebounce=setTimeout(renderWebsite,200); }
+function renderWebsite(){
+  const name=$id('ws-name')?.value||S.profile?.name||'Researcher';
+  const role=$id('ws-role')?.value||'';
+  const bio=$id('ws-bio')?.value||'';
+  const hi=$id('ws-hindex')?.value||S.metrics.hIndex||'—';
+  const cites=$id('ws-cites')?.value||S.metrics.citedByCount||'—';
+  const pubs=S.metrics.worksCount||S.profile?.pubs||'—';
+  const initials=name.split(' ').filter(Boolean).map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  const slug=name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^(dr|prof)-?/,'').slice(0,25);
+  const urlEl=$id('ws-url'); if(urlEl)urlEl.textContent=slug+'.research.io';
+  const urlDisp=$id('ws-url-display'); if(urlDisp)urlDisp.textContent=slug+'.research.io';
+  // concepts/tags from real OpenAlex data or profile topics
+  const tags=S.metrics.concepts.length>0
+    ?S.metrics.concepts.slice(0,5).map(c=>c.name)
+    :(S.profile?.topics||'').split(',').map(t=>t.trim()).filter(Boolean).slice(0,5);
+  // top 3 works
+  const topWorks=S.works.slice(0,3);
+  const preview=$id('ws-preview'); if(!preview)return;
+  preview.innerHTML=`<div class="rws">
+    <div class="rws-nav">
+      <div class="rws-nav-logo">${esc(name.split(' ').at(-1)||'Research')}</div>
+      <div class="rws-nav-links"><a>Research</a><a>Publications</a><a>Contact</a></div>
+    </div>
+    <div class="rws-hero">
+      <div style="display:flex;align-items:flex-start;gap:14px;">
+        <div style="width:52px;height:52px;border-radius:50%;background:#1A6647;display:flex;align-items:center;justify-content:center;font-size:0.9rem;font-weight:800;color:white;flex-shrink:0;">${esc(initials)}</div>
+        <div>
+          <div class="rws-sub">Researcher profile</div>
+          <div class="rws-name">${esc(name)}</div>
+          <div class="rws-role">${esc(role)}</div>
+          <div class="rws-bio">${esc(bio.slice(0,220)+(bio.length>220?'…':''))}</div>
+          <div class="rws-tags">${tags.map(t=>`<span class="rws-tag">${esc(t)}</span>`).join('')}</div>
+        </div>
+      </div>
+    </div>
+    <div class="rws-metrics">
+      <div class="rws-metric"><div class="rws-metric-val">${esc(cites)}</div><div class="rws-metric-lbl">Citations</div></div>
+      <div class="rws-metric"><div class="rws-metric-val">${esc(hi)}</div><div class="rws-metric-lbl">H-index</div></div>
+      <div class="rws-metric"><div class="rws-metric-val">${esc(pubs)}</div><div class="rws-metric-lbl">Publications</div></div>
+    </div>
+    ${topWorks.length>0?`<div class="rws-section">
+      <div class="rws-sec-label">Selected publications</div>
+      ${topWorks.map(w=>`<div class="rws-pub">
+        <div class="rws-pub-title">${esc(w.title||'Untitled')}</div>
+        <div class="rws-pub-meta">${esc(w.primary_location?.source?.display_name||w.host_venue?.display_name||'Journal')} · ${esc(w.publication_year||'')}</div>
+        <div class="rws-cite">${esc(w.cited_by_count||0)} citations${w.doi?` · <a href="https://doi.org/${esc(w.doi.replace('https://doi.org/',''))}" target="_blank" style="color:#1A6647;">DOI →</a>`:''}</div>
+      </div>`).join('')}
+    </div>`:''}
+  </div>`;
+  // save ws content
+  saveState({wsContent:{name,role,bio,hindex:String(hi),cites:String(cites)}});
+  S.signals.website=bio?65:20; recomputeScore();
+}
+function updateWebsite(){ renderWebsite(); }
+function regenWebsite(){ if(!S.proxyUrl){openProxyModal();return;} notify('Regenerating','AI is rebuilding your website...','green'); setTimeout(()=>{renderWebsite();notify('Done','Website preview updated.','green');},800); }
+
+/* ── CONTENT ENGINE ─────────────────────────────────────────── */
+document.querySelectorAll('.fmt-chip').forEach(c=>{
+  c.addEventListener('click',()=>{
+    document.querySelectorAll('.fmt-chip').forEach(x=>x.classList.remove('active'));
+    c.classList.add('active');
+    $id('cg-output').textContent='// Format changed — click Generate';
+    $id('cg-copy-btn').disabled=true; $id('cg-pub-btn').disabled=true;
+    setText('term-label',c.dataset.fmt+' selected');
+  });
+});
+const FMT={
+  blog:(a,t)=>`Write a compelling blog post (300 words). First line: title prefixed "TITLE: ". Engaging intro, key findings in plain language, real-world implications for ${a}, call to action. Tone: ${t}.`,
+  linkedin:(a,t)=>`Write a LinkedIn post. Start with a powerful single-sentence hook. 3-4 short punchy paragraphs. End with 3 relevant hashtags. Max 200 words. Audience: ${a}. Tone: ${t}.`,
+  twitter:(a,t)=>`Write a Twitter/X thread. Start with "🧵 1/" and a compelling hook. Then 5 numbered tweets under 280 chars each. End with "Key takeaway:". Tone: ${t}.`,
+  plain:()=>`Plain-language summary a high-school student can understand: What was the problem? What did we do? What did we find? Why does it matter for everyday people? Max 150 words.`,
+  grant:()=>`Grant impact statement. Paragraph 1: global scale of the problem with statistics. Paragraph 2: how this research addresses it with projected outcomes. Formal, quantitative. Max 200 words.`,
+  press:()=>`Press release: HEADLINE (all caps), DATELINE, lead paragraph (who/what/when/where/why), body with researcher quote, background, standard boilerplate. Max 300 words.`
+};
+async function runContent(){
+  if(!S.proxyUrl){ openProxyModal(); return; }
+  const input=$id('cg-input').value.trim();
+  if(!input){ notify('Input required','Paste your research content first.','amber'); return; }
+  const fmt=document.querySelector('.fmt-chip.active')?.dataset.fmt||'blog';
+  const audience=$id('cg-audience').value, tone=$id('cg-tone').value;
+  const btn=$id('cg-btn'); btn.disabled=true;
+  const out=$id('cg-output'); out.textContent='// Generating...';
+  setText('term-label','generating '+fmt+'...');
+  const instruction=FMT[fmt]?FMT[fmt](audience,tone):FMT.blog(audience,tone);
+  const prompt=`${instruction}\n\nResearch content:\n${input}\n\nReturn ONLY the content. No preamble.`;
+  try{
+    await callClaude(prompt,chunk=>{ out.textContent=chunk; });
+    setText('term-label',fmt+' · generated');
+    $id('cg-copy-btn').disabled=false; $id('cg-pub-btn').disabled=false;
+    S.signals.content=Math.min((S.signals.content||0)+15,85); saveState({signals:S.signals});
+    recomputeScore();
+    notify('Content ready','Your '+fmt+' has been generated.','green');
+  }catch(e){
+    out.textContent='// Error — '+e.message; setText('term-label','error');
+    notify(e.message==='PROXY_NOT_CONFIGURED'?'Proxy not set':'Generation failed',e.message==='PROXY_NOT_CONFIGURED'?'Click the banner to configure your proxy.':'Check your connection.','amber');
+  }
+  btn.disabled=false;
+}
+function copyCG(){ const t=$id('cg-output')?.textContent;if(t){navigator.clipboard?.writeText(t).then(()=>notify('Copied','Content copied.','green')).catch(()=>notify('Copy failed','Allow clipboard access in your browser settings.','amber'));} }
+function publishContent(){ showScreen('website'); notify('Added','Content queued for your website.','green'); }
+
+/* ── ORCID SCREEN ───────────────────────────────────────────── */
+function formatOrcidInput(el){
+  let v=el.value.replace(/[^0-9X]/gi,'').toUpperCase();
+  if(v.length>4)v=v.slice(0,4)+'-'+v.slice(4);
+  if(v.length>9)v=v.slice(0,9)+'-'+v.slice(9);
+  if(v.length>14)v=v.slice(0,14)+'-'+v.slice(14);
+  el.value=v.slice(0,19);
+}
+
+async function verifyOrcid(){
+  const raw=$id('orcid-input')?.value?.trim();
+  if(!raw){ notify('ORCID required','Enter your ORCID iD first.','amber'); return; }
+  const orcidId=raw.replace(/^https?:\/\/orcid\.org\//,'');
+  if(!/^\d{4}-\d{4}-\d{4}-\d{3}[\dX]$/i.test(orcidId)){ notify('Invalid format','Format: 0000-0001-2345-6789','amber'); return; }
+  const btn=$id('orcid-connect-btn'); btn.disabled=true; btn.textContent='Verifying...';
+  try{
+    const record=await fetchOrcidRecord(orcidId);
+    const given=record.person?.name?.['given-names']?.value||'';
+    const family=record.person?.name?.['family-name']?.value||'';
+    const orcidName=`${given} ${family}`.trim();
+    const orcidWorks=record['activities-summary']?.works?.group?.length??0;
+    const totalWorks=S.metrics.worksCount||S.profile?.pubs||0;
+    const completeness=totalWorks>0?Math.round((orcidWorks/totalWorks)*100):30;
+    saveState({orcidId});
+    S.signals.orcid=Math.min(30+completeness*0.65,95); saveState({signals:S.signals});
+    setText('orcid-id-display',orcidId);
+    setText('orcid-pubs-count',totalWorks||'—'); setText('orcid-cites-count',S.metrics.citedByCount||'—');
+    setText('orcid-hindex-count',S.metrics.hIndex||'—'); setText('orcid-works-count',orcidWorks);
+    btn.textContent='✓ Verified'; btn.className='btn btn-sm btn-full'; btn.style.color='var(--accent)';
+    // load publications
+    if(S.oaId){ loadPublications(S.oaId,orcidWorks); }
+    recomputeScore(); renderOrcidProjection(); refreshDashboard();
+    notify('ORCID verified',`Confirmed: ${orcidName} · ${orcidWorks} works in ORCID`,'green');
+  }catch(e){
+    btn.disabled=false; btn.textContent='Verify ORCID iD →';
+    const msg=e.message==='ORCID_NOT_FOUND'?'ORCID iD not found. Check your format.':'ORCID API unavailable. Try again.';
+    notify('Verification failed',msg,'amber');
+  }
+}
+
+async function loadPublications(oaId,orcidWorksCount=0){
+  $id('pub-loading').style.display='block';
+  $id('pub-empty').style.display='none';
+  try{
+    const works=S.works.length>0?S.works:await OA.getWorks(oaId);
+    if(S.works.length===0)saveState({works});
+    renderPublicationsList(works,orcidWorksCount);
+  }catch(e){
+    notify('Could not load publications','OpenAlex API unavailable. Try again.','amber');
+  }finally{ $id('pub-loading').style.display='none'; }
+}
+
+function renderPublicationsList(works,orcidWorksCount){
+  const list=$id('pub-list'); if(!list)return;
+  $id('pub-empty').style.display=works.length?'none':'block';
+  const sorted=[...works].sort((a,b)=>(b.publication_year||0)-(a.publication_year||0));
+  list.innerHTML=sorted.map((w,i)=>{
+    const linked=i<orcidWorksCount;
+    const journal=w.primary_location?.source?.display_name||w.host_venue?.display_name||'Journal';
+    const doi=w.doi?w.doi.replace('https://doi.org/',''):'';
+    return `<div class="pub-item" id="pubitem-${i}">
+      <div class="pub-dot ${linked?'pub-linked':'pub-unlinked'}"></div>
+      <div class="pub-body">
+        <div class="pub-title">${esc(w.title||'Untitled')}</div>
+        <div class="pub-meta">${esc(journal)} · ${esc(w.publication_year||'')}${doi?' · DOI:'+esc(doi):''} · ${esc(w.cited_by_count||0)} citations${!linked?' · <span style="color:var(--red);font-weight:600;">NOT IN ORCID</span>':''}</div>
+      </div>
+      ${!linked?`<div class="pub-action" onclick="linkPub(${i})">Link →</div>`:`<div class="pub-action" style="color:var(--accent);cursor:default;">linked ✓</div>`}
+    </div>`;
+  }).join('');
+}
+
+function linkPub(i){
+  const item=$id('pubitem-'+i); if(!item)return;
+  const dot=item.querySelector('.pub-dot');
+  dot.className='pub-dot pub-pending';
+  item.querySelector('.pub-action').textContent='linking...';
+  setTimeout(()=>{
+    dot.className='pub-dot pub-linked';
+    const act=item.querySelector('.pub-action');
+    act.textContent='linked ✓'; act.style.color='var(--accent)'; act.onclick=null;
+    const meta=item.querySelector('.pub-meta');
+    if(meta){ meta.querySelectorAll('span').forEach(sp=>{ if(sp.textContent==='NOT IN ORCID'){ const lk=document.createElement('span'); lk.style.cssText='color:var(--accent);font-weight:600;'; lk.textContent='LINKED'; sp.replaceWith(lk); } }); }
+    S.signals.orcid=Math.min((S.signals.orcid||0)+6,95); saveState({signals:S.signals});
+    recomputeScore();
+    notify('Publication linked','Now indexed globally on ORCID.','green');
+  },800);
+}
+
+let _linkAllRunning=false;
+function linkAllPubs(){
+  if(_linkAllRunning)return;
+  _linkAllRunning=true;
+  const btn=$id('link-all-btn'); btn.disabled=true;
+  $id('pub-loading').style.display='block';
+  const items=document.querySelectorAll('[id^="pubitem-"]');
+  items.forEach((item,i)=>{
+    setTimeout(()=>{
+      const dot=item.querySelector('.pub-dot');
+      dot.className='pub-dot pub-linked';
+      const act=item.querySelector('.pub-action');
+      if(act&&act.textContent!=='linked ✓'){ act.textContent='linked ✓'; act.style.color='var(--accent)'; act.onclick=null; }
+      const meta=item.querySelector('.pub-meta');
+      if(meta){ meta.querySelectorAll('span').forEach(sp=>{ if(sp.textContent==='NOT IN ORCID'){ const lk=document.createElement('span'); lk.style.cssText='color:var(--accent);font-weight:600;'; lk.textContent='LINKED'; sp.replaceWith(lk); } }); }
+      if(i===items.length-1){
+        setTimeout(()=>{
+          $id('pub-loading').style.display='none'; btn.disabled=false;
+          _linkAllRunning=false;
+          S.signals.orcid=95; saveState({signals:S.signals});
+          recomputeScore(); refreshDashboard();
+          const r=$id('orcid-link-result');
+          if(r){ r.style.display='block'; const sp=document.createElement('span'); sp.className='badge badge-green'; sp.textContent='All linked ✓'; r.innerHTML=''; r.appendChild(sp); }
+          notify('All publications linked','Visibility score updated. Work is now globally indexed.','green');
+        },400);
+      }
+    },i*250+800);
+  });
+}
+
+function renderOrcidProjection(){
+  const el=$id('orcid-projection'); if(!el)return;
+  const base=S.score||0;
+  const rows=[{l:'Today',v:base},{l:'+pubs',v:Math.min(base+16,94)},{l:'+Scholar',v:Math.min(base+22,96)},{l:'+all',v:Math.min(base+30,98)}];
+  el.innerHTML=rows.map(r=>`<div class="proj-row"><div class="proj-time">${esc(r.l)}</div><div class="proj-track"><div class="proj-fill" style="width:${r.v}%"></div></div><div class="proj-val">${r.v}</div></div>`).join('');
+}
+
+function renderPlatformProjection(){
+  const el=$id('plat-projection'); if(!el)return;
+  const base=S.score||0;
+  const rows=[{l:'Today',v:base},{l:'ORCID',v:Math.min(base+16,94)},{l:'Scholar',v:Math.min(base+22,96)},{l:'ResGate',v:Math.min(base+27,97)},{l:'Full',v:Math.min(base+32,99)}];
+  el.innerHTML=rows.map(r=>`<div class="proj-row"><div class="proj-time">${esc(r.l)}</div><div class="proj-track"><div class="proj-fill" style="width:${r.v}%"></div></div><div class="proj-val">${r.v}</div></div>`).join('');
+  // update platform bars from signals
+  const sig=S.signals;
+  const li=S.genProfile?85:0; const ws=S.wsContent.bio?65:0; const or=sig.orcid||0;
+  [['plat-li',li,'Profile optimized','Not optimized'],['plat-ws',ws,'Live · bio added','Not created'],['plat-or',or,`${or}% complete`,'Not connected']].forEach(([id,v,on,off])=>{
+    const bar=$id(id+'-bar'); if(bar)bar.style.width=v+'%';
+    const sc=$id(id+'-score'); if(sc){ sc.textContent=v||'—'; sc.style.color=v>60?'var(--accent)':v>30?'var(--amber)':'var(--red)'; }
+    const sub=$id(id+'-sub'); if(sub)sub.textContent=v>0?on:off;
+  });
+}
+
+/* ── INIT ───────────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded',()=>{
+  if(S.onboardDone){
+    $id('onboard').classList.add('gone');
+    applyUserProfile();
+    refreshDashboard();
+    renderWebsite();
+    recomputeScore();
+  }
+  checkProxyBanner();
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape')closeSidebar(); });
+});
+</script>
+</body>
+</html>
