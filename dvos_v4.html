@@ -276,6 +276,9 @@ img { max-width: 100%; display: block; }
 .pub-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
 .pub-linked   { background: var(--accent); }
 .pub-unlinked { background: var(--red); }
+.badge-oa { display:inline-block; font-size:0.6rem; font-weight:700; padding:1px 5px; border-radius:3px; background:#EAF5EE; color:#1A6647; border:1px solid #A8D8BC; vertical-align:middle; margin-left:4px; }
+.badge-pm { display:inline-block; font-size:0.6rem; font-weight:700; padding:1px 5px; border-radius:3px; background:#EEF2FF; color:#3730A3; border:1px solid #C7D2FE; vertical-align:middle; margin-left:4px; }
+.source-tag { font-size:0.65rem; color:var(--txt3); }
 .pub-pending  { background: var(--amber); }
 .pub-body { flex: 1; min-width: 0; }
 .pub-title { font-size: 0.8125rem; font-weight: 600; line-height: 1.4; margin-bottom: 3px; }
@@ -1149,6 +1152,36 @@ const OA={
   }
 };
 
+/* ── SEMANTIC SCHOLAR API ───────────────────────────────────── */
+// Free, CORS-enabled. Used for: mirror fallback, citation/h-index enrichment.
+const SS={
+  BASE:'https://api.semanticscholar.org/graph/v1',
+  FIELDS:'authorId,name,citationCount,hIndex,paperCount,affiliations',
+  async searchAuthors(name){
+    const r=await fetch(`${this.BASE}/author/search?query=${encodeURIComponent(name)}&fields=${this.FIELDS}`);
+    if(!r.ok)throw new Error('SS_SEARCH_FAIL');
+    return (await r.json()).data||[];
+  },
+  async getAuthor(id){
+    const r=await fetch(`${this.BASE}/author/${id}?fields=${this.FIELDS}`);
+    if(!r.ok)throw new Error('SS_AUTHOR_FAIL');
+    return r.json();
+  }
+};
+
+/* ── PUBMED (NCBI E-utilities) ──────────────────────────────── */
+// Free, no auth needed. Critical for health/biomedical researchers.
+const PM={
+  BASE:'https://eutils.ncbi.nlm.nih.gov/entrez/eutils',
+  async countWorks(name){
+    const q=encodeURIComponent(`"${name}"[author]`);
+    const r=await fetch(`${this.BASE}/esearch.fcgi?db=pubmed&term=${q}&retmax=0&retmode=json`);
+    if(!r.ok)throw new Error('PM_SEARCH_FAIL');
+    const d=await r.json();
+    return parseInt(d.esearchresult?.count||'0',10);
+  }
+};
+
 /* ── ORCID PUBLIC API ───────────────────────────────────────── */
 async function fetchOrcidRecord(orcidId){
   const r=await fetch(`${CFG.ORCID_BASE}/${orcidId}/record`,{headers:{'Accept':'application/json'}});
@@ -1224,9 +1257,30 @@ async function runMirror(name){
     if(seq!==_mirrorSeq)return; // newer search in-flight — discard this result
     $id('mirror-loading').style.display='none';
     if(!authors.length){
+      // OpenAlex found nothing — try Semantic Scholar as fallback
+      let ssFound=false;
+      try{
+        const ssAuthors=await SS.searchAuthors(name);
+        if(ssAuthors.length){
+          ssFound=true;
+          const found=$id('mirror-found');
+          found.innerHTML=ssAuthors.slice(0,3).map(a=>{
+            const inst=a.affiliations?.[0]?.name||'Independent researcher';
+            return `<div class="mirror-result-item">
+              <div class="mirror-url">${esc(inst.substring(0,50))} <span class="source-tag">· Semantic Scholar</span></div>
+              <div class="mirror-title">${esc(a.name)}</div>
+              <div class="mirror-snippet">${esc(a.paperCount||0)} publications · ${esc(a.citationCount||0)} citations · h-index ${esc(a.hIndex||0)}</div>
+            </div>`;
+          }).join('');
+          found.style.display='block';
+          setText('mirror-cta-text',`Found on Semantic Scholar — but your ORCID isn't linked, meaning citations may be going unattributed. DVOS closes this gap in minutes.`);
+        }
+      }catch(_){}
+      if(!ssFound){
       setText('mirror-name-shown',`"${name}"`);
       $id('mirror-nothing').style.display='block';
       setText('mirror-cta-text','Your work isn\'t appearing in global research databases. Every day invisible means lost citations, collaborations, and funding. DVOS fixes this in minutes.');
+      }
     } else {
       _oaCandidates=authors;
       const found=$id('mirror-found');
@@ -1303,25 +1357,62 @@ function obSaveProfile(){
 async function buildScoreReveal(){
   const p=S.profile;
   const sig={orcid:0,profile:p?.name&&p?.inst&&p?.field?60:30,website:0,content:0,platforms:15,citations:0};
-  // Try to enrich from OpenAlex candidate
   const candidateId=S._confirmedOaId||(_oaCandidates[0]?.id);
-  if(candidateId){
-    try{
-      const author=await OA.getAuthor(candidateId);
-      const works=await OA.getWorks(candidateId);
-      const metrics={
-        worksCount:author.works_count, citedByCount:author.cited_by_count,
-        hIndex:author.summary_stats?.h_index,
-        inst:author.last_known_institutions?.[0]?.display_name||p?.inst,
-        concepts:author.x_concepts?.slice(0,5).map(c=>({name:c.display_name,score:c.score}))||[]
-      };
-      saveState({oaId:author.id,metrics,works,profile:Object.assign({},p,{hindex:metrics.hIndex||0,citations:metrics.citedByCount||0})});
-      if(author.ids?.orcid&&!S.orcidId)saveState({orcidId:author.ids.orcid.replace('https://orcid.org/','')});
-      sig.citations=Math.min(Math.round(Math.log10((metrics.citedByCount||1)+1)*35),100);
-      // Show found banner
-      const banner=$id('ob-openalex-found');
-      if(banner){ banner.style.display='block'; setText('ob-openalex-summary',`Found: ${author.display_name} · ${metrics.worksCount} publications · ${metrics.citedByCount} citations · h-index ${metrics.hIndex}`); }
-    }catch(e){ /* fail silently — score reveal still works */ }
+  const name=p?.name||'';
+
+  // Query all sources in parallel — fastest possible enrichment
+  const [oaRes,ssRes,pmRes]=await Promise.allSettled([
+    candidateId?Promise.all([OA.getAuthor(candidateId),OA.getWorks(candidateId)]):Promise.reject('no_oa_id'),
+    name?SS.searchAuthors(name):Promise.reject('no_name'),
+    name?PM.countWorks(name):Promise.reject('no_name'),
+  ]);
+
+  let metrics={worksCount:null,citedByCount:null,hIndex:null,inst:null,concepts:[],pubmedCount:null};
+  let works=[];
+  const sources=[];
+
+  // OpenAlex — primary, most trusted
+  if(oaRes.status==='fulfilled'){
+    const [author,oaWorks]=oaRes.value;
+    metrics={
+      worksCount:author.works_count, citedByCount:author.cited_by_count,
+      hIndex:author.summary_stats?.h_index,
+      inst:author.last_known_institutions?.[0]?.display_name||p?.inst,
+      concepts:author.x_concepts?.slice(0,5).map(c=>({name:c.display_name,score:c.score}))||[],
+      pubmedCount:null
+    };
+    works=oaWorks;
+    sources.push('OpenAlex');
+    if(author.ids?.orcid&&!S.orcidId)saveState({orcidId:author.ids.orcid.replace('https://orcid.org/','')});
+    saveState({oaId:author.id});
+  }
+
+  // Semantic Scholar — enrich: use highest citation/h-index/paper count across sources
+  if(ssRes.status==='fulfilled'&&ssRes.value.length>0){
+    const ss=ssRes.value[0];
+    S._ssAuthorId=ss.authorId;
+    if((ss.citationCount||0)>(metrics.citedByCount||0))metrics.citedByCount=ss.citationCount;
+    if((ss.hIndex||0)>(metrics.hIndex||0))metrics.hIndex=ss.hIndex;
+    if((ss.paperCount||0)>(metrics.worksCount||0))metrics.worksCount=ss.paperCount;
+    sources.push('Semantic Scholar');
+  }
+
+  // PubMed — publication count (critical for health/biomedical researchers)
+  if(pmRes.status==='fulfilled'&&pmRes.value>0){
+    metrics.pubmedCount=pmRes.value;
+    if(pmRes.value>(metrics.worksCount||0))metrics.worksCount=pmRes.value;
+    sources.push('PubMed');
+  }
+
+  if(metrics.citedByCount!==null||metrics.worksCount!==null){
+    saveState({metrics,works,profile:Object.assign({},p,{hindex:metrics.hIndex||0,citations:metrics.citedByCount||0})});
+    sig.citations=Math.min(Math.round(Math.log10((metrics.citedByCount||1)+1)*35),100);
+    const banner=$id('ob-openalex-found');
+    if(banner){
+      banner.style.display='block';
+      const pmNote=metrics.pubmedCount?` · ${metrics.pubmedCount} PubMed indexed`:'';
+      setText('ob-openalex-summary',`Found across ${sources.join(' + ')} — ${metrics.worksCount||'?'} publications · ${metrics.citedByCount||0} citations · h-index ${metrics.hIndex||'—'}${pmNote}`);
+    }
   }
   const score=computeScore(sig);
   // Animate ring
@@ -1380,6 +1471,7 @@ function refreshDashboard(){
   const hi=m.hIndex??p?.hindex??null;
   const works=m.worksCount??p?.pubs??null;
   setText('m-citations',cites??'—'); setText('m-hindex',hi??'—'); setText('m-pubs',works??'—');
+  const pmEl=$id('m-pubmed'); if(pmEl)pmEl.textContent=m.pubmedCount?`${m.pubmedCount} PubMed`:'—';
   setText('stat-citations',cites??'—'); setText('stat-hindex',hi??'—');
   const pubLinked=S.works.length; const pubTotal=works||'?';
   setText('stat-pubs',(pubLinked||'—')+(works?'/'+works:''));
@@ -1679,10 +1771,13 @@ function renderPublicationsList(works,orcidWorksCount){
     const linked=i<orcidWorksCount;
     const journal=w.primary_location?.source?.display_name||w.host_venue?.display_name||'Journal';
     const doi=w.doi?w.doi.replace('https://doi.org/',''):'';
+    const isOa=w.open_access?.is_oa;
+    const oaStatus=w.open_access?.oa_status||'';
+    const oaBadge=isOa?`<span class="badge-oa" title="Open Access · ${esc(oaStatus)}">OA</span>`:'';
     return `<div class="pub-item" id="pubitem-${i}">
       <div class="pub-dot ${linked?'pub-linked':'pub-unlinked'}"></div>
       <div class="pub-body">
-        <div class="pub-title">${esc(w.title||'Untitled')}</div>
+        <div class="pub-title">${esc(w.title||'Untitled')}${oaBadge}</div>
         <div class="pub-meta">${esc(journal)} · ${esc(w.publication_year||'')}${doi?' · DOI:'+esc(doi):''} · ${esc(w.cited_by_count||0)} citations${!linked?' · <span style="color:var(--red);font-weight:600;">NOT IN ORCID</span>':''}</div>
       </div>
       ${!linked?`<div class="pub-action" onclick="linkPub(${i})">Link →</div>`:`<div class="pub-action" style="color:var(--accent);cursor:default;">linked ✓</div>`}
