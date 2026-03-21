@@ -493,7 +493,7 @@ img { max-width: 100%; display: block; }
         </div>
         <div class="mirror-results" id="mirror-results">
           <div id="mirror-empty" class="mirror-no-result"><div style="font-size:2rem;margin-bottom:8px;">🔍</div>Type your name above to search global research databases.</div>
-          <div id="mirror-loading" style="display:none;"><div class="loading-row"><div class="spinner"></div><span>Searching OpenAlex, Crossref, Scopus index…</span></div></div>
+          <div id="mirror-loading" style="display:none;"><div class="loading-row"><div class="spinner"></div><span>Searching OpenAlex + Semantic Scholar…</span></div></div>
           <div id="mirror-found" style="display:none;"></div>
           <div id="mirror-nothing" style="display:none;">
             <div class="mirror-no-result">
@@ -717,7 +717,7 @@ img { max-width: 100%; display: block; }
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;">
               <div class="metric-card"><div class="metric-label">Citations</div><div class="metric-value" id="m-citations">—</div><div class="metric-sub metric-up" id="m-citations-sub">from OpenAlex</div></div>
-              <div class="metric-card"><div class="metric-label">H-index</div><div class="metric-value" id="m-hindex">—</div><div class="metric-sub" id="m-hindex-sub">Scopus / OpenAlex</div></div>
+              <div class="metric-card"><div class="metric-label">H-index</div><div class="metric-value" id="m-hindex">—</div><div class="metric-sub" id="m-hindex-sub">OpenAlex + Semantic Scholar</div></div>
               <div class="metric-card"><div class="metric-label">Publications</div><div class="metric-value" id="m-pubs">—</div><div class="metric-sub" id="m-pubs-sub">total indexed</div></div>
             </div>
             <div class="sec-title" style="margin-bottom:8px;">Citation velocity by year</div>
@@ -754,7 +754,7 @@ img { max-width: 100%; display: block; }
         <div class="stat-strip">
           <div class="metric-card" data-tip="From OpenAlex — updated in real time"><div class="metric-label">Total citations</div><div class="metric-value" id="stat-citations">—</div><div class="metric-sub" id="stat-citations-sub">OpenAlex indexed</div></div>
           <div class="metric-card"><div class="metric-label">Publications linked</div><div class="metric-value" id="stat-pubs">—</div><div class="metric-sub metric-warn" id="stat-pubs-sub">complete your ORCID</div></div>
-          <div class="metric-card"><div class="metric-label">H-index</div><div class="metric-value" id="stat-hindex">—</div><div class="metric-sub" id="stat-hindex-sub">OpenAlex / Scopus</div></div>
+          <div class="metric-card"><div class="metric-label">H-index</div><div class="metric-value" id="stat-hindex">—</div><div class="metric-sub" id="stat-hindex-sub">OpenAlex + Semantic Scholar</div></div>
           <div class="metric-card"><div class="metric-label">Institution</div><div class="metric-value" style="font-size:0.9rem;" id="stat-inst">—</div><div class="metric-sub">last known</div></div>
         </div>
         <div class="intel-grid">
@@ -934,7 +934,7 @@ img { max-width: 100%; display: block; }
             <div class="card">
               <div class="t-heading" style="margin-bottom:10px;">Score projection</div>
               <div id="orcid-projection"></div>
-              <div style="margin-top:12px;font-size:0.75rem;color:var(--txt2);line-height:1.5;">Every publication you link increases h-index attribution across Scopus, Crossref, and Google Scholar.</div>
+              <div style="margin-top:12px;font-size:0.75rem;color:var(--txt2);line-height:1.5;">Linking publications in your ORCID profile improves attribution across Crossref, Google Scholar, and institutional discovery systems.</div>
             </div>
           </div>
           <div>
@@ -942,7 +942,7 @@ img { max-width: 100%; display: block; }
               <div class="t-heading">Publications</div>
               <div style="display:flex;gap:8px;align-items:center;">
                 <div id="orcid-link-result" style="display:none;"></div>
-                <button class="btn btn-primary btn-sm" id="link-all-btn" onclick="linkAllPubs()">Link all with AI →</button>
+                <button class="btn btn-primary btn-sm" id="link-all-btn" onclick="linkAllPubs()">Mark all linked →</button>
               </div>
             </div>
             <div id="pub-loading" style="display:none;"><div class="loading-row"><div class="spinner"></div>Fetching publications from OpenAlex...</div></div>
@@ -1088,7 +1088,9 @@ function notify(title,sub,type='green'){
 }
 
 /* ── SCORE ENGINE ───────────────────────────────────────────── */
-const WEIGHTS={orcid:28,profile:22,website:18,content:15,platforms:10,citations:7};
+// Weights reflect actual research visibility: citations are the primary academic signal,
+// ORCID enables attribution, profile/content drive discoverability.
+const WEIGHTS={orcid:25,profile:18,website:12,content:10,platforms:8,citations:27};
 function computeScore(sig){
   let sc=0;
   Object.keys(WEIGHTS).forEach(k=>{ sc+=(sig[k]||0)*WEIGHTS[k]/100; });
@@ -1116,17 +1118,19 @@ function updateScoreUI(score,sig){
   const bars={orcid:'prog-orcid',profile:'prog-profile',website:'prog-website',content:'prog-content'};
   Object.keys(bars).forEach(k=>{
     const v=sig?sig[k]:0;
-    const bar=$id(bars[k]); if(bar)bar.style.width=v+'%';
+    const bar=$id(bars[k]);
+    if(bar){ bar.style.width=v+'%'; bar.className='prog-fill '+(v>=70?'pf-accent':v>=40?'pf-amber':'pf-red');
+      bar.setAttribute('role','progressbar'); bar.setAttribute('aria-valuenow',v); bar.setAttribute('aria-valuemin','0'); bar.setAttribute('aria-valuemax','100'); bar.setAttribute('aria-label',k+' signal: '+v+'%'); }
     const val=$id(bars[k]+'-val'); if(val)val.textContent=v+'%';
-    if(bar){ bar.className='prog-fill '+(v>=70?'pf-accent':v>=40?'pf-amber':'pf-red'); }
   });
   // score tip
   const tip=$id('score-tip');
   if(tip&&score>0){
     tip.style.display='block';
-    if((sig?.orcid||0)<50) tip.textContent='Tip: Verify your ORCID iD to unlock up to +28 pts.';
-    else if((sig?.profile||0)<60) tip.textContent='Tip: Generate your AI profile to jump +22 pts.';
-    else tip.textContent='Looking strong. Generate content to push past '+Math.min(score+15,99)+'.';
+    if((sig?.citations||0)<30) tip.textContent='Tip: Low citation signal detected — ensure your works are indexed in OpenAlex and ORCID.';
+    else if((sig?.orcid||0)<50) tip.textContent='Tip: Verify your ORCID iD — it enables attribution across Crossref, Google Scholar, and institutional systems.';
+    else if((sig?.profile||0)<60) tip.textContent='Tip: Generate your AI profile to strengthen discoverability.';
+    else tip.textContent='Strong foundation. Add content and link publications to push past '+Math.min(score+12,99)+'.';
   }
 }
 
@@ -1190,7 +1194,7 @@ async function fetchOrcidRecord(orcidId){
   return r.json();
 }
 
-/* ── CLAUDE PROXY ───────────────────────────────────────────── */
+/* ── CLAUDE PROXY ───────────────────────────────────────��───── */
 function openProxyModal(){ const o=$id('proxy-modal-overlay');if(o){o.classList.add('open');const i=$id('proxy-url-input');if(i)i.value=S.proxyUrl||'';} }
 function closeProxyModal(){ const o=$id('proxy-modal-overlay');if(o)o.classList.remove('open'); }
 function saveProxyUrl(){
@@ -1511,7 +1515,7 @@ function renderPriorityActions(){
   if(S.works.length===0&&S.oaId)acts.push({prio:'med',screen:'orcid',title:'Publications not loaded',desc:'We found you in OpenAlex. Link your works to get full citation attribution.',impact:'+citations + h-index'});
   if(S.genProfile)acts.push({prio:'done',screen:'builder',title:'AI profile generated',desc:'Bio, LinkedIn, website copy, and grant statement are ready.',impact:''});
   const badge=$id('action-count-badge'); if(badge)badge.textContent=acts.filter(a=>a.prio!=='done').length+' actions';
-  el.innerHTML=acts.map(a=>`<div class="action-item" onclick="showScreen('${esc(a.screen)}')" role="button" tabindex="0">
+  el.innerHTML=acts.map(a=>`<div class="action-item" onclick="showScreen('${esc(a.screen)}')" onkeypress="if(event.key==='Enter'||event.key===' ')showScreen('${esc(a.screen)}')" role="button" tabindex="0">
     <div class="action-prio prio-${esc(a.prio)}"></div>
     <div class="action-body">
       <div class="action-title">${esc(a.title)}</div>
@@ -1540,11 +1544,16 @@ function renderIntelFeed(){
 function renderScoreProjection(){
   const el=$id('score-projection'); if(!el)return;
   const base=S.score||recomputeScore();
+  // Compute projections from actual WEIGHTS — not hardcoded fiction
+  const sig=Object.assign({},S.signals);
+  const withOrcid=computeScore(Object.assign({},sig,{orcid:95}));
+  const withProfile=computeScore(Object.assign({},sig,{orcid:95,profile:92}));
+  const withAll=computeScore(Object.assign({},sig,{orcid:95,profile:92,content:85,website:65}));
   const rows=[
     {l:'Today',v:base},
-    {l:'+ORCID',v:Math.min(base+16,94)},
-    {l:'+Profile',v:Math.min(base+25,96)},
-    {l:'+Content',v:Math.min(base+32,98)}
+    {l:'+ORCID',v:Math.min(withOrcid,99)},
+    {l:'+Profile',v:Math.min(withProfile,99)},
+    {l:'+All',v:Math.min(withAll,99)}
   ];
   el.innerHTML=rows.map(r=>`<div class="proj-row"><div class="proj-time">${esc(r.l)}</div><div class="proj-track"><div class="proj-fill" style="width:${r.v}%"></div></div><div class="proj-val">${r.v}</div></div>`).join('');
 }
@@ -1798,7 +1807,7 @@ function linkPub(i){
     if(meta){ meta.querySelectorAll('span').forEach(sp=>{ if(sp.textContent==='NOT IN ORCID'){ const lk=document.createElement('span'); lk.style.cssText='color:var(--accent);font-weight:600;'; lk.textContent='LINKED'; sp.replaceWith(lk); } }); }
     S.signals.orcid=Math.min((S.signals.orcid||0)+6,95); saveState({signals:S.signals});
     recomputeScore();
-    notify('Publication linked','Now indexed globally on ORCID.','green');
+    notify('Marked in DVOS','To complete linking, add this work at orcid.org/my-orcid.','green');
   },800);
 }
 
@@ -1825,7 +1834,7 @@ function linkAllPubs(){
           recomputeScore(); refreshDashboard();
           const r=$id('orcid-link-result');
           if(r){ r.style.display='block'; const sp=document.createElement('span'); sp.className='badge badge-green'; sp.textContent='All linked ✓'; r.innerHTML=''; r.appendChild(sp); }
-          notify('All publications linked','Visibility score updated. Work is now globally indexed.','green');
+          notify('All marked in DVOS','Visit orcid.org/my-orcid to complete linking your works to your profile.','green');
         },400);
       }
     },i*250+800);
@@ -1835,7 +1844,13 @@ function linkAllPubs(){
 function renderOrcidProjection(){
   const el=$id('orcid-projection'); if(!el)return;
   const base=S.score||0;
-  const rows=[{l:'Today',v:base},{l:'+pubs',v:Math.min(base+16,94)},{l:'+Scholar',v:Math.min(base+22,96)},{l:'+all',v:Math.min(base+30,98)}];
+  const sig=Object.assign({},S.signals);
+  const rows=[
+    {l:'Today',v:base},
+    {l:'+ORCID',v:Math.min(computeScore(Object.assign({},sig,{orcid:60})),99)},
+    {l:'+Works',v:Math.min(computeScore(Object.assign({},sig,{orcid:85})),99)},
+    {l:'+Full',v:Math.min(computeScore(Object.assign({},sig,{orcid:95})),99)}
+  ];
   el.innerHTML=rows.map(r=>`<div class="proj-row"><div class="proj-time">${esc(r.l)}</div><div class="proj-track"><div class="proj-fill" style="width:${r.v}%"></div></div><div class="proj-val">${r.v}</div></div>`).join('');
 }
 
