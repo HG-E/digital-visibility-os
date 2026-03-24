@@ -1,22 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
-
-  <!-- Landing page — primary SEO target -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://digital-visibility-os.vercel.app/</loc>
-    <lastmod>2025-03-24</lastmod>
+    <lastmod>2026-03-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://digital-visibility-os.vercel.app/"/>
   </url>
-
-  <!-- App — secondary, for direct app users -->
   <url>
     <loc>https://digital-visibility-os.vercel.app/app</loc>
-    <lastmod>2025-03-24</lastmod>
+    <lastmod>2026-03-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
-
 </urlset>
