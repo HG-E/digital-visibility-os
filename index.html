@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DVOS — Digital Visibility OS | Free Research Visibility Tool for Academics</title>
+  <meta name="description" content="Build your research presence online. DVOS helps researchers track citations, optimize ORCID profiles, find grants, discover conferences, and get found on Google Scholar — free, no signup required.">
+  <meta name="keywords" content="researcher visibility tool, ORCID profile builder, academic online presence, research impact tracker, Google Scholar optimization, h-index tracker, grant opportunities researcher, academic website builder, citation tracker, research visibility platform, Global South researcher, academic digital presence">
+  <meta name="author" content="DVOS — Digital Visibility OS">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://digital-visibility-os.vercel.app/">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://digital-visibility-os.vercel.app/">
+  <meta property="og:title" content="DVOS — Build Your Research Presence Online, Free">
+  <meta property="og:description" content="Track citations, optimize your ORCID profile, build a research website, find grants and conferences — all in one free tool for researchers.">
+  <meta property="og:image" content="https://digital-visibility-os.vercel.app/og-image.png">
+  <meta property="og:site_name" content="DVOS — Digital Visibility OS">
+  <meta property="og:locale" content="en_US">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@dvos_research">
+  <meta name="twitter:title" content="DVOS — Free Research Visibility Tool">
+  <meta name="twitter:description" content="Build your academic online presence. Track citations, ORCID, grants, conferences — free for all researchers.">
+  <meta name="twitter:image" content="https://digital-visibility-os.vercel.app/og-image.png">
+
+  <!-- Structured Data: SoftwareApplication -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "DVOS — Digital Visibility OS",
+    "applicationCategory": "EducationApplication",
+    "operatingSystem": "Web",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "description": "DVOS is a free research visibility platform that helps academics build their online presence, track citations, optimize ORCID profiles, find grant opportunities, and discover relevant conferences.",
+    "url": "https://digital-visibility-os.vercel.app/app",
+    "featureList": [
+      "ORCID profile verification and optimization",
+      "Real-time citation tracking via OpenAlex and Semantic Scholar",
+      "h-index tracking with field-normalized benchmarks",
+      "AI-generated researcher bio and LinkedIn summary",
+      "Research website builder",
+      "Conference and grant opportunity finder",
+      "Live research intelligence feed (arXiv + OpenAlex)",
+      "Collaboration radar"
+    ],
+    "audience": {
+      "@type": "Audience",
+      "audienceType": "Academic researchers, PhD candidates, postdoctoral researchers, university lecturers"
+    }
+  }
+  </script>
+
+  <!-- Structured Data: FAQPage -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is DVOS?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "DVOS (Digital Visibility OS) is a free tool that helps researchers build their online academic presence. It connects your ORCID profile, tracks your citations in real time, helps you write a professional research bio, and keeps you updated on conferences and grant opportunities in your field."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is DVOS free to use?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. DVOS is completely free. No signup required. Open it, enter your name, and get your research visibility score in under 2 minutes. AI features (bio generation, grant intelligence) require an optional AI proxy setup."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How does DVOS track my citations?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "DVOS pulls your citation data from OpenAlex, Semantic Scholar, Crossref, and PubMed — four major open research databases. It shows your total citation count, h-index, and how you compare to peers in your field and career stage."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is a research visibility score?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "DVOS computes a visibility score from 0–100 based on six signals: ORCID completeness (25%), citation impact (27%), researcher profile (18%), research website (12%), content output (10%), and platform presence (8%). The score reflects how discoverable your work is to collaborators, funders, and journals."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does DVOS work for researchers in Africa and the Global South?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes — DVOS was specifically designed for researchers in the Global South. It prioritizes free tools (no institutional subscription required), shows grants from Wellcome Trust, NIH Fogarty, Gates Foundation, African Union, and NRF, and surfaces conferences with known fee-waiver programs."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is an ORCID iD and why does it matter?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "ORCID is a free, persistent identifier for researchers — like a passport for your academic work. It solves the problem of name disambiguation (two researchers with the same name), ensures all your publications are credited to you, and is required for most international grant applications including EU Horizon and Wellcome Trust."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <!-- Preconnect for speed -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://api.openalex.org">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%231A6647'/><text x='50%25' y='55%25' text-anchor='middle' dominant-baseline='middle' fill='white' font-size='16' font-weight='800' font-family='system-ui'>D</text></svg>">
+
+  <style>
+    :root {
+      --green: #1A6647;
+      --green-light: #2a8a60;
+      --green-bg: #edf7f2;
+      --amber: #c08a2e;
+      --amber-bg: #fdf6e3;
+      --txt: #14181a;
+      --txt2: #3d4448;
+      --txt3: #6b7478;
+      --bg: #f4f6f5;
+      --surface: #ffffff;
+      --border: #dde3e0;
+      --blue: #1a5ba8;
+      --blue-bg: #eef3fb;
+      --r: 12px;
+      --r-sm: 8px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);line-height:1.6;}
+    a{color:var(--green);text-decoration:none;}
+    a:hover{text-decoration:underline;}
+    img{max-width:100%;height:auto;}
+
+    /* Layout */
+    .container{max-width:1100px;margin:0 auto;padding:0 20px;}
+    .section{padding:72px 0;}
+    .section-alt{background:var(--surface);}
+
+    /* Nav */
+    nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;}
+    .nav-inner{display:flex;align-items:center;gap:24px;height:60px;max-width:1100px;margin:0 auto;padding:0 20px;}
+    .nav-logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:1.125rem;color:var(--txt);}
+    .nav-logo-icon{width:32px;height:32px;border-radius:8px;background:var(--green);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:0.875rem;flex-shrink:0;}
+    .nav-links{display:flex;gap:20px;margin-left:auto;align-items:center;}
+    .nav-links a{font-size:0.875rem;color:var(--txt2);font-weight:500;}
+    .nav-links a:hover{color:var(--green);text-decoration:none;}
+    .btn{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:99px;font-size:0.875rem;font-weight:700;cursor:pointer;border:none;transition:all 0.15s;text-decoration:none;}
+    .btn-primary{background:var(--green);color:white;}
+    .btn-primary:hover{background:var(--green-light);text-decoration:none;color:white;}
+    .btn-outline{background:transparent;color:var(--green);border:2px solid var(--green);}
+    .btn-outline:hover{background:var(--green-bg);text-decoration:none;}
+    .btn-lg{padding:14px 28px;font-size:1rem;}
+    @media(max-width:640px){.nav-links .hide-mobile{display:none;}}
+
+    /* Hero */
+    .hero{padding:80px 0 64px;text-align:center;background:linear-gradient(180deg,var(--surface) 0%,var(--bg) 100%);}
+    .hero-badge{display:inline-flex;align-items:center;gap:6px;background:var(--green-bg);color:var(--green);border:1px solid rgba(26,102,71,0.2);border-radius:99px;padding:4px 14px;font-size:0.8125rem;font-weight:700;margin-bottom:20px;}
+    .hero h1{font-size:clamp(2rem,5vw,3.25rem);font-weight:800;line-height:1.15;letter-spacing:-0.02em;color:var(--txt);max-width:780px;margin:0 auto 16px;}
+    .hero h1 em{color:var(--green);font-style:normal;}
+    .hero p{font-size:clamp(1rem,2vw,1.1875rem);color:var(--txt2);max-width:600px;margin:0 auto 32px;line-height:1.7;}
+    .hero-ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+    .hero-sub{font-size:0.8125rem;color:var(--txt3);margin-top:16px;}
+    .hero-sub span{color:var(--green);font-weight:600;}
+
+    /* Stats bar */
+    .stats-bar{background:var(--green);padding:20px 0;}
+    .stats-grid{display:flex;gap:0;justify-content:center;flex-wrap:wrap;}
+    .stat-item{padding:8px 28px;text-align:center;border-right:1px solid rgba(255,255,255,0.15);}
+    .stat-item:last-child{border-right:none;}
+    .stat-num{font-size:1.5rem;font-weight:800;color:white;line-height:1;}
+    .stat-label{font-size:0.75rem;color:rgba(255,255,255,0.75);margin-top:2px;}
+
+    /* Score preview */
+    .score-preview{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px;max-width:420px;margin:36px auto 0;text-align:left;box-shadow:0 4px 24px rgba(0,0,0,0.06);}
+    .sp-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+    .sp-ring{width:52px;height:52px;border-radius:50%;background:conic-gradient(var(--green) 0% 18%,var(--border) 18% 100%);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:800;color:var(--green);}
+    .sp-ring-inner{width:40px;height:40px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:0.875rem;font-weight:800;color:var(--green);}
+    .sp-signals{display:flex;flex-direction:column;gap:6px;}
+    .sp-signal{display:flex;align-items:center;gap:8px;font-size:0.8125rem;}
+    .sp-label{width:80px;color:var(--txt3);font-size:0.75rem;}
+    .sp-bar{flex:1;height:6px;background:var(--bg);border-radius:99px;overflow:hidden;}
+    .sp-fill{height:100%;border-radius:99px;}
+    .sp-fill-green{background:var(--green);}
+    .sp-fill-amber{background:var(--amber);}
+    .sp-fill-red{background:#dc3545;}
+    .sp-val{width:28px;text-align:right;font-size:0.75rem;font-weight:700;color:var(--txt2);}
+    .sp-cta{display:block;text-align:center;margin-top:14px;padding:10px;background:var(--green);color:white;border-radius:var(--r-sm);font-weight:700;font-size:0.875rem;}
+    .sp-cta:hover{background:var(--green-light);text-decoration:none;}
+
+    /* Problem section */
+    .problem-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin-top:40px;}
+    .problem-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px;}
+    .problem-icon{font-size:1.75rem;margin-bottom:12px;}
+    .problem-card h3{font-size:1rem;font-weight:700;margin-bottom:6px;}
+    .problem-card p{font-size:0.875rem;color:var(--txt2);line-height:1.6;}
+    .problem-solution{font-size:0.8125rem;color:var(--green);font-weight:600;margin-top:8px;}
+
+    /* Features */
+    .feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;margin-top:40px;}
+    .feature-card{background:var(--bg);border-radius:var(--r);padding:24px;}
+    .feature-badge{display:inline-block;font-size:0.625rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;padding:2px 8px;border-radius:4px;margin-bottom:12px;}
+    .fb-live{background:var(--green-bg);color:var(--green);}
+    .fb-ai{background:#ede9fe;color:#5b21b6;}
+    .fb-free{background:var(--amber-bg);color:var(--amber);}
+    .feature-card h3{font-size:1.0625rem;font-weight:700;margin-bottom:8px;}
+    .feature-card p{font-size:0.875rem;color:var(--txt2);line-height:1.6;}
+    .feature-list{list-style:none;margin-top:12px;display:flex;flex-direction:column;gap:5px;}
+    .feature-list li{font-size:0.8125rem;color:var(--txt2);padding-left:16px;position:relative;}
+    .feature-list li::before{content:'✓';position:absolute;left:0;color:var(--green);font-weight:700;}
+
+    /* Steps */
+    .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin-top:40px;}
+    .step{text-align:center;padding:24px 16px;}
+    .step-num{width:40px;height:40px;border-radius:50%;background:var(--green);color:white;font-size:1.125rem;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
+    .step h3{font-size:1rem;font-weight:700;margin-bottom:8px;}
+    .step p{font-size:0.875rem;color:var(--txt2);}
+    .step-connector{display:none;}
+    @media(min-width:768px){.steps{position:relative;}.step-connector{display:block;position:absolute;top:44px;left:calc(100% / 4);right:0;height:2px;background:var(--border);z-index:0;}}
+
+    /* Data sources */
+    .sources-grid{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px;justify-content:center;}
+    .source-chip{padding:8px 16px;background:var(--surface);border:1px solid var(--border);border-radius:99px;font-size:0.8125rem;font-weight:600;color:var(--txt2);}
+
+    /* FAQ */
+    .faq-list{max-width:720px;margin:40px auto 0;display:flex;flex-direction:column;gap:12px;}
+    .faq-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
+    .faq-q{width:100%;background:none;border:none;text-align:left;padding:18px 20px;font-size:0.9375rem;font-weight:600;cursor:pointer;display:flex;justify-content:space-between;align-items:center;color:var(--txt);}
+    .faq-q::after{content:'＋';font-size:1.25rem;color:var(--green);flex-shrink:0;margin-left:12px;}
+    .faq-q[aria-expanded="true"]::after{content:'－';}
+    .faq-a{padding:0 20px 18px;font-size:0.875rem;color:var(--txt2);line-height:1.7;display:none;}
+    .faq-a.open{display:block;}
+
+    /* Section headers */
+    .section-header{text-align:center;max-width:640px;margin:0 auto;}
+    .section-header .eyebrow{font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--green);margin-bottom:8px;}
+    .section-header h2{font-size:clamp(1.5rem,3vw,2.25rem);font-weight:800;letter-spacing:-0.02em;margin-bottom:12px;}
+    .section-header p{font-size:1rem;color:var(--txt2);}
+
+    /* CTA section */
+    .cta-section{background:var(--green);padding:80px 0;text-align:center;}
+    .cta-section h2{font-size:clamp(1.75rem,4vw,2.75rem);font-weight:800;color:white;margin-bottom:12px;letter-spacing:-0.02em;}
+    .cta-section p{font-size:1.0625rem;color:rgba(255,255,255,0.8);margin-bottom:32px;max-width:520px;margin-left:auto;margin-right:auto;}
+    .btn-white{background:white;color:var(--green);}
+    .btn-white:hover{background:#f0faf5;text-decoration:none;color:var(--green);}
+
+    /* Footer */
+    footer{background:var(--txt);padding:40px 0;color:rgba(255,255,255,0.6);font-size:0.8125rem;}
+    .footer-inner{display:flex;flex-wrap:wrap;gap:24px;justify-content:space-between;align-items:center;max-width:1100px;margin:0 auto;padding:0 20px;}
+    .footer-logo{color:white;font-weight:800;font-size:1rem;}
+    .footer-links{display:flex;gap:20px;flex-wrap:wrap;}
+    .footer-links a{color:rgba(255,255,255,0.6);}
+    .footer-links a:hover{color:white;text-decoration:none;}
+    .footer-data{font-size:0.75rem;margin-top:20px;text-align:center;color:rgba(255,255,255,0.4);max-width:1100px;margin-left:auto;margin-right:auto;padding:0 20px;}
+
+    /* Utilities */
+    .text-green{color:var(--green);}
+    .text-muted{color:var(--txt3);}
+    .font-mono{font-family:'SF Mono',ui-monospace,monospace;}
+    .badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:0.625rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;}
+    .badge-green{background:var(--green-bg);color:var(--green);}
+    .badge-blue{background:var(--blue-bg);color:var(--blue);}
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav aria-label="Main navigation">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo" aria-label="DVOS home">
+      <div class="nav-logo-icon" aria-hidden="true">D</div>
+      DVOS
+    </a>
+    <div class="nav-links">
+      <a href="#features" class="hide-mobile">Features</a>
+      <a href="#how-it-works" class="hide-mobile">How it works</a>
+      <a href="#data-sources" class="hide-mobile">Data</a>
+      <a href="#faq" class="hide-mobile">FAQ</a>
+      <a href="/app" class="btn btn-primary">Launch free &rarr;</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" aria-labelledby="hero-heading">
+  <div class="container">
+    <div class="hero-badge" role="note">&#9679; Free · No signup · Works on mobile</div>
+    <h1 id="hero-heading">Your research deserves to be <em>found.</em></h1>
+    <p>DVOS builds your digital research presence — tracking citations, optimizing your ORCID, surfacing grants and conferences, and showing you exactly how visible your work is to the world.</p>
+    <div class="hero-ctas">
+      <a href="/app" class="btn btn-primary btn-lg">Build my research profile &rarr;</a>
+      <a href="#how-it-works" class="btn btn-outline btn-lg">See how it works</a>
+    </div>
+    <p class="hero-sub">Used by researchers at universities across Africa, South Asia, and the Americas &mdash; <span>100% free</span></p>
+
+    <!-- Score preview card -->
+    <div class="score-preview" role="img" aria-label="Example researcher visibility score: 15 out of 100, showing ORCID at 0%, citations at 12%, profile at 30%, website at 0%, content at 0%">
+      <div class="sp-header">
+        <div class="sp-ring" aria-hidden="true"><div class="sp-ring-inner">15</div></div>
+        <div>
+          <div style="font-weight:700;font-size:0.9375rem;">Visibility Score: 15 / 100</div>
+          <div style="font-size:0.75rem;color:var(--txt3);">Before DVOS — most researchers start here</div>
+        </div>
+      </div>
+      <div class="sp-signals" aria-hidden="true">
+        <div class="sp-signal"><span class="sp-label">ORCID</span><div class="sp-bar"><div class="sp-fill sp-fill-red" style="width:0%"></div></div><span class="sp-val">0%</span></div>
+        <div class="sp-signal"><span class="sp-label">Citations</span><div class="sp-bar"><div class="sp-fill sp-fill-amber" style="width:12%"></div></div><span class="sp-val">12%</span></div>
+        <div class="sp-signal"><span class="sp-label">Profile</span><div class="sp-bar"><div class="sp-fill sp-fill-amber" style="width:30%"></div></div><span class="sp-val">30%</span></div>
+        <div class="sp-signal"><span class="sp-label">Website</span><div class="sp-bar"><div class="sp-fill sp-fill-red" style="width:0%"></div></div><span class="sp-val">0%</span></div>
+        <div class="sp-signal"><span class="sp-label">Content</span><div class="sp-bar"><div class="sp-fill sp-fill-red" style="width:0%"></div></div><span class="sp-val">0%</span></div>
+      </div>
+      <a href="/app" class="sp-cta" aria-label="Build your research profile and improve your score">See what your score should be &rarr;</a>
+    </div>
+  </div>
+</section>
+
+<!-- STATS BAR -->
+<div class="stats-bar" role="region" aria-label="Platform statistics">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-item"><div class="stat-num">4+</div><div class="stat-label">Live data sources</div></div>
+      <div class="stat-item"><div class="stat-num">ORCID</div><div class="stat-label">Verified integration</div></div>
+      <div class="stat-item"><div class="stat-num">OpenAlex</div><div class="stat-label">250M+ papers indexed</div></div>
+      <div class="stat-item"><div class="stat-num">Free</div><div class="stat-label">No subscription</div></div>
+      <div class="stat-item"><div class="stat-num">2 min</div><div class="stat-label">To your first score</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PROBLEM SECTION -->
+<section class="section section-alt" id="problem" aria-labelledby="problem-heading">
+  <div class="container">
+    <div class="section-header">
+      <div class="eyebrow">The problem</div>
+      <h2 id="problem-heading">Excellent research. Hidden from the world.</h2>
+      <p>Researchers at well-resourced institutions have communications teams, PR support, and infrastructure. Most researchers don't. DVOS closes that gap.</p>
+    </div>
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="problem-icon" aria-hidden="true">🔍</div>
+        <h3>Name disambiguation</h3>
+        <p>Your publications are scattered across databases under different name spellings. Citations aren't attributed correctly. Funders can't find your full record.</p>
+        <p class="problem-solution">DVOS links your ORCID to consolidate everything under one verified identity.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon" aria-hidden="true">📊</div>
+        <h3>Invisible impact</h3>
+        <p>Your h-index might be excellent for your field and career stage — but you have no way to know how you compare to peers globally or regionally.</p>
+        <p class="problem-solution">DVOS provides field-normalized citation benchmarks (Hirsch 2005, Bornmann &amp; Marx 2011).</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon" aria-hidden="true">💰</div>
+        <h3>Missed funding</h3>
+        <p>Grant opportunities from Wellcome, NIH Fogarty, Gates Foundation, and African research councils exist — but most researchers never find them.</p>
+        <p class="problem-solution">DVOS surfaces matched grant opportunities based on your field and career stage.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon" aria-hidden="true">🤝</div>
+        <h3>Collaboration isolation</h3>
+        <p>A researcher in Nigeria and a researcher in Kenya may be working on the same topic — and never discover each other. No system exists to bridge them.</p>
+        <p class="problem-solution">DVOS shows active researchers in your field ranked by recent citation impact.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon" aria-hidden="true">✍️</div>
+        <h3>Writing inequality</h3>
+        <p>Grant applications and LinkedIn profiles written by non-native English speakers are evaluated on language, not science. That's not fair.</p>
+        <p class="problem-solution">DVOS generates professional bios, LinkedIn summaries, and grant impact statements from your research data.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon" aria-hidden="true">🏛️</div>
+        <h3>No research website</h3>
+        <p>Most researchers have no personal website. A Google search for your name returns nothing — or worse, the wrong person.</p>
+        <p class="problem-solution">DVOS builds a professional research website from your profile data in one click.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES SECTION -->
+<section class="section" id="features" aria-labelledby="features-heading">
+  <div class="container">
+    <div class="section-header">
+      <div class="eyebrow">Features</div>
+      <h2 id="features-heading">Everything a visible researcher needs</h2>
+      <p>Seven integrated tools. One platform. No subscription.</p>
+    </div>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <span class="feature-badge fb-live">Live data</span>
+        <h3>Visibility Score &amp; Command Center</h3>
+        <p>A computed score (0–100) across six signals: ORCID, citations, profile, website, content, and platforms. Updated every time you open the app.</p>
+        <ul class="feature-list" aria-label="Score features">
+          <li>Field-normalized h-index benchmark</li>
+          <li>Citation velocity vs. career stage peers</li>
+          <li>Actionable priority list to improve score</li>
+          <li>Pulls from OpenAlex, Semantic Scholar, Crossref, PubMed</li>
+        </ul>
+      </div>
+      <div class="feature-card">
+        <span class="feature-badge fb-ai">AI powered</span>
+        <h3>AI Profile Builder</h3>
+        <p>Generate a professional researcher bio, LinkedIn headline, LinkedIn summary, website copy, and grant impact statement — in one click, from your research data.</p>
+        <ul class="feature-list" aria-label="AI builder features">
+          <li>Professional bio (3rd person, 200 words)</li>
+          <li>LinkedIn summary optimized for discoverability</li>
+          <li>Grant impact statement (quantified outcomes)</li>
+          <li>Research website copy auto-populated</li>
+        </ul>
+      </div>
+      <div class="feature-card">
+        <span class="feature-badge fb-live">Live data</span>
+        <h3>Research Pulse — Live Intelligence</h3>
+        <p>A personalized feed of what matters in your field: today's preprints on arXiv, trending papers by citation velocity, upcoming conferences, and matched grant opportunities.</p>
+        <ul class="feature-list" aria-label="Research Pulse features">
+          <li>Filter by type: Papers / Conferences / Grants / Network</li>
+          <li>Open Access toggle</li>
+          <li>Region filter for conferences (Africa, Europe, Asia…)</li>
+          <li>Grant size filter and bookmark system</li>
+        </ul>
+      </div>
+      <div class="feature-card">
+        <span class="feature-badge fb-free">Free</span>
+        <h3>ORCID Verification &amp; Publication Linking</h3>
+        <p>Connect your ORCID iD to verify your identity, pull your publication list, check your ORCID completeness, and link untracked publications back to your record.</p>
+        <ul class="feature-list" aria-label="ORCID features">
+          <li>Verify ORCID iD in one step</li>
+          <li>Completeness checklist (biography, keywords, employment)</li>
+          <li>Link publications from OpenAlex to ORCID</li>
+          <li>Open access status per publication via Unpaywall</li>
+        </ul>
+      </div>
+      <div class="feature-card">
+        <span class="feature-badge fb-ai">AI powered</span>
+        <h3>Content Engine</h3>
+        <p>Turn your research papers into LinkedIn posts, Twitter threads, plain-language summaries, and policy briefs. Reach policymakers, journalists, and collaborators beyond the journal.</p>
+        <ul class="feature-list" aria-label="Content Engine features">
+          <li>6 content formats per paper</li>
+          <li>Tone selector (professional, accessible, advocacy)</li>
+          <li>Plain-language summary for non-specialist audiences</li>
+          <li>Policy brief format for funding applications</li>
+        </ul>
+      </div>
+      <div class="feature-card">
+        <span class="feature-badge fb-free">Free</span>
+        <h3>Research Website Builder</h3>
+        <p>A complete personal research website — biography, publications, research focus, contact — auto-populated from your profile. Copy and deploy anywhere.</p>
+        <ul class="feature-list" aria-label="Website builder features">
+          <li>Auto-populated from ORCID and profile data</li>
+          <li>Professional academic website layout</li>
+          <li>Dark mode support</li>
+          <li>Copy HTML to deploy on any hosting</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section section-alt" id="how-it-works" aria-labelledby="how-heading">
+  <div class="container">
+    <div class="section-header">
+      <div class="eyebrow">How it works</div>
+      <h2 id="how-heading">From invisible to indexed in 3 steps</h2>
+      <p>No account required. No credit card. Takes under 2 minutes.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num" aria-hidden="true">1</div>
+        <h3>Enter your name</h3>
+        <p>DVOS searches OpenAlex, Semantic Scholar, Crossref, and PubMed to find your existing research footprint — even if you've never set up any profile.</p>
+      </div>
+      <div class="step">
+        <div class="step-num" aria-hidden="true">2</div>
+        <h3>See your score</h3>
+        <p>Get a visibility score based on real data: your citation count, ORCID status, publications, and how you compare to peers in your field and career stage.</p>
+      </div>
+      <div class="step">
+        <div class="step-num" aria-hidden="true">3</div>
+        <h3>Build your presence</h3>
+        <p>Follow DVOS's priority action list to improve your score: verify ORCID, generate your AI bio, link publications, build your website, and set up content.</p>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:40px;">
+      <a href="/app" class="btn btn-primary btn-lg">Start now — free &rarr;</a>
+    </div>
+  </div>
+</section>
+
+<!-- DATA SOURCES -->
+<section class="section" id="data-sources" aria-labelledby="data-heading">
+  <div class="container">
+    <div class="section-header">
+      <div class="eyebrow">Data sources</div>
+      <h2 id="data-heading">Built on open research infrastructure</h2>
+      <p>DVOS pulls from the world's largest open academic databases — no paywalls, no institutional subscriptions required.</p>
+    </div>
+    <div class="sources-grid" role="list" aria-label="Integrated data sources">
+      <span class="source-chip" role="listitem"><strong>OpenAlex</strong> — 250M+ works, 90M+ authors</span>
+      <span class="source-chip" role="listitem"><strong>Semantic Scholar</strong> — AI-enhanced citation graph</span>
+      <span class="source-chip" role="listitem"><strong>Crossref</strong> — DOI registry, 150M+ works</span>
+      <span class="source-chip" role="listitem"><strong>PubMed / NCBI</strong> — Biomedical literature</span>
+      <span class="source-chip" role="listitem"><strong>ORCID</strong> — Verified researcher identity</span>
+      <span class="source-chip" role="listitem"><strong>arXiv</strong> — Live preprints</span>
+      <span class="source-chip" role="listitem"><strong>Unpaywall</strong> — Open access status</span>
+    </div>
+    <p style="text-align:center;margin-top:20px;font-size:0.8125rem;color:var(--txt3);">All data is fetched in real time from public APIs. DVOS stores nothing on external servers — all data stays in your browser.</p>
+  </div>
+</section>
+
+<!-- FOR WHOM -->
+<section class="section section-alt" id="for-whom" aria-labelledby="audience-heading">
+  <div class="container">
+    <div class="section-header">
+      <div class="eyebrow">Who it's for</div>
+      <h2 id="audience-heading">Built for researchers who do the work, not the PR</h2>
+      <p>DVOS was designed specifically for researchers who don't have institutional communications support.</p>
+    </div>
+    <div class="problem-grid" style="margin-top:32px;">
+      <div class="problem-card" style="border-top:3px solid var(--green);">
+        <h3>PhD Candidates &amp; Postdocs</h3>
+        <p>Build your research identity before your first academic job application. Know your citation count, ORCID status, and what's expected in your field.</p>
+      </div>
+      <div class="problem-card" style="border-top:3px solid var(--green);">
+        <h3>Lecturers &amp; Senior Researchers</h3>
+        <p>Track your visibility score over time. Get matched to grants and conferences. Generate content to reach policymakers and the public.</p>
+      </div>
+      <div class="problem-card" style="border-top:3px solid var(--green);">
+        <h3>Researchers in the Global South</h3>
+        <p>Access the same visibility infrastructure that researchers at Harvard or Oxford use — without institutional support, subscription costs, or barriers.</p>
+      </div>
+      <div class="problem-card" style="border-top:3px solid var(--green);">
+        <h3>Interdisciplinary Researchers</h3>
+        <p>Working across multiple fields means your work is indexed under different concepts. DVOS surfaces your full cross-database footprint.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section" id="faq" aria-labelledby="faq-heading">
+  <div class="container">
+    <div class="section-header">
+      <div class="eyebrow">FAQ</div>
+      <h2 id="faq-heading">Common questions</h2>
+    </div>
+    <div class="faq-list" role="list">
+      <div class="faq-item" role="listitem">
+        <button class="faq-q" aria-expanded="false" onclick="toggleFaq(this)">What is DVOS and who is it for?</button>
+        <div class="faq-a">DVOS (Digital Visibility OS) is a free tool for academic researchers. It helps you build and track your research presence online — covering citations, ORCID, publications, website, content, and grants. It's designed for researchers who don't have institutional communications support, particularly in the Global South.</div>
+      </div>
+      <div class="faq-item" role="listitem">
+        <button class="faq-q" aria-expanded="false" onclick="toggleFaq(this)">Is DVOS free? Is there a catch?</button>
+        <div class="faq-a">DVOS is completely free and requires no signup. All citation tracking, ORCID verification, publication linking, score computation, and the research intelligence feed are free. AI features (bio generation, grant intelligence, content engine) require an AI proxy connection — you can set one up with ~$5 of Anthropic credits. No subscription, no recurring cost.</div>
+      </div>
+      <div class="faq-item" role="listitem">
+        <button class="faq-q" aria-expanded="false" onclick="toggleFaq(this)">How does DVOS calculate my research visibility score?</button>
+        <div class="faq-a">DVOS computes a score from 0–100 using six weighted signals: ORCID completeness (25%), citation impact (27%), researcher profile (18%), research website (12%), content output (10%), and platform presence (8%). Citation impact uses a logarithmic scale to reward improvement at every level — not just for highly-cited researchers. The score reflects how discoverable your work is to collaborators, funders, and journals.</div>
+      </div>
+      <div class="faq-item" role="listitem">
+        <button class="faq-q" aria-expanded="false" onclick="toggleFaq(this)">What is an ORCID iD and why does it matter for my score?</button>
+        <div class="faq-a">ORCID is a free 16-digit persistent identifier for researchers — like a passport number for your academic work. It solves name disambiguation (two researchers named "Emmanuel Okafor"), ensures publications are credited correctly, and is required for most international grant applications (EU Horizon, Wellcome Trust, NIH). ORCID counts for 25% of your visibility score — the single largest signal.</div>
+      </div>
+      <div class="faq-item" role="listitem">
+        <button class="faq-q" aria-expanded="false" onclick="toggleFaq(this)">Does DVOS store my data?</button>
+        <div class="faq-a">No. DVOS is a client-side application — all data is stored in your browser's localStorage and never sent to any DVOS server. When you fetch citation data from OpenAlex or ORCID, those requests go directly from your browser to those public APIs. Your research profile exists only on your device.</div>
+      </div>
+      <div class="faq-item" role="listitem">
+        <button class="faq-q" aria-expanded="false" onclick="toggleFaq(this)">What are the data sources for citations and publications?</button>
+        <div class="faq-a">DVOS pulls from four open academic databases: OpenAlex (250M+ works, 90M+ authors), Semantic Scholar (AI-enhanced citations), Crossref (DOI registry), and PubMed (biomedical literature). It uses the highest citation count across all four sources, and detects when you have publications in PubMed or Crossref that aren't yet in OpenAlex.</div>
+      </div>
+      <div class="faq-item" role="listitem">
+        <button class="faq-q" aria-expanded="false" onclick="toggleFaq(this)">Can DVOS help me find grants and conferences?</button>
+        <div class="faq-a">Yes. The Research Pulse feature includes an AI-matched grant intelligence feed (refreshed monthly) and a conference radar (refreshed weekly). Grants are matched to your field, institution location, and career stage — prioritizing open programs from Wellcome Trust, NIH Fogarty, Gates Foundation, African Union, NRF South Africa, TDR, EDCTP, and field-specific foundations. Conferences include region and prestige filters. All AI-generated data includes a disclaimer to verify official websites before submitting.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" aria-labelledby="cta-heading">
+  <div class="container">
+    <h2 id="cta-heading">Your research is worth being found.</h2>
+    <p>Build your research presence in under 2 minutes. Free, no signup, works on any device.</p>
+    <a href="/app" class="btn btn-white btn-lg">Launch DVOS free &rarr;</a>
+    <p style="margin-top:16px;font-size:0.8125rem;color:rgba(255,255,255,0.6);">No account · No credit card · Works on mobile</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">DVOS</div>
+    <div class="footer-links">
+      <a href="/app">Launch app</a>
+      <a href="#features">Features</a>
+      <a href="#faq">FAQ</a>
+      <a href="#data-sources">Data sources</a>
+    </div>
+  </div>
+  <p class="footer-data">Data powered by <a href="https://openalex.org" target="_blank" rel="noopener" style="color:rgba(255,255,255,0.5);">OpenAlex</a>, <a href="https://www.semanticscholar.org" target="_blank" rel="noopener" style="color:rgba(255,255,255,0.5);">Semantic Scholar</a>, <a href="https://www.crossref.org" target="_blank" rel="noopener" style="color:rgba(255,255,255,0.5);">Crossref</a>, <a href="https://pubmed.ncbi.nlm.nih.gov" target="_blank" rel="noopener" style="color:rgba(255,255,255,0.5);">PubMed</a>, <a href="https://orcid.org" target="_blank" rel="noopener" style="color:rgba(255,255,255,0.5);">ORCID</a>, <a href="https://arxiv.org" target="_blank" rel="noopener" style="color:rgba(255,255,255,0.5);">arXiv</a>. DVOS does not store user data. All computations run in your browser. &copy; 2025 DVOS.</p>
+</footer>
+
+<script>
+function toggleFaq(btn){
+  const ans=btn.nextElementSibling;
+  const open=btn.getAttribute('aria-expanded')==='true';
+  btn.setAttribute('aria-expanded',!open);
+  ans.classList.toggle('open',!open);
+}
+// Keyboard support for FAQ
+document.querySelectorAll('.faq-q').forEach(btn=>{
+  btn.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleFaq(btn);} });
+});
+</script>
+</body>
+</html>

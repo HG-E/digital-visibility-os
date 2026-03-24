@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Allow: /app
+Disallow: /dvos_v3.html
+
+# Sitemap
+Sitemap: https://digital-visibility-os.vercel.app/sitemap.xml
