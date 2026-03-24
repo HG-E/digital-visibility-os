@@ -446,6 +446,41 @@ img { max-width: 100%; display: block; }
 #proxy-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 600; align-items: center; justify-content: center; padding: 20px; }
 #proxy-modal-overlay.open { display: flex; }
 #proxy-modal { background: var(--surface); border-radius: var(--r-xl); padding: 28px; max-width: 440px; width: 100%; box-shadow: var(--shadow-md); }
+/* ============================================================
+   RESEARCH PULSE
+   ============================================================ */
+.pulse-header { display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:10px 14px; background:var(--surface); border-radius:var(--r-md); margin-bottom:16px; border:1px solid var(--border); }
+.streak-badge { display:flex; align-items:center; gap:5px; padding:4px 10px; background:var(--amber-bg); border-radius:99px; font-size:0.75rem; font-weight:700; color:var(--amber); white-space:nowrap; }
+.score-delta { font-size:0.75rem; font-weight:600; padding:3px 10px; border-radius:99px; white-space:nowrap; }
+.score-delta-up   { background:var(--accent-bg); color:var(--accent); }
+.score-delta-same { background:var(--bg2); color:var(--txt3); }
+.pulse-grid { display:grid; grid-template-columns:1fr 340px; gap:14px; align-items:start; }
+@media(max-width:900px){ .pulse-grid { grid-template-columns:1fr; } }
+.pulse-item { padding:10px 0; border-bottom:1px solid var(--border); }
+.pulse-item:last-child { border-bottom:none; padding-bottom:0; }
+.pulse-title { font-size:0.8125rem; font-weight:600; line-height:1.4; margin-bottom:3px; }
+.pulse-title a { color:var(--txt); text-decoration:none; }
+.pulse-title a:hover { color:var(--accent); text-decoration:underline; }
+.pulse-meta { font-size:0.6875rem; color:var(--txt3); line-height:1.5; }
+.pulse-badge { display:inline-block; font-size:0.5rem; padding:2px 5px; border-radius:3px; font-weight:700; margin-right:4px; letter-spacing:0.05em; text-transform:uppercase; vertical-align:middle; }
+.pb-arxiv  { background:var(--red-bg);   color:var(--red); }
+.pb-oa     { background:var(--blue-bg);  color:var(--blue); }
+.pb-trend  { background:var(--accent-bg);color:var(--accent); }
+.conf-item { padding:10px 0; border-bottom:1px solid var(--border); }
+.conf-item:last-child { border-bottom:none; padding-bottom:0; }
+.conf-name { font-size:0.8125rem; font-weight:700; margin-bottom:2px; line-height:1.3; }
+.conf-meta { font-size:0.6875rem; color:var(--txt2); line-height:1.5; }
+.conf-type { display:inline-block; font-size:0.5rem; padding:2px 5px; border-radius:3px; font-weight:700; margin-right:4px; text-transform:uppercase; }
+.ct-conf   { background:var(--blue-bg);  color:var(--blue); }
+.ct-grant  { background:var(--accent-bg);color:var(--accent); }
+.ct-works  { background:var(--bg3);      color:var(--txt2); }
+.nav-badge-new { display:inline-flex; align-items:center; justify-content:center; min-width:16px; height:16px; padding:0 4px; background:var(--red); color:#fff; border-radius:99px; font-size:0.5rem; font-weight:700; margin-left:4px; }
+.collab-item { display:flex; align-items:center; gap:8px; padding:8px 0; border-bottom:1px solid var(--border); }
+.collab-item:last-child { border-bottom:none; }
+.collab-avatar { width:30px; height:30px; border-radius:50%; background:var(--accent-bg); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:0.6875rem; font-weight:700; flex-shrink:0; }
+.collab-info { min-width:0; flex:1; }
+.collab-name { font-size:0.75rem; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.collab-sub  { font-size:0.6875rem; color:var(--txt3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 </style>
 </head>
 <body>
@@ -666,6 +701,10 @@ img { max-width: 100%; display: block; }
     </div>
     <div class="nav-section">
       <div class="nav-section-label">Growth</div>
+      <div class="nav-item" data-screen="pulse" role="button" tabindex="0">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor" stroke="currentColor" stroke-width="0.5"><polyline points="1,9 3,9 5,3 7,13 9,6 11,10 13,8 15,8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Research Pulse <span class="nav-badge-new" id="pulse-badge" style="display:none;">0</span>
+      </div>
       <div class="nav-item" data-screen="platforms" role="button" tabindex="0">
         <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="2"/><circle cx="2.5" cy="3.5" r="1.5"/><circle cx="13.5" cy="3.5" r="1.5"/><circle cx="2.5" cy="12.5" r="1.5"/><circle cx="13.5" cy="12.5" r="1.5"/><path d="M4 5l3 2M9 9l3 2M12 5l-3 2M7 9l-3 2"/></svg>
         Platform Sync
@@ -991,6 +1030,66 @@ img { max-width: 100%; display: block; }
           </div>
         </div>
       </div>
+      <!-- RESEARCH PULSE -->
+      <div class="screen screen-inner" id="screen-pulse">
+        <!-- Streak + score delta bar -->
+        <div class="pulse-header">
+          <div class="streak-badge">&#128293; <span id="streak-count">1</span>-day streak</div>
+          <div class="score-delta score-delta-same" id="score-delta-badge">Score unchanged since last visit</div>
+          <div style="margin-left:auto;font-size:0.6875rem;color:var(--txt3);" id="pulse-last-updated"></div>
+          <button class="btn btn-sm" onclick="loadPulseScreen(true)" style="font-size:0.6875rem;padding:3px 8px;">&#8635; Refresh all</button>
+        </div>
+        <div class="pulse-grid">
+          <!-- Left: live papers + trending -->
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div class="card">
+              <div class="sec-head">
+                <div class="sec-title">New in your field today</div>
+                <div style="display:flex;gap:6px;align-items:center;">
+                  <span class="badge badge-red" style="font-size:0.5rem;letter-spacing:0.06em;">LIVE</span>
+                  <span id="arxiv-source-badge" style="font-size:0.6875rem;color:var(--txt3);">arXiv + OpenAlex</span>
+                </div>
+              </div>
+              <div id="arxiv-feed"><div class="loading-row"><div class="spinner"></div><span>Loading live papers...</span></div></div>
+            </div>
+            <div class="card">
+              <div class="sec-head">
+                <div class="sec-title">Trending in your field</div>
+                <span class="badge badge-blue" style="font-size:0.5rem;">citation velocity &middot; 30 days</span>
+              </div>
+              <div id="oa-trending"><div class="loading-row"><div class="spinner"></div><span>Loading trending works...</span></div></div>
+            </div>
+            <div class="card">
+              <div class="sec-head">
+                <div class="sec-title">Collaboration radar</div>
+                <span class="badge badge-neutral" style="font-size:0.5rem;">OpenAlex &middot; live</span>
+              </div>
+              <div style="font-size:0.6875rem;color:var(--txt3);margin-bottom:8px;">Researchers in your field with high-impact recent work</div>
+              <div id="collab-feed"><div class="loading-row"><div class="spinner"></div><span>Finding researchers...</span></div></div>
+            </div>
+          </div>
+          <!-- Right: conferences + grants -->
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div class="card">
+              <div class="sec-head">
+                <div class="sec-title">Conferences &amp; events</div>
+                <button class="btn btn-sm" onclick="refreshConferences(true)" style="font-size:0.6875rem;padding:3px 8px;">Refresh</button>
+              </div>
+              <div style="font-size:0.6875rem;color:var(--amber);margin-bottom:8px;line-height:1.4;">AI-generated based on your field &mdash; verify dates and deadlines at the official conference website before submitting.</div>
+              <div id="conf-feed"><div class="loading-row"><div class="spinner"></div><span>Loading conference radar...</span></div></div>
+            </div>
+            <div class="card">
+              <div class="sec-head">
+                <div class="sec-title">Grant opportunities</div>
+                <span class="badge badge-green" style="font-size:0.5rem;">AI matched</span>
+              </div>
+              <div style="font-size:0.6875rem;color:var(--amber);margin-bottom:8px;line-height:1.4;">AI-matched to your field and career stage &mdash; verify eligibility and deadlines at the funder&rsquo;s official website.</div>
+              <div id="grant-feed"><div class="loading-row"><div class="spinner"></div><span>Scanning opportunities...</span></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div><!-- end #screens -->
   </div><!-- end #main -->
 </div><!-- end #shell -->
@@ -1000,9 +1099,9 @@ img { max-width: 100%; display: block; }
   <div class="bnav-items">
     <div class="bnav-item active" data-screen="dashboard"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a8 8 0 1 0 0 16A8 8 0 0 0 10 2zm0 2a6 6 0 0 1 5.7 8H12a2.5 2.5 0 1 0-4 0H4.3A6 6 0 0 1 10 4zm0 12a6 6 0 0 1-5-2.7h10A6 6 0 0 1 10 16z"/></svg><span class="bnav-label">Home</span></div>
     <div class="bnav-item" data-screen="builder"><svg viewBox="0 0 20 20" fill="currentColor"><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="11" y="3" width="6" height="6" rx="1"/><rect x="3" y="11" width="6" height="6" rx="1"/><rect x="11" y="11" width="6" height="6" rx="1"/></svg><span class="bnav-label">Builder</span></div>
-    <div class="bnav-item" data-screen="content"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 6h12M4 10h8M4 14h6"/><path d="M16 12l2 2-4 4-2-2 4-4z"/></svg><span class="bnav-label">Content</span></div>
+    <div class="bnav-item" data-screen="pulse"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="1,11 4,11 6,4 9,16 11,8 14,12 16,10 19,10"/></svg><span class="bnav-label">Pulse</span></div>
     <div class="bnav-item" data-screen="orcid"><svg viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="8"/><path d="M8 10a2 2 0 1 1 4 0v3H8v-3z"/><circle cx="10" cy="6.5" r="1"/></svg><span class="bnav-label">ORCID</span></div>
-    <div class="bnav-item" data-screen="platforms"><svg viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="2"/><circle cx="4" cy="5" r="1.5"/><circle cx="16" cy="5" r="1.5"/><circle cx="4" cy="15" r="1.5"/><circle cx="16" cy="15" r="1.5"/><path d="M5.5 6.5l3 2M11.5 11.5l3 2M14.5 6.5l-3 2M8.5 11.5l-3 2"/></svg><span class="bnav-label">Platforms</span></div>
+    <div class="bnav-item" data-screen="content"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 6h12M4 10h8M4 14h6"/><path d="M16 12l2 2-4 4-2-2 4-4z"/></svg><span class="bnav-label">Content</span></div>
   </div>
 </nav>
 
@@ -1059,7 +1158,7 @@ function toggleTheme(){ applyTheme(document.documentElement.getAttribute('data-t
 applyTheme(S.theme||'light');
 
 /* ── NAVIGATION ─────────────────────────────────────────────── */
-const TITLES={dashboard:'Command Center',builder:'AI Profile Builder',website:'Research Website',content:'Content Engine',orcid:'ORCID & Identity',platforms:'Platform Sync'};
+const TITLES={dashboard:'Command Center',builder:'AI Profile Builder',website:'Research Website',content:'Content Engine',orcid:'ORCID & Identity',platforms:'Platform Sync',pulse:'Research Pulse'};
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('[data-screen]').forEach(n=>n.classList.remove('active'));
@@ -1069,6 +1168,7 @@ function showScreen(id){
   if(id==='website')setTimeout(renderWebsite,50);
   if(id==='orcid')renderOrcidProjection();
   if(id==='platforms')renderPlatformProjection();
+  if(id==='pulse')loadPulseScreen();
   closeSidebar();
 }
 document.querySelectorAll('[data-screen]').forEach(el=>{
@@ -2136,6 +2236,287 @@ document.addEventListener('DOMContentLoaded',()=>{
   checkProxyBanner();
   document.addEventListener('keydown',e=>{ if(e.key==='Escape')closeSidebar(); });
 });
+
+/* ══════════════════════════════════════════════════════════════
+   RESEARCH PULSE — Live intelligence engine
+   Sources: arXiv (live preprints) + OpenAlex (trending/collab)
+            + Claude AI (conferences + grants, cached)
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── arXiv field→category mapping ──────────────────────────── */
+function arxivCategory(field){
+  const f=(field||'').toLowerCase();
+  if(f.match(/machine.learn|deep.learn|neural.net|artificial.intel|\bai\b/)) return 'cs.LG+OR+cs.AI';
+  if(f.match(/\bcomputer|software|computing|data.sci|nlp|natural.lang/)) return 'cs';
+  if(f.match(/\bphysics|quantum|astrophysics|optics|photon/)) return 'physics';
+  if(f.match(/\bmath|algebra|geometry|topology|calculus|analysis/)) return 'math';
+  if(f.match(/\bstatistic|biostatistic/)) return 'stat';
+  if(f.match(/\beconom|econometric|financ/)) return 'econ';
+  if(f.match(/\bbiology|bioinformat|genomic|genetic|molecular/)) return 'q-bio';
+  if(f.match(/\belectrical|signal.proc|communicat/)) return 'eess';
+  return null; // medical/health/social fields — use keyword search
+}
+
+async function fetchArxiv(field,limit=6){
+  const cat=arxivCategory(field);
+  let url;
+  if(cat){
+    url=`https://export.arxiv.org/api/query?search_query=cat:${cat}&start=0&max_results=${limit}&sortBy=submittedDate&sortOrder=descending`;
+  } else {
+    const kw=field.split(/[\s,]+/).filter(w=>w.length>3).slice(0,3).join('+OR+');
+    url=`https://export.arxiv.org/api/query?search_query=ti:${encodeURIComponent(kw)}+OR+abs:${encodeURIComponent(kw)}&start=0&max_results=${limit}&sortBy=submittedDate&sortOrder=descending`;
+  }
+  const r=await fetch(url);
+  if(!r.ok)throw new Error('ARXIV_FAIL');
+  const xml=new DOMParser().parseFromString(await r.text(),'application/xml');
+  return [...xml.querySelectorAll('entry')].map(e=>({
+    title:e.querySelector('title')?.textContent?.trim().replace(/\s+/g,' ')||'Untitled',
+    authors:[...e.querySelectorAll('author name')].slice(0,3).map(n=>n.textContent.trim()),
+    summary:(e.querySelector('summary')?.textContent?.trim().replace(/\s+/g,' ')||'').slice(0,180),
+    url:e.querySelector('id')?.textContent?.trim()||'',
+    published:e.querySelector('published')?.textContent?.slice(0,10)||'',
+  }));
+}
+
+async function fetchOATrending(field){
+  const thirtyAgo=new Date(Date.now()-30*864e5).toISOString().slice(0,10);
+  const url=`${CFG.OA_BASE}/works?filter=concepts.display_name:${encodeURIComponent(field)},from_publication_date:${thirtyAgo}&sort=cited_by_count:desc&per-page=6&mailto=${CFG.OA_EMAIL}&select=id,title,doi,publication_year,cited_by_count,primary_location,open_access`;
+  const r=await fetch(url);
+  if(!r.ok)throw new Error('OA_TREND_FAIL');
+  return (await r.json()).results||[];
+}
+
+async function fetchCollabRadar(field,inst){
+  // Researchers in same field (optionally same institution) with recent high-impact work
+  const filter=inst
+    ?`institutions.display_name:${encodeURIComponent(inst)},concepts.display_name:${encodeURIComponent(field)}`
+    :`concepts.display_name:${encodeURIComponent(field)},last_known_institution.continent:${getContinent()}`;
+  const url=`${CFG.OA_BASE}/authors?filter=${filter}&sort=cited_by_count:desc&per-page=6&mailto=${CFG.OA_EMAIL}`;
+  const r=await fetch(url); if(!r.ok)throw new Error('OA_COLLAB_FAIL');
+  return (await r.json()).results||[];
+}
+
+function getContinent(){
+  // Heuristic: if institution known, map country → continent for radar
+  const inst=(S.profile?.inst||'').toLowerCase();
+  if(inst.match(/nigeria|ghana|kenya|ethiopia|tanzania|south africa|cameroon|senegal|rwanda|uganda/)) return 'africa';
+  if(inst.match(/india|pakistan|bangladesh|sri lanka/)) return 'asia';
+  if(inst.match(/brazil|colombia|argentina|chile|peru/)) return 'south america';
+  return 'africa'; // default to Africa (primary audience)
+}
+
+/* ── Pulse cache helpers (localStorage, TTL-based) ─────────── */
+function getPulseCache(key){ try{const c=JSON.parse(localStorage.getItem('dvos_pc_'+key));return c&&c.exp>Date.now()?c.data:null;}catch(_){return null;} }
+function setPulseCache(key,data,ttlMs){ localStorage.setItem('dvos_pc_'+key,JSON.stringify({data,exp:Date.now()+ttlMs})); }
+
+/* ── Conference intelligence (AI, cached 7 days) ───────────── */
+async function refreshConferences(force=false){
+  const p=S.profile; if(!p?.field)return;
+  const cacheKey=`conf_${p.field}_${p.title||''}`;
+  if(!force){ const cached=getPulseCache(cacheKey); if(cached){renderConferences(cached);return;} }
+  const el=$id('conf-feed');
+  if(el)el.innerHTML='<div class="loading-row"><div class="spinner"></div><span>AI scanning conference calendar...</span></div>';
+  if(!S.proxyUrl){renderConferences(null,'proxy');return;}
+  try{
+    const prompt=`You are a research intelligence assistant. List 5 major REAL recurring conferences relevant to a ${esc(p.title||'researcher')} in ${esc(p.field)}.
+Include international flagship events AND African/Global South regional events where applicable.
+Only include conferences you are highly confident are real and regularly held. Do not invent names.
+Return ONLY valid JSON array (no markdown, no text outside the array):
+[{"name":"full official conference name","organizer":"main organizing body","typical_months":"e.g. March or June-August","region":"International|Africa|Europe|Asia|Americas","type":"Conference|Symposium|Workshop|Summit","prestige":"flagship|major|regional","submission_note":"typical abstract or paper deadline pattern","relevance":"one sentence on direct relevance to this field"}]`;
+    const raw=await callClaude(prompt);
+    const parsed=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    setPulseCache(cacheKey,parsed,7*24*60*60*1000);
+    renderConferences(parsed);
+  }catch(e){ renderConferences(null,e.message); }
+}
+
+function renderConferences(data,err){
+  const el=$id('conf-feed'); if(!el)return;
+  if(!data){
+    el.innerHTML=`<div style="font-size:0.75rem;color:var(--txt3);padding:8px 0;line-height:1.5;">${err==='proxy'?'Set up your AI proxy to unlock conference intelligence.':'Could not generate. Check connection and click Refresh.'}</div>`;
+    return;
+  }
+  el.innerHTML=data.map(c=>`<div class="conf-item">
+    <div style="display:flex;gap:4px;align-items:center;margin-bottom:4px;flex-wrap:wrap;">
+      <span class="conf-type ct-conf">${esc(c.type||'Conf')}</span>
+      <span style="font-size:0.5rem;padding:2px 5px;background:${c.prestige==='flagship'?'var(--accent-bg)':c.prestige==='major'?'var(--blue-bg)':'var(--bg3)'};color:${c.prestige==='flagship'?'var(--accent)':c.prestige==='major'?'var(--blue)':'var(--txt3)'};border-radius:3px;font-weight:700;text-transform:uppercase;">${esc(c.prestige||'')}</span>
+    </div>
+    <div class="conf-name">${esc(c.name)}</div>
+    <div class="conf-meta">${esc(c.organizer)} &middot; ${esc(c.region)} &middot; ${esc(c.typical_months)}</div>
+    <div class="conf-meta" style="color:var(--amber);margin-top:2px;">&#128197; ${esc(c.submission_note)}</div>
+    <div class="conf-meta" style="margin-top:2px;font-style:italic;color:var(--txt2);">${esc(c.relevance)}</div>
+  </div>`).join('');
+}
+
+/* ── Grant scanner (AI, cached 30 days) ────────────────────── */
+async function loadGrantFeed(){
+  const p=S.profile; if(!p?.field)return;
+  const cacheKey=`grants_${p.field}_${p.title||''}_${new Date().getMonth()}`;
+  const cached=getPulseCache(cacheKey); if(cached){renderGrants(cached);return;}
+  if(!S.proxyUrl){renderGrants(null,'proxy');return;}
+  try{
+    const prompt=`You are a research funding intelligence assistant. List 4 real, active or annually recurring grant opportunities for a ${esc(p.title||'researcher')} in ${esc(p.field)} likely based in ${esc(p.inst||'the Global South or Africa')}.
+Prioritise: Wellcome Trust, Gates Foundation, NIH Fogarty, EU Horizon, African Union, NRF South Africa, TDR, EDCTP, field-specific foundations.
+Only include grants you are confident are real and recurring. Do not invent program names.
+Return ONLY valid JSON array (no markdown):
+[{"funder":"funder full name","opportunity":"grant program name","amount_range":"e.g. $50K–$500K USD","typical_cycle":"e.g. Rolling / Annual / Biannual — typical Q1","eligibility_note":"key eligibility criterion","relevance":"one sentence on relevance to this researcher profile"}]`;
+    const raw=await callClaude(prompt);
+    const parsed=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    setPulseCache(cacheKey,parsed,30*24*60*60*1000);
+    renderGrants(parsed);
+  }catch(e){ renderGrants(null,e.message); }
+}
+
+function renderGrants(data,err){
+  const el=$id('grant-feed'); if(!el)return;
+  if(!data){
+    el.innerHTML=`<div style="font-size:0.75rem;color:var(--txt3);padding:8px 0;line-height:1.5;">${err==='proxy'?'Set up your AI proxy to scan grant opportunities.':'Could not load. Try again later.'}</div>`;
+    return;
+  }
+  el.innerHTML=data.map(g=>`<div class="conf-item">
+    <div style="display:flex;gap:4px;align-items:center;margin-bottom:4px;">
+      <span class="conf-type ct-grant">GRANT</span>
+      <span style="font-size:0.75rem;font-weight:700;color:var(--accent);">${esc(g.amount_range||'')}</span>
+    </div>
+    <div class="conf-name">${esc(g.opportunity)}</div>
+    <div class="conf-meta">${esc(g.funder)} &middot; ${esc(g.typical_cycle)}</div>
+    <div class="conf-meta" style="margin-top:2px;">${esc(g.eligibility_note)}</div>
+    <div class="conf-meta" style="margin-top:2px;font-style:italic;color:var(--txt2);">${esc(g.relevance)}</div>
+  </div>`).join('');
+}
+
+/* ── Render functions ───────────────────────────────────────── */
+function renderArxivFeed(papers){
+  const el=$id('arxiv-feed'); if(!el)return;
+  if(!papers||papers.length===0){
+    el.innerHTML='<div style="font-size:0.75rem;color:var(--txt3);padding:6px 0;">No recent preprints found on arXiv for this field. See trending works below.</div>';
+    setText('arxiv-source-badge','No arXiv data');
+    return;
+  }
+  setText('arxiv-source-badge','arXiv · live');
+  const badge=$id('pulse-badge');
+  if(badge){ badge.textContent=papers.length; badge.style.display='inline-flex'; }
+  el.innerHTML=papers.map(p=>`<div class="pulse-item">
+    <span class="pulse-badge pb-arxiv">preprint</span>
+    <div class="pulse-title"><a href="${esc(p.url)}" target="_blank" rel="noopener noreferrer">${esc(p.title)}</a></div>
+    <div class="pulse-meta">${esc(p.authors.join(', ')+(p.authors.length>=3?' et al.':''))} &middot; ${esc(p.published)}</div>
+    ${p.summary?`<div class="pulse-meta" style="margin-top:2px;font-style:italic;">${esc(p.summary)}&hellip;</div>`:''}
+  </div>`).join('');
+}
+
+function renderOATrending(works){
+  const el=$id('oa-trending'); if(!el)return;
+  if(!works||works.length===0){
+    el.innerHTML='<div style="font-size:0.75rem;color:var(--txt3);padding:6px 0;">No trending works found for this field in the last 30 days.</div>';
+    return;
+  }
+  el.innerHTML=works.map(w=>{
+    const doi=w.doi?w.doi.replace('https://doi.org/',''):'';
+    const isOa=w.open_access?.is_oa;
+    return `<div class="pulse-item">
+      <span class="pulse-badge pb-trend">trending</span>${isOa?'<span class="pulse-badge pb-oa">OA</span>':''}
+      <div class="pulse-title">${esc(w.title||'Untitled')}</div>
+      <div class="pulse-meta">${esc(w.primary_location?.source?.display_name||'Journal')} &middot; ${esc(w.publication_year||'')} &middot; <strong>${esc(w.cited_by_count||0)} citations</strong></div>
+      ${doi?`<div class="pulse-meta"><a href="https://doi.org/${esc(doi)}" target="_blank" rel="noopener" style="color:var(--accent);">View paper &#8594;</a></div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function renderCollabRadar(authors){
+  const el=$id('collab-feed'); if(!el)return;
+  if(!authors||authors.length===0){
+    el.innerHTML='<div style="font-size:0.75rem;color:var(--txt3);padding:6px 0;">No collaborators found. Expand your profile or ORCID to improve matching.</div>';
+    return;
+  }
+  const myName=(S.profile?.name||'').toLowerCase().split(' ')[0];
+  const filtered=authors.filter(a=>!a.display_name?.toLowerCase().includes(myName)).slice(0,5);
+  el.innerHTML=filtered.map(a=>{
+    const inst=a.last_known_institutions?.[0]?.display_name||'Independent researcher';
+    const initials=(a.display_name||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    return `<div class="collab-item">
+      <div class="collab-avatar">${esc(initials)}</div>
+      <div class="collab-info">
+        <div class="collab-name">${esc(a.display_name||'Researcher')}</div>
+        <div class="collab-sub">${esc(inst.slice(0,45))} &middot; ${esc(a.cited_by_count||0)} citations</div>
+      </div>
+      ${a.ids?.orcid?`<a href="${esc(a.ids.orcid)}" target="_blank" rel="noopener" style="font-size:0.6875rem;color:var(--accent);white-space:nowrap;flex-shrink:0;">ORCID &#8594;</a>`:''}
+    </div>`;
+  }).join('');
+}
+
+/* ── Streak + score pulse ───────────────────────────────────── */
+function updateStreak(){
+  const today=new Date().toDateString();
+  const last=localStorage.getItem('dvos_last_visit')||'';
+  let streak=parseInt(localStorage.getItem('dvos_streak')||'1',10);
+  const yesterday=new Date(Date.now()-864e5).toDateString();
+  if(last===today){/* same session */}
+  else if(last===yesterday){streak++;}
+  else if(last!==today){streak=1;}
+  localStorage.setItem('dvos_last_visit',today);
+  localStorage.setItem('dvos_streak',String(streak));
+  setText('streak-count',streak);
+}
+
+function updateScorePulse(){
+  const current=S.score||0;
+  const prev=parseInt(localStorage.getItem('dvos_prev_score')||'0',10);
+  localStorage.setItem('dvos_prev_score',String(current));
+  const delta=current-prev;
+  const el=$id('score-delta-badge'); if(!el)return;
+  if(delta>0){ el.className='score-delta score-delta-up'; el.textContent=`&#8593; +${delta} score since last visit`; }
+  else if(delta<0){ el.className='score-delta score-delta-same'; el.textContent=`&#8595; ${delta} score since last visit`; }
+  else { el.className='score-delta score-delta-same'; el.textContent='Score unchanged since last visit'; }
+}
+
+/* ── Main orchestrator ──────────────────────────────────────── */
+async function loadPulseScreen(force=false){
+  const p=S.profile;
+  if(!p?.field){
+    ['arxiv-feed','oa-trending','collab-feed','conf-feed','grant-feed'].forEach(id=>{
+      const el=$id(id); if(el)el.innerHTML='<div style="font-size:0.75rem;color:var(--txt3);padding:6px 0;">Complete your profile (name + field) to unlock personalised research intelligence.</div>';
+    });
+    return;
+  }
+  updateStreak();
+  updateScorePulse();
+  const now=new Date().toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+  setText('pulse-last-updated','Updated '+now);
+
+  // Real-data feeds in parallel (arXiv + OpenAlex trending + collab radar)
+  const [arxivRes,oaRes,collabRes]=await Promise.allSettled([
+    fetchArxiv(p.field),
+    fetchOATrending(p.field),
+    fetchCollabRadar(p.field,p.inst),
+  ]);
+  renderArxivFeed(arxivRes.status==='fulfilled'?arxivRes.value:[]);
+  renderOATrending(oaRes.status==='fulfilled'?oaRes.value:[]);
+  renderCollabRadar(collabRes.status==='fulfilled'?collabRes.value:[]);
+
+  // AI feeds (require proxy, use cache)
+  refreshConferences(force);
+  loadGrantFeed(force);
+}
+
+// Patch loadGrantFeed to accept force parameter
+const _origLoadGrantFeed=loadGrantFeed;
+loadGrantFeed=async function(force=false){
+  const p=S.profile; if(!p?.field)return;
+  const cacheKey=`grants_${p.field}_${p.title||''}_${new Date().getMonth()}`;
+  if(!force){ const cached=getPulseCache(cacheKey); if(cached){renderGrants(cached);return;} }
+  if(!S.proxyUrl){renderGrants(null,'proxy');return;}
+  try{
+    const prompt=`You are a research funding intelligence assistant. List 4 real, active or annually recurring grant opportunities for a ${esc(p.title||'researcher')} in ${esc(p.field)} likely based in ${esc(p.inst||'the Global South or Africa')}.
+Prioritise: Wellcome Trust, Gates Foundation, NIH Fogarty, EU Horizon, African Union, NRF South Africa, TDR, EDCTP, field-specific foundations.
+Only include grants you are confident are real and recurring. Do not invent program names.
+Return ONLY valid JSON array (no markdown):
+[{"funder":"funder full name","opportunity":"grant program name","amount_range":"e.g. $50K–$500K USD","typical_cycle":"e.g. Rolling / Annual / Biannual — typical Q1","eligibility_note":"key eligibility criterion","relevance":"one sentence on relevance to this researcher profile"}]`;
+    const raw=await callClaude(prompt);
+    const parsed=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    setPulseCache(cacheKey,parsed,30*24*60*60*1000);
+    renderGrants(parsed);
+  }catch(e){ renderGrants(null,e.message); }
+};
 </script>
 </body>
 </html>
