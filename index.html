@@ -180,8 +180,7 @@
     /* ── FEATURES SPOTLIGHT ─────────────────────────────────── */
     .feature-spot{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;padding:56px 0;border-bottom:1px solid var(--border);}
     .feature-spot:last-child{border-bottom:none;padding-bottom:0;}
-    .feature-spot.reverse{direction:rtl;}
-    .feature-spot.reverse>*{direction:ltr;}
+    .feature-spot.reverse{}
     .fs-text{}
     .fs-badge{display:inline-flex;align-items:center;gap:5px;font-size:0.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;padding:3px 10px;border-radius:5px;margin-bottom:14px;}
     .fs-badge-live{background:rgba(26,102,71,0.1);color:var(--green);}
@@ -193,7 +192,7 @@
     .fs-list li{font-size:0.9375rem;color:var(--txt2);padding-left:22px;position:relative;line-height:1.5;}
     .fs-list li::before{content:'';position:absolute;left:0;top:7px;width:8px;height:8px;border-radius:50%;background:var(--green);}
     .fs-visual{background:var(--bg2);border-radius:var(--r-lg);padding:24px;border:1px solid var(--border);min-height:260px;display:flex;align-items:center;justify-content:center;}
-    @media(max-width:768px){.feature-spot,.feature-spot.reverse{grid-template-columns:1fr;direction:ltr;gap:28px;}}
+    @media(max-width:768px){.feature-spot,.feature-spot.reverse{grid-template-columns:1fr;gap:28px;}.feature-spot.reverse .fs-visual{order:0;}}
 
     /* ── MINI UI DEMO COMPONENTS ────────────────────────────── */
     /* Score ring demo */
@@ -286,9 +285,33 @@
     /* ── SECTION BG ALT ─────────────────────────────────────── */
     .bg-surface{background:var(--surface);}
     .bg-bg{background:var(--bg);}
+
+    /* ── SKIP LINK (accessibility) ───────────────────────────── */
+    .skip-link{position:absolute;top:-100px;left:24px;background:var(--green);color:white;padding:8px 18px;border-radius:0 0 8px 8px;font-weight:700;font-size:0.875rem;z-index:999;transition:top 0.15s;text-decoration:none;}
+    .skip-link:focus{top:0;outline:3px solid var(--green-light);outline-offset:2px;}
+
+    /* ── FIX: feature-spot reverse using order (not RTL) ─────── */
+    .feature-spot.reverse .fs-visual{order:-1;}
+
+    /* ── MOBILE SECTION PADDING ──────────────────────────────── */
+    @media(max-width:640px){.section{padding:56px 0;}.hero{padding:72px 0 56px;}}
+
+    /* ── BENTO ROW-SPAN FIX AT MEDIUM SCREENS ────────────────── */
+    @media(max-width:900px){.bc-row2{grid-row:span 1;}}
+
+    /* ── REDUCED MOTION ──────────────────────────────────────── */
+    @media(prefers-reduced-motion:reduce){
+      .trust-marquee{animation:none;}
+      .reveal{opacity:1;transform:none;transition:none;}
+      .hero-badge-dot{animation:none;}
+      .demo-bar-fill,.btn,.bento-card,.whom-card,.source-chip{transition:none;}
+      #hero-ring{transition:none;}
+    }
   </style>
 </head>
 <body>
+
+<a href="#main-content" class="skip-link">Skip to main content</a>
 
 <!-- NAV -->
 <nav aria-label="Main navigation">
@@ -307,14 +330,14 @@
 </nav>
 
 <!-- HERO -->
-<section class="hero" aria-labelledby="hero-heading">
+<section class="hero" id="main-content" aria-labelledby="hero-heading">
   <div class="hero-mesh" aria-hidden="true"><div class="hero-mesh-r"></div></div>
   <div class="container hero-inner">
     <div class="hero-badge" role="note">
       <span class="hero-badge-dot" aria-hidden="true"></span>
       Free &middot; No signup &middot; Works anywhere
     </div>
-    <h1 id="hero-heading">Your research deserves<br>to be <em>found.</em></h1>
+    <h1 id="hero-heading">Your research deserves to be <em>found.</em></h1>
     <p class="hero-sub">DVOS builds your digital research presence — tracking citations, verifying your ORCID, surfacing grants, and showing exactly how visible your work is to the world.</p>
     <div class="hero-ctas">
       <a href="/app" class="btn btn-primary btn-lg">Build my research profile &rarr;</a>
@@ -324,23 +347,24 @@
 
     <!-- Animated Score Demo Card -->
     <div class="hero-demo" role="img" aria-label="Example researcher visibility score showing 15 out of 100 before DVOS">
-      <div class="demo-badge-float float-1">
-        <span class="float-dot dot-green"></span> OpenAlex · 250M papers
+      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:14px;" aria-hidden="true">
+        <span style="display:inline-flex;align-items:center;gap:5px;padding:4px 12px;background:rgba(26,102,71,0.08);border:1px solid rgba(26,102,71,0.15);border-radius:99px;font-size:0.75rem;font-weight:600;color:var(--green);"><span style="width:5px;height:5px;border-radius:50%;background:var(--green-light);display:inline-block;"></span>OpenAlex · 250M papers</span>
+        <span style="display:inline-flex;align-items:center;gap:5px;padding:4px 12px;background:rgba(26,82,168,0.07);border:1px solid rgba(26,82,168,0.12);border-radius:99px;font-size:0.75rem;font-weight:600;color:var(--blue);"><span style="width:5px;height:5px;border-radius:50%;background:var(--blue);display:inline-block;"></span>ORCID · Semantic Scholar · Crossref</span>
       </div>
       <div class="demo-card">
         <div class="demo-header">
-          <div class="demo-ring" aria-hidden="true">
-            <svg width="64" height="64" viewBox="0 0 64 64">
-              <circle cx="32" cy="32" r="26" fill="none" stroke="#edf7f2" stroke-width="7"/>
-              <circle id="hero-ring" cx="32" cy="32" r="26" fill="none" stroke="#1A6647" stroke-width="7"
-                stroke-linecap="round" stroke-dasharray="163.4" stroke-dashoffset="163.4"
+          <div class="demo-ring" aria-hidden="true" style="width:80px;height:80px;flex-shrink:0;">
+            <svg width="80" height="80" viewBox="0 0 80 80">
+              <circle cx="40" cy="40" r="32" fill="none" stroke="#edf7f2" stroke-width="8"/>
+              <circle id="hero-ring" cx="40" cy="40" r="32" fill="none" stroke="#1A6647" stroke-width="8"
+                stroke-linecap="round" stroke-dasharray="201.1" stroke-dashoffset="201.1"
                 style="transition:stroke-dashoffset 1.6s cubic-bezier(0.4,0,0.2,1);"/>
             </svg>
-            <div class="demo-ring-num" id="hero-score-num">0</div>
+            <div class="demo-ring-num" id="hero-score-num" style="font-size:1.25rem;">0</div>
           </div>
           <div>
             <div class="demo-title">Visibility Score</div>
-            <div class="demo-caption">Before DVOS — most researchers start here.<br>Let's change that.</div>
+            <div class="demo-caption">Most researchers start here.<br>DVOS helps you reach 90+.</div>
           </div>
         </div>
         <div class="demo-bars" aria-hidden="true">
@@ -371,9 +395,6 @@
           </div>
         </div>
         <a href="/app" class="demo-cta">See what your score should be &rarr;</a>
-      </div>
-      <div class="demo-badge-float float-2">
-        <span class="float-dot dot-blue"></span> ORCID · Semantic Scholar · Crossref
       </div>
     </div>
   </div>
@@ -751,9 +772,9 @@
       <div class="footer-links-col">
         <h4>Platform</h4>
         <a href="/app">Launch DVOS</a>
-        <a href="/app#orcid">ORCID Verifier</a>
-        <a href="/app#pulse">Research Pulse</a>
-        <a href="/app#builder">Profile Builder</a>
+        <a href="/app">ORCID Verifier</a>
+        <a href="/app">Research Pulse</a>
+        <a href="/app">Profile Builder</a>
       </div>
       <div class="footer-links-col">
         <h4>Resources</h4>
@@ -775,7 +796,7 @@
     setTimeout(()=>{
       const ring=document.getElementById('hero-ring');
       const num=document.getElementById('hero-score-num');
-      const target=15; const circ=163.4;
+      const target=15; const circ=201.1;
       if(ring){ring.style.strokeDashoffset=circ-(target/100)*circ;}
       if(num){let n=0;const t=setInterval(()=>{n++;num.textContent=n;if(n>=target)clearInterval(t);},60);}
       // animate bars with delay
@@ -816,7 +837,7 @@
         const a=document.getElementById(btn.getAttribute('aria-controls'));
         if(a)a.classList.add('open');
         const icon=btn.querySelector('.faq-icon');
-        if(icon)icon.textContent='+';
+        if(icon)icon.textContent='\u00d7';
       }
     });
   });
