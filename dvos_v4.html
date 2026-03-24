@@ -577,7 +577,7 @@ img { max-width: 100%; display: block; }
     <div class="ob-step" id="ob-step-4">
       <p class="t-micro t-faint" style="margin-bottom:10px;">Step 4 of 5 — Your baseline</p>
       <h1 class="t-display" style="margin-bottom:8px;">Your starting visibility score.</h1>
-      <p class="t-body t-muted" style="margin-bottom:24px;">Based on your profile and what we found in global databases. This is your baseline — we'll build it up together.</p>
+      <p class="t-body t-muted" style="margin-bottom:24px;">Based on your profile and what we found in global databases. This measures your <strong style="color:var(--txt);">digital discoverability</strong> — not research quality. A researcher with 5,000 citations can score 15 if their work isn't findable online.</p>
       <div id="ob-openalex-found" style="display:none;margin-bottom:16px;padding:12px 14px;background:var(--accent-bg);border-radius:var(--r-md);border-left:3px solid var(--accent);">
         <div style="font-size:0.75rem;font-weight:700;color:var(--accent);margin-bottom:3px;" id="ob-found-title">Found in research databases ✓</div>
         <div style="font-size:0.75rem;color:var(--txt2);" id="ob-openalex-summary"></div>
@@ -716,10 +716,12 @@ img { max-width: 100%; display: block; }
               <div class="sec-title">Global research reach</div>
               <div class="badge badge-green" style="font-size:0.5625rem;" data-tip="Based on OpenAlex data">live signal</div>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:10px;margin-bottom:16px;">
               <div class="metric-card"><div class="metric-label">Citations</div><div class="metric-value" id="m-citations">—</div><div class="metric-sub metric-up" id="m-citations-sub">from OpenAlex</div></div>
               <div class="metric-card"><div class="metric-label">H-index</div><div class="metric-value" id="m-hindex">—</div><div class="metric-sub" id="m-hindex-sub">OpenAlex + Semantic Scholar</div></div>
               <div class="metric-card"><div class="metric-label">Publications</div><div class="metric-value" id="m-pubs">—</div><div class="metric-sub" id="m-pubs-sub">total indexed</div></div>
+              <div class="metric-card"><div class="metric-label">Open Access</div><div class="metric-value" id="m-oa-rate">—</div><div class="metric-sub" id="m-oa-sub">of publications</div></div>
+              <div class="metric-card"><div class="metric-label">Recent citations</div><div class="metric-value" id="m-cite-vel">—</div><div class="metric-sub" id="m-cite-vel-sub">last 2 years</div></div>
             </div>
             <div class="sec-title" style="margin-bottom:8px;">Citation velocity by year</div>
             <div class="cit-chart" id="cit-chart" role="img" aria-label="Citation chart"></div>
@@ -727,7 +729,7 @@ img { max-width: 100%; display: block; }
           </div>
           <div class="card" style="display:flex;flex-direction:column;">
             <div class="sec-head">
-              <div class="sec-title" data-tip="Computed from 6 real signals">Visibility index</div>
+              <div class="sec-title" data-tip="Digital visibility score — measures discoverability, not research quality">Digital Visibility Score</div>
               <div class="badge badge-amber" id="score-badge">— / 100</div>
             </div>
             <div style="display:flex;justify-content:center;margin-bottom:16px;">
@@ -739,7 +741,7 @@ img { max-width: 100%; display: block; }
                 </svg>
                 <div class="score-ring-center">
                   <div class="score-ring-num" id="main-score-num">—</div>
-                  <div class="score-ring-label">/ 100</div>
+                  <div class="score-ring-label" style="font-size:0.5rem;line-height:1.2;">visibility<br>/ 100</div>
                 </div>
               </div>
             </div>
@@ -925,6 +927,7 @@ img { max-width: 100%; display: block; }
               </div>
               <button class="btn btn-primary btn-full btn-sm" onclick="verifyOrcid()" id="orcid-connect-btn">Verify ORCID iD →</button>
               <div style="margin-top:10px;font-size:0.6875rem;color:var(--txt3);line-height:1.5;">Don't have one? <a href="https://orcid.org/register" target="_blank" rel="noopener" style="color:var(--accent);">Register free at orcid.org →</a></div>
+              <div id="orcid-completeness" style="display:none;margin-top:14px;padding:12px;background:var(--bg2);border-radius:var(--r-sm);border-top:1px solid var(--border);"></div>
               <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
                 <div><div class="metric-label">Publications</div><div style="font-size:1.125rem;font-weight:700;font-family:var(--ff-mono);" id="orcid-pubs-count">—</div></div>
                 <div><div class="metric-label">Citations</div><div style="font-size:1.125rem;font-weight:700;font-family:var(--ff-mono);" id="orcid-cites-count">—</div></div>
@@ -1092,6 +1095,41 @@ function notify(title,sub,type='green'){
 // Weights reflect actual research visibility: citations are the primary academic signal,
 // ORCID enables attribution, profile/content drive discoverability.
 const WEIGHTS={orcid:25,profile:18,website:12,content:10,platforms:8,citations:27};
+
+/* ── H-INDEX FIELD CONTEXT ──────────────────────────────────── */
+// Returns a short contextual note for the given h-index, field, and career stage.
+// Based on published field-normalised h-index ranges (Hirsch 2005; Bornmann et al. 2011).
+function hIndexContext(hVal, field, title){
+  if(!hVal||hVal<1)return null;
+  const f=(field||'').toLowerCase();
+  const t=(title||'').toLowerCase();
+  const stage=t.includes('professor')||t.includes('associate')?'senior':
+               t.includes('lecturer')||t.includes('senior lecturer')?'mid':'early';
+  // Broad field categories → [early_max, mid_max, senior_typical]
+  const map=[
+    {keys:['medicine','medical','clinical','surgery','pharma'],  e:5,  m:14, s:30},
+    {keys:['public health','epidemiology','global health'],       e:5,  m:12, s:25},
+    {keys:['biology','biochemistry','genetics','molecular'],      e:5,  m:12, s:28},
+    {keys:['ecology','environment','conservation'],               e:4,  m:10, s:22},
+    {keys:['chemistry','chemical'],                               e:5,  m:14, s:32},
+    {keys:['physics','astrophysics','quantum'],                   e:5,  m:13, s:28},
+    {keys:['computer','computing','software','ai','machine'],     e:5,  m:12, s:25},
+    {keys:['engineering','mechanical','civil','electrical'],      e:4,  m:10, s:22},
+    {keys:['economics','finance','business'],                     e:3,   m:8, s:18},
+    {keys:['social','sociology','political','anthropology'],      e:2,   m:6, s:13},
+    {keys:['education','pedagogy'],                               e:2,   m:6, s:12},
+    {keys:['law','legal'],                                        e:2,   m:5, s:11},
+  ];
+  const match=map.find(r=>r.keys.some(k=>f.includes(k)));
+  if(!match)return null;
+  const {e,m,s}=match;
+  const typical=stage==='early'?e:stage==='mid'?m:s;
+  if(hVal>typical*1.4)return `Strong for ${stage}-career in this field`;
+  if(hVal>typical*0.8)return `Typical for ${stage}-career in this field`;
+  if(hVal>0)return `Growing — typical ${stage}-career range: ${Math.round(typical*0.5)}–${typical}`;
+  return null;
+}
+
 function computeScore(sig){
   let sc=0;
   Object.keys(WEIGHTS).forEach(k=>{ sc+=(sig[k]||0)*WEIGHTS[k]/100; });
@@ -1212,11 +1250,16 @@ function checkProxyBanner(){
 
 async function callClaude(prompt,onChunk){
   if(!S.proxyUrl)throw new Error('PROXY_NOT_CONFIGURED');
-  const res=await fetch(S.proxyUrl,{
+  const controller=new AbortController();
+  const toId=setTimeout(()=>{controller.abort();},30000); // 30s timeout
+  let res;
+  try{ res=await fetch(S.proxyUrl,{signal:controller.signal,
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({model:CFG.MODEL,max_tokens:1200,stream:true,messages:[{role:'user',content:prompt}]})
   });
+  }catch(fe){ if(fe.name==='AbortError')throw new Error('Request timed out — check your connection and try again.'); throw fe; }
+  finally{clearTimeout(toId);}
   if(!res.ok){ const e=await res.json().catch(()=>({})); throw new Error(e.error?.message||e.error||`Proxy ${res.status}`); }
   const reader=res.body.getReader(), dec=new TextDecoder();
   let acc='';
@@ -1433,6 +1476,18 @@ async function buildScoreReveal(){
       setText('ob-openalex-summary',`${metrics.worksCount||'?'} publications · ${metrics.citedByCount||0} citations · h-index ${metrics.hIndex||'—'}${pmNote}`);
     }
   }
+  // Database coverage warning for fields with known under-indexing
+  const fieldLow=(p?.field||'').toLowerCase();
+  const underIndexed=['social','law','humanities','arts','african','arabic','french','portuguese','spanish','education','theology','religious','language','linguistics','history'].some(k=>fieldLow.includes(k));
+  if(underIndexed){
+    const warn=$id('ob-gaps');
+    if(warn){
+      const note=document.createElement('div');
+      note.style.cssText='padding:10px 12px;background:var(--amber-bg);border-radius:var(--r-sm);margin-bottom:10px;font-size:0.75rem;color:var(--amber);line-height:1.5;';
+      note.innerHTML='<strong>Coverage note:</strong> Your field has lower coverage in OpenAlex and Semantic Scholar. Your actual publication count and citations may be higher than shown. Connecting ORCID is especially important for correct attribution.';
+      warn.prepend(note);
+    }
+  }
   const score=computeScore(sig);
   // Animate ring
   setTimeout(()=>{
@@ -1491,11 +1546,30 @@ function refreshDashboard(){
   const hi=m.hIndex??p?.hindex??null;
   const works=m.worksCount??p?.pubs??null;
   setText('m-citations',cites??'—'); setText('m-hindex',hi??'—'); setText('m-pubs',works??'—');
+  // h-index field context
+  const hCtx=hi?hIndexContext(hi,S.profile?.field,S.profile?.title):null;
+  const hSub=$id('m-hindex-sub'); if(hSub)hSub.textContent=hCtx||'OpenAlex + Semantic Scholar';
+  const hSubStat=$id('stat-hindex-sub'); if(hSubStat)hSubStat.textContent=hCtx||'OpenAlex + Semantic Scholar';
   const pmEl=$id('m-pubmed'); if(pmEl)pmEl.textContent=m.pubmedCount?`${m.pubmedCount} PubMed`:'—';
   setText('stat-citations',cites??'—'); setText('stat-hindex',hi??'—');
   const pubLinked=S.works.length; const pubTotal=works||'?';
   setText('stat-pubs',(pubLinked||'—')+(works?'/'+works:''));
   setText('stat-inst',m.inst||p?.inst||'—');
+  // Open access rate
+  if(S.works.length>0){
+    const oaCount=S.works.filter(w=>w.open_access?.is_oa).length;
+    const oaRate=Math.round((oaCount/S.works.length)*100);
+    const oaEl=$id('m-oa-rate'); if(oaEl)oaEl.textContent=oaRate+'%';
+    const oaSubEl=$id('m-oa-sub'); if(oaSubEl)oaSubEl.textContent=`${oaCount} of ${S.works.length} publications`;
+    // Citation velocity: citations in last 2 years vs all time
+    const curYear=new Date().getFullYear();
+    const recentCites=S.works.reduce((s,w)=>{
+      if((w.publication_year||0)>=curYear-2)s+=w.cited_by_count||0;
+      return s;
+    },0);
+    const velEl=$id('m-cite-vel'); if(velEl)velEl.textContent=recentCites||'—';
+    const velSubEl=$id('m-cite-vel-sub'); if(velSubEl)velSubEl.textContent='last 2 years';
+  }
   // citation chart
   buildCitChart();
   // actions
@@ -1772,6 +1846,28 @@ async function verifyOrcid(){
     setText('orcid-pubs-count',totalWorks||'—'); setText('orcid-cites-count',S.metrics.citedByCount||'—');
     setText('orcid-hindex-count',S.metrics.hIndex||'—'); setText('orcid-works-count',orcidWorks);
     btn.textContent='✓ Verified'; btn.className='btn btn-sm btn-full'; btn.style.color='var(--accent)';
+    // ORCID completeness checklist — critical for grant applications
+    const emp=record['activities-summary']?.employments?.['affiliation-group']?.length||0;
+    const edu=record['activities-summary']?.educations?.['affiliation-group']?.length||0;
+    const fund=record['activities-summary']?.fundings?.group?.length||0;
+    const peerRev=record['activities-summary']?.['peer-reviews']?.group?.length||0;
+    const checks=[
+      {ok:orcidWorks>0, label:'Works listed in ORCID'},
+      {ok:emp>0,        label:'Employment history added'},
+      {ok:edu>0,        label:'Education history added'},
+      {ok:fund>0,       label:'Funding acknowledgements listed'},
+      {ok:peerRev>0,    label:'Peer review activity recorded'},
+    ];
+    const checkEl=$id('orcid-completeness');
+    if(checkEl){
+      checkEl.style.display='block';
+      checkEl.innerHTML=`<div style="font-size:0.75rem;font-weight:600;color:var(--txt);margin-bottom:8px;">ORCID profile completeness</div>`+
+        checks.map(c=>`<div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;font-size:0.75rem;color:${c.ok?'var(--accent)':'var(--txt3)'};">
+          <div style="width:12px;height:12px;border-radius:50%;background:${c.ok?'var(--accent)':'var(--bg3)'};flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.5rem;color:white;">${c.ok?'✓':''}</div>
+          ${c.label}
+        </div>`).join('')+
+        `<div style="margin-top:8px;font-size:0.6875rem;color:var(--txt3);">Complete profile improves grant eligibility verification across Wellcome, NIH, EU Horizon, and African research councils.</div>`;
+    }
     // load publications
     if(S.oaId){ loadPublications(S.oaId,orcidWorks); }
     recomputeScore(); renderOrcidProjection(); refreshDashboard();
