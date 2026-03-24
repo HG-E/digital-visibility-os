@@ -533,12 +533,60 @@ img { max-width: 100%; display: block; }
 .pred-tip{font-size:0.75rem;color:var(--txt2);padding:8px 10px;background:var(--bg2);border-radius:var(--r-sm);line-height:1.5;}
 .pred-tip strong{display:block;color:var(--red);margin-bottom:2px;}
 @media(max-width:480px){.pred-grid{grid-template-columns:1fr;}.jcheck-grid{grid-template-columns:1fr;}}
+/* ── COLLABORATION CARDS ──────────────────────────────────── */
+.cc-divider{margin:14px 0 10px;border-top:1px solid var(--border);}
+.cc-create-btn{display:flex;align-items:center;gap:6px;width:100%;padding:9px 12px;border-radius:var(--r-sm);background:var(--accent-bg);color:var(--accent);font-size:0.75rem;font-weight:600;border:none;cursor:pointer;transition:background 0.12s;}
+.cc-create-btn:hover{background:rgba(46,204,136,0.18);}
+.cc-form{margin-top:10px;display:flex;flex-direction:column;gap:10px;}
+.cc-form label{font-size:0.6875rem;font-weight:600;color:var(--txt2);margin-bottom:2px;display:block;}
+.cc-form select,.cc-form textarea{width:100%;padding:7px 10px;border-radius:var(--r-sm);border:1px solid var(--border);background:var(--bg2);color:var(--txt1);font-size:0.75rem;font-family:inherit;resize:none;}
+.cc-form select:focus,.cc-form textarea:focus{outline:none;border-color:var(--accent);}
+.cc-preview{margin-top:12px;border:1px solid var(--border);border-radius:var(--r);padding:14px;background:var(--bg2);}
+.cc-preview-field{font-size:0.6875rem;color:var(--txt2);margin-bottom:2px;}
+.cc-preview-name{font-size:0.9375rem;font-weight:700;color:var(--txt1);line-height:1.3;}
+.cc-preview-inst{font-size:0.75rem;color:var(--txt2);margin-bottom:8px;}
+.cc-tag-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;}
+.cc-tag{font-size:0.625rem;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--bg3);color:var(--txt2);}
+.cc-tag-accent{background:var(--accent-bg);color:var(--accent);}
+.cc-preview-topic{font-size:0.75rem;color:var(--txt1);line-height:1.5;margin-bottom:10px;}
+.cc-share-row{display:flex;flex-wrap:wrap;gap:6px;}
+.cc-share-btn{display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:99px;border:none;font-size:0.6875rem;font-weight:600;cursor:pointer;transition:all 0.12s;}
+.cc-share-copy{background:var(--bg3);color:var(--txt2);}
+.cc-share-copy:hover{background:var(--accent-bg);color:var(--accent);}
+.cc-share-wa{background:#25d366;color:#fff;}
+.cc-share-wa:hover{background:#1fba59;}
+.cc-share-li{background:#0a66c2;color:#fff;}
+.cc-share-li:hover{background:#0958a8;}
+.cc-share-tw{background:#000;color:#fff;}
+.cc-share-tw:hover{background:#333;}
+.cc-share-text{background:var(--bg3);color:var(--txt2);}
+.cc-share-text:hover{background:var(--bg4,var(--bg3));color:var(--txt1);}
+/* Incoming card banner */
+#cc-incoming-banner{display:none;position:fixed;bottom:72px;left:50%;transform:translateX(-50%);z-index:200;max-width:420px;width:calc(100% - 32px);background:var(--bg1);border:1px solid var(--accent);border-radius:var(--r);padding:14px 16px;box-shadow:0 8px 32px rgba(0,0,0,0.3);}
+.cc-incoming-title{font-size:0.75rem;font-weight:700;color:var(--accent);margin-bottom:4px;}
+.cc-incoming-name{font-size:0.9375rem;font-weight:700;color:var(--txt1);}
+.cc-incoming-meta{font-size:0.6875rem;color:var(--txt2);margin-bottom:8px;}
+.cc-incoming-topic{font-size:0.75rem;color:var(--txt1);line-height:1.5;border-left:2px solid var(--accent);padding-left:8px;margin-bottom:10px;}
+.cc-incoming-row{display:flex;gap:6px;}
 </style>
 </head>
 <body>
 
 <!-- NOTIFICATIONS -->
 <div id="notif-container" aria-live="polite" aria-label="Notifications"></div>
+
+<!-- INCOMING COLLAB CARD BANNER -->
+<div id="cc-incoming-banner" role="dialog" aria-label="Incoming collaboration card">
+  <div class="cc-incoming-title">&#128101; Collaboration request</div>
+  <div class="cc-incoming-name" id="cc-inc-name"></div>
+  <div class="cc-incoming-meta" id="cc-inc-meta"></div>
+  <div class="cc-incoming-topic" id="cc-inc-topic"></div>
+  <div class="cc-incoming-row">
+    <button class="btn btn-primary btn-sm" onclick="openCollabContact()" id="cc-inc-contact-btn">Connect</button>
+    <button class="btn btn-sm" onclick="dismissIncomingCard()">Dismiss</button>
+    <button class="btn btn-sm" onclick="saveIncomingCard()">Save to Network</button>
+  </div>
+</div>
 
 <!-- PROXY BANNER -->
 <div id="proxy-banner">
@@ -1148,6 +1196,51 @@ img { max-width: 100%; display: block; }
               </div>
               <div style="font-size:0.6875rem;color:var(--txt3);margin-bottom:8px;">Researchers in your field with high-impact recent work</div>
               <div id="collab-feed"><div class="loading-row"><div class="spinner"></div><span>Finding researchers...</span></div></div>
+              <div class="cc-divider"></div>
+              <button class="cc-create-btn" onclick="toggleCollabCardForm()" id="cc-toggle-btn">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M7 4v6M4 7h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                Create your collab card &mdash; share what you're working on
+              </button>
+              <div id="cc-form-wrap" style="display:none;">
+                <div class="cc-form" id="cc-form">
+                  <div>
+                    <label for="cc-topic">What are you working on?</label>
+                    <textarea id="cc-topic" class="cc-form" rows="2" maxlength="220" placeholder="e.g. Estimating food insecurity in informal settlements using satellite imagery..."></textarea>
+                  </div>
+                  <div>
+                    <label for="cc-stage">Project stage</label>
+                    <select id="cc-stage">
+                      <option value="Conceptualising">Conceptualising</option>
+                      <option value="Data collection">Data collection</option>
+                      <option value="Analysis">Analysis</option>
+                      <option value="Writing">Writing</option>
+                      <option value="Seeking peer review">Seeking peer review</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label for="cc-looking">Looking for</label>
+                    <select id="cc-looking">
+                      <option value="Co-author">Co-author</option>
+                      <option value="Methodologist">Methodologist</option>
+                      <option value="Field expert">Field expert</option>
+                      <option value="Data scientist">Data scientist</option>
+                      <option value="Grant writing partner">Grant writing partner</option>
+                      <option value="Peer reviewer">Peer reviewer</option>
+                      <option value="Clinical collaborator">Clinical collaborator</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label for="cc-contact">How to reach me</label>
+                    <select id="cc-contact">
+                      <option value="ORCID">ORCID profile</option>
+                      <option value="Email">Email (from ORCID)</option>
+                      <option value="LinkedIn">LinkedIn</option>
+                    </select>
+                  </div>
+                  <button class="btn btn-primary" style="width:100%;" onclick="generateCollabCard()">Generate card &amp; share link</button>
+                </div>
+                <div id="cc-preview-wrap" style="display:none;"></div>
+              </div>
             </div>
           </div>
           <!-- Right: conferences + grants -->
@@ -2431,6 +2524,186 @@ function renderPlatformProjection(){
   });
 }
 
+/* ── COLLABORATION CARDS ─────────────────────────────────── */
+let _ccIncomingData=null;
+
+function toggleCollabCardForm(){
+  const wrap=$id('cc-form-wrap');
+  const btn=$id('cc-toggle-btn');
+  if(!wrap)return;
+  const open=wrap.style.display==='none'||wrap.style.display==='';
+  if(open){
+    wrap.style.display='block';
+    btn.innerHTML='<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M4 7h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Cancel';
+  } else {
+    wrap.style.display='none';
+    btn.innerHTML='<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M7 4v6M4 7h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Create your collab card &mdash; share what you\'re working on';
+  }
+}
+
+function generateCollabCard(){
+  const p=S.profile||{};
+  const topic=($id('cc-topic')?.value||'').trim();
+  const stage=$id('cc-stage')?.value||'';
+  const looking=$id('cc-looking')?.value||'';
+  const contact=$id('cc-contact')?.value||'';
+  if(!topic){showNotif('Add a brief description of your research first.','warn');return;}
+  const data={
+    v:1,
+    name:p.name||'Researcher',
+    inst:p.institution||'',
+    field:p.field||'',
+    orcid:p.orcid||'',
+    topic,stage,looking,contact,
+    ts:Date.now()
+  };
+  const encoded=btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+  const url=`https://digital-visibility-os.vercel.app/app?collab=${encoded}`;
+  data._url=url;
+  renderCollabCardPreview(data);
+}
+
+function renderCollabCardPreview(data){
+  const wrap=$id('cc-preview-wrap');
+  const formEl=$id('cc-form');
+  if(!wrap)return;
+  if(formEl)formEl.style.display='none';
+  wrap.style.display='block';
+  const url=data._url||'';
+  wrap.innerHTML=`
+    <div class="cc-preview" id="cc-preview-card">
+      <div class="cc-preview-field">&#128101; Collaboration Card</div>
+      <div class="cc-preview-name">${esc(data.name)}</div>
+      <div class="cc-preview-inst">${esc(data.inst)}${data.inst&&data.field?' &middot; ':''}${esc(data.field)}</div>
+      <div class="cc-tag-row">
+        <span class="cc-tag">Stage: ${esc(data.stage)}</span>
+        <span class="cc-tag cc-tag-accent">&#128269; ${esc(data.looking)}</span>
+        ${data.orcid?`<span class="cc-tag">ORCID &#10003;</span>`:''}
+      </div>
+      <div class="cc-preview-topic">${esc(data.topic)}</div>
+      <div class="cc-share-row">
+        <button class="cc-share-btn cc-share-copy" onclick="ccCopyLink()" title="Copy link">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="4" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M4 3V2.5A1.5 1.5 0 0 1 5.5 1h4A1.5 1.5 0 0 1 11 2.5v4A1.5 1.5 0 0 1 9.5 8H9" stroke="currentColor" stroke-width="1.2"/></svg>
+          Copy link
+        </button>
+        <button class="cc-share-btn cc-share-wa" onclick="ccShare('wa')" title="Share on WhatsApp">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+          WhatsApp
+        </button>
+        <button class="cc-share-btn cc-share-li" onclick="ccShare('li')" title="Share on LinkedIn">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          LinkedIn
+        </button>
+        <button class="cc-share-btn cc-share-tw" onclick="ccShare('tw')" title="Share on X/Twitter">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.253 5.622L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>
+          X / Twitter
+        </button>
+        <button class="cc-share-btn cc-share-text" onclick="ccCopyText()" title="Copy as plain text">
+          &#128203; Copy as text
+        </button>
+      </div>
+      <div id="cc-copy-confirm" style="display:none;font-size:0.625rem;color:var(--accent);margin-top:6px;">&#10003; Copied!</div>
+    </div>
+    <button class="btn btn-sm" style="margin-top:8px;width:100%;font-size:0.6875rem;" onclick="resetCollabCardForm()">&#8592; Edit card</button>
+  `;
+  // store url globally for share functions
+  window._ccShareUrl=url;
+  window._ccShareData=data;
+}
+
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function ccCopyLink(){
+  const url=window._ccShareUrl||'';
+  if(!url)return;
+  navigator.clipboard.writeText(url).then(()=>{
+    const c=$id('cc-copy-confirm');
+    if(c){c.style.display='block';setTimeout(()=>c.style.display='none',2000);}
+  }).catch(()=>showNotif('Copy failed — try a modern browser.','warn'));
+}
+
+function ccCopyText(){
+  const d=window._ccShareData;
+  if(!d)return;
+  const txt=`Collaboration Card | ${d.name}${d.inst?' @ '+d.inst:''}${d.field?' ('+d.field+')':''}
+Stage: ${d.stage} | Looking for: ${d.looking}
+${d.topic}${d.orcid?'\nORCID: https://orcid.org/'+d.orcid:''}
+Connect: ${window._ccShareUrl}`;
+  navigator.clipboard.writeText(txt).then(()=>{
+    const c=$id('cc-copy-confirm');
+    if(c){c.style.display='block';setTimeout(()=>c.style.display='none',2000);}
+  }).catch(()=>showNotif('Copy failed.','warn'));
+}
+
+function ccShare(method){
+  const url=encodeURIComponent(window._ccShareUrl||'');
+  const d=window._ccShareData||{};
+  const msg=encodeURIComponent(`Looking for a ${d.looking||'collaborator'} for my research on "${(d.topic||'').slice(0,80)}..." — stage: ${d.stage||''}. See my full collab card:`);
+  if(method==='wa') window.open(`https://wa.me/?text=${msg}%20${url}`,'_blank');
+  else if(method==='li') window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`,'_blank');
+  else if(method==='tw') window.open(`https://twitter.com/intent/tweet?text=${msg}&url=${url}`,'_blank');
+}
+
+function resetCollabCardForm(){
+  const wrap=$id('cc-preview-wrap');
+  const formEl=$id('cc-form');
+  if(wrap)wrap.style.display='none';
+  if(formEl)formEl.style.display='';
+}
+
+/* ── Incoming collab card from URL ?collab= ─────────────── */
+function checkIncomingCollabCard(){
+  try{
+    const params=new URLSearchParams(window.location.search);
+    const encoded=params.get('collab');
+    if(!encoded)return;
+    const data=JSON.parse(decodeURIComponent(escape(atob(encoded))));
+    if(!data||!data.name)return;
+    _ccIncomingData=data;
+    // Build contact URL
+    let contactUrl='';
+    if(data.contact==='ORCID'&&data.orcid) contactUrl=`https://orcid.org/${data.orcid}`;
+    else if(data.contact==='LinkedIn') contactUrl=`https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(data.name)}`;
+    else if(data.contact==='Email'&&data.orcid) contactUrl=`https://orcid.org/${data.orcid}`;
+    _ccIncomingData._contactUrl=contactUrl;
+    // Populate banner
+    const nameEl=$id('cc-inc-name'); if(nameEl)nameEl.textContent=data.name;
+    const metaEl=$id('cc-inc-meta');
+    if(metaEl){
+      let meta=[data.inst,data.field].filter(Boolean).join(' · ');
+      if(data.stage) meta+=(meta?' · ':'')+data.stage;
+      if(data.looking) meta+=(meta?' · ':'')+'Seeking: '+data.looking;
+      metaEl.textContent=meta;
+    }
+    const topicEl=$id('cc-inc-topic'); if(topicEl)topicEl.textContent=data.topic||'';
+    const banner=$id('cc-incoming-banner'); if(banner)banner.style.display='block';
+    // clean URL without removing hash
+    const clean=window.location.pathname+(window.location.hash||'');
+    window.history.replaceState({},'',clean);
+  }catch(e){/* malformed — ignore */}
+}
+
+function openCollabContact(){
+  const url=_ccIncomingData?._contactUrl;
+  if(url)window.open(url,'_blank');
+  dismissIncomingCard();
+}
+
+function saveIncomingCard(){
+  if(!_ccIncomingData)return;
+  const saved=JSON.parse(localStorage.getItem('dvos4_saved_collabs')||'[]');
+  saved.unshift(_ccIncomingData);
+  localStorage.setItem('dvos4_saved_collabs',JSON.stringify(saved.slice(0,50)));
+  showNotif(`${_ccIncomingData.name}'s card saved to Network tab.`,'ok');
+  dismissIncomingCard();
+}
+
+function dismissIncomingCard(){
+  const banner=$id('cc-incoming-banner');
+  if(banner)banner.style.display='none';
+  _ccIncomingData=null;
+}
+
 /* ── INIT ───────────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded',()=>{
   if(S.onboardDone){
@@ -2441,7 +2714,8 @@ document.addEventListener('DOMContentLoaded',()=>{
     recomputeScore();
   }
   checkProxyBanner();
-  document.addEventListener('keydown',e=>{ if(e.key==='Escape')closeSidebar(); });
+  checkIncomingCollabCard();
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape'){closeSidebar();dismissIncomingCard();} });
 });
 
 /* ══════════════════════════════════════════════════════════════
