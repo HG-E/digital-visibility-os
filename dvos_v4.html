@@ -520,6 +520,19 @@ img { max-width: 100%; display: block; }
 .saved-item:last-child{border-bottom:none;}
 .saved-item-name{font-size:0.8125rem;font-weight:600;line-height:1.4;}
 .saved-item-meta{font-size:0.6875rem;color:var(--txt3);}
+/* ── JOURNAL CHECKER ─────────────────────────────────────────── */
+.jcheck-result{padding:12px 0;border-bottom:1px solid var(--border);}
+.jcheck-result:last-child{border-bottom:none;}
+.jcheck-badge-ok{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;font-size:0.6875rem;font-weight:700;background:var(--accent-bg);color:var(--accent);}
+.jcheck-badge-warn{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;font-size:0.6875rem;font-weight:700;background:var(--amber-bg);color:var(--amber);}
+.jcheck-stat{font-size:0.6875rem;color:var(--txt2);line-height:1.6;}
+.jcheck-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;margin-top:8px;}
+.jcheck-hist-item{font-size:0.6875rem;padding:2px 8px;border-radius:99px;background:var(--bg3);color:var(--txt2);cursor:pointer;border:none;transition:all 0.12s;}
+.jcheck-hist-item:hover{background:var(--accent-bg);color:var(--accent);}
+.pred-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.pred-tip{font-size:0.75rem;color:var(--txt2);padding:8px 10px;background:var(--bg2);border-radius:var(--r-sm);line-height:1.5;}
+.pred-tip strong{display:block;color:var(--red);margin-bottom:2px;}
+@media(max-width:480px){.pred-grid{grid-template-columns:1fr;}.jcheck-grid{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
@@ -1098,6 +1111,7 @@ img { max-width: 100%; display: block; }
             <button class="ptab" data-tab="opps" onclick="setPulseTab('opps')" role="tab" aria-selected="false" aria-controls="pulse-col-opps">Opportunities</button>
             <button class="ptab" data-tab="network" onclick="setPulseTab('network')" role="tab" aria-selected="false" aria-controls="pulse-card-collab">Network</button>
             <button class="ptab" data-tab="saved" onclick="setPulseTab('saved')" role="tab" aria-selected="false" aria-controls="pulse-saved-panel">Saved <span id="saved-count-tab" class="ptab-cnt" style="display:none;"></span></button>
+            <button class="ptab" data-tab="jcheck" onclick="setPulseTab('jcheck')" role="tab" aria-selected="false" aria-controls="pulse-jcheck-panel">Journal Check</button>
           </div>
           <div class="pulse-chips" id="pulse-chips" aria-label="Active topic filters"></div>
         </div>
@@ -1188,6 +1202,39 @@ img { max-width: 100%; display: block; }
               <span style="font-size:0.6875rem;color:var(--txt3);">Bookmarked conferences &amp; grants</span>
             </div>
             <div id="saved-items-list"></div>
+          </div>
+        </div>
+        <!-- Journal Check panel -->
+        <div id="pulse-jcheck-panel" style="display:none;" role="tabpanel" aria-label="Journal legitimacy checker">
+          <div class="card">
+            <div class="sec-head">
+              <div class="sec-title">Journal Legitimacy Check</div>
+              <span class="badge badge-green" style="font-size:0.5rem;">DOAJ verified</span>
+            </div>
+            <div style="font-size:0.8125rem;color:var(--txt2);margin-bottom:12px;line-height:1.5;">Check if a journal is in the <strong>Directory of Open Access Journals (DOAJ)</strong> — the global whitelist for legitimate open-access journals. Protects you from predatory publishers before you submit.</div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+              <input id="jcheck-input" type="text" class="input" placeholder="Journal name or ISSN (e.g. 0028-0836)" style="flex:1;min-width:180px;" onkeydown="if(event.key==='Enter')checkJournal()"/>
+              <button class="btn btn-primary" onclick="checkJournal()" id="jcheck-btn">Check</button>
+            </div>
+            <div id="jcheck-history-wrap" style="display:none;margin-top:8px;">
+              <div style="font-size:0.6875rem;color:var(--txt3);margin-bottom:4px;">Recent checks:</div>
+              <div style="display:flex;gap:4px;flex-wrap:wrap;" id="jcheck-hist"></div>
+            </div>
+            <div id="jcheck-result" style="margin-top:12px;"></div>
+          </div>
+          <div class="card" style="margin-top:14px;">
+            <div class="sec-head">
+              <div class="sec-title">Predatory journal warning signs</div>
+              <span style="font-size:0.6875rem;color:var(--txt3);">Know before you submit</span>
+            </div>
+            <div class="pred-grid">
+              <div class="pred-tip"><strong>&#128681; Unsolicited email invites</strong>Legitimate journals rarely cold-email researchers to submit.</div>
+              <div class="pred-tip"><strong>&#128681; Very rapid peer review</strong>Accepted within days of submission — review quality is absent.</div>
+              <div class="pred-tip"><strong>&#128681; Fake impact metrics</strong>"Global Impact Factor" or "Index Copernicus Value" are not the Clarivate JIF.</div>
+              <div class="pred-tip"><strong>&#128681; Not in DOAJ or Scopus</strong>Absence from DOAJ, Scopus, or Web of Science is a strong warning signal.</div>
+              <div class="pred-tip"><strong>&#128681; High APC, no waiver</strong>Charging substantial APCs with no waiver policy for low-income countries is a red flag.</div>
+              <div class="pred-tip"><strong>&#128681; Misleading journal name</strong>Names mimicking prestigious journals need careful verification — check ISSN on DOAJ.</div>
+            </div>
           </div>
         </div>
       </div>
@@ -1450,6 +1497,19 @@ const OA={
     const clean=id.replace('https://openalex.org/','');
     const r=await fetch(this._url(`/works?filter=author.id:${clean}&sort=cited_by_count:desc&per-page=${limit}`));
     if(!r.ok)throw new Error('OA_WORKS_FAIL');
+    return (await r.json()).results||[];
+  }
+};
+
+/* ── DOAJ API (journal whitelist) ───────────────────────────── */
+// Free, CORS-enabled. Whitelist of ~20k legitimate open-access journals.
+const DOAJ={
+  BASE:'https://doaj.org/api/search/journals',
+  async search(query){
+    const isISSN=/^\d{4}-?\d{3}[\dX]$/i.test(query.trim());
+    const q=isISSN?`issn:${encodeURIComponent(query.trim())}`:encodeURIComponent('"'+query.trim()+'"');
+    const r=await fetch(`${this.BASE}/${q}?pageSize=5`);
+    if(!r.ok)throw new Error('DOAJ_FAIL');
     return (await r.json()).results||[];
   }
 };
@@ -2662,12 +2722,17 @@ function setPulseTab(tab){
   });
   const grid=$id('pulse-main-grid');
   const savedPanel=$id('pulse-saved-panel');
+  const jcheckPanel=$id('pulse-jcheck-panel');
   if(!grid||!savedPanel)return;
   if(tab==='saved'){
-    grid.style.display='none'; savedPanel.style.display='';
+    grid.style.display='none'; savedPanel.style.display=''; if(jcheckPanel)jcheckPanel.style.display='none';
     renderSavedPanel(); return;
   }
-  grid.style.display=''; savedPanel.style.display='none';
+  if(tab==='jcheck'){
+    grid.style.display='none'; savedPanel.style.display='none'; if(jcheckPanel){jcheckPanel.style.display='';}
+    renderJCheckHistory(); return;
+  }
+  grid.style.display=''; savedPanel.style.display='none'; if(jcheckPanel)jcheckPanel.style.display='none';
   const colP=$id('pulse-col-papers'), colO=$id('pulse-col-opps');
   const cA=$id('pulse-card-arxiv'), cT=$id('pulse-card-trending'), cC=$id('pulse-card-collab');
   const show=el=>{if(el)el.style.display='';}; const hide=el=>{if(el)el.style.display='none';};
@@ -2831,6 +2896,77 @@ function computeFieldTemp(works){
     wrap.innerHTML=`<span class="field-temp ${cls}" title="Citation velocity vs stored baseline">${icon} ${label}</span>`;
     wrap.style.display='';
   }
+}
+
+/* ── Journal Checker ─────────────────────────────────────────── */
+async function checkJournal(){
+  const input=$id('jcheck-input');
+  const btn=$id('jcheck-btn');
+  const resultEl=$id('jcheck-result');
+  const query=input?.value?.trim();
+  if(!query||!resultEl)return;
+  btn.disabled=true; btn.textContent='Checking\u2026';
+  resultEl.innerHTML='<div class="loading-row"><div class="spinner"></div><span>Querying DOAJ database\u2026</span></div>';
+  try{
+    const results=await DOAJ.search(query);
+    // Save to history
+    const histKey='dvos_jcheck_hist';
+    let hist=[];
+    try{hist=JSON.parse(localStorage.getItem(histKey)||'[]');}catch(_){}
+    hist=[query,...hist.filter(q=>q!==query)].slice(0,8);
+    localStorage.setItem(histKey,JSON.stringify(hist));
+    renderJCheckHistory();
+    if(!results.length){
+      resultEl.innerHTML=`<div class="jcheck-result">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
+          <span class="jcheck-badge-warn">&#9888; Not found in DOAJ</span>
+        </div>
+        <div class="jcheck-stat" style="margin-bottom:8px;"><strong>${esc(query)}</strong> was not found in the Directory of Open Access Journals.</div>
+        <div style="background:var(--amber-bg);border-radius:var(--r-sm);padding:10px 12px;font-size:0.75rem;color:var(--amber);line-height:1.5;"><strong>Before submitting:</strong> Absence from DOAJ does not always mean predatory, but treat it as a warning. Check the journal on <strong>Scopus</strong>, <strong>Web of Science</strong>, or ask your institution librarian. Look for ISSNs, editorial board names, and publisher address.</div>
+      </div>`;
+    } else {
+      const j=results[0]; const bio=j.bibjson||{};
+      const title=bio.title||query;
+      const publisher=bio.publisher?.name||'\u2014';
+      const issns=[bio.pissn,bio.eissn].filter(Boolean).join(' / ')||'\u2014';
+      const subjects=(bio.subject||[]).map(s=>s.term).slice(0,4).join(', ')||'\u2014';
+      const hasApc=bio.apc?.has_apc;
+      const apc=hasApc?(bio.apc.max?.[0]?`${bio.apc.max[0].price} ${bio.apc.max[0].currency}`:'Yes'):'No APC \u2014 free to publish';
+      const reviewType=(bio.editorial?.review_process||[]).join(', ')||'\u2014';
+      const license=(bio.license||[]).map(l=>l.type).slice(0,2).join(', ')||'\u2014';
+      const addedYear=j.created_date?new Date(j.created_date).getFullYear():'\u2014';
+      resultEl.innerHTML=`<div class="jcheck-result">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+          <span class="jcheck-badge-ok">&#10003; DOAJ Verified</span>
+          <span style="font-size:0.75rem;color:var(--txt2);">Indexed as a legitimate open-access journal</span>
+        </div>
+        <div style="font-size:0.9375rem;font-weight:600;color:var(--txt);margin-bottom:8px;">${esc(title)}</div>
+        <div class="jcheck-grid">
+          <div class="jcheck-stat"><span style="color:var(--txt3);">Publisher</span><br><strong>${esc(publisher)}</strong></div>
+          <div class="jcheck-stat"><span style="color:var(--txt3);">ISSN</span><br><strong>${esc(issns)}</strong></div>
+          <div class="jcheck-stat"><span style="color:var(--txt3);">APC</span><br><strong>${esc(apc)}</strong></div>
+          <div class="jcheck-stat"><span style="color:var(--txt3);">Review type</span><br><strong>${esc(reviewType)}</strong></div>
+          <div class="jcheck-stat"><span style="color:var(--txt3);">License</span><br><strong>${esc(license)}</strong></div>
+          <div class="jcheck-stat"><span style="color:var(--txt3);">In DOAJ since</span><br><strong>${addedYear}</strong></div>
+        </div>
+        ${subjects!=='\u2014'?`<div class="jcheck-stat" style="margin-top:8px;"><span style="color:var(--txt3);">Subjects: </span>${esc(subjects)}</div>`:''}
+        ${hasApc?`<div style="background:var(--amber-bg);border-radius:var(--r-sm);padding:8px 10px;font-size:0.6875rem;color:var(--amber);margin-top:10px;line-height:1.5;"><strong>APC waiver note:</strong> Many DOAJ journals offer full fee waivers for researchers from low-income countries. Always check the journal website's waiver policy before declining to submit due to cost.</div>`:`<div style="background:var(--accent-bg);border-radius:var(--r-sm);padding:8px 10px;font-size:0.6875rem;color:var(--accent);margin-top:10px;">No article processing charge \u2014 free to publish your work here.</div>`}
+      </div>`;
+    }
+  }catch(e){
+    resultEl.innerHTML=`<div style="font-size:0.75rem;color:var(--red);padding:10px 0;">Could not reach DOAJ right now. Check your connection or try again shortly.</div>`;
+  }finally{
+    btn.disabled=false; btn.textContent='Check';
+  }
+}
+
+function renderJCheckHistory(){
+  let hist=[];
+  try{hist=JSON.parse(localStorage.getItem('dvos_jcheck_hist')||'[]');}catch(_){}
+  const wrap=$id('jcheck-history-wrap'); const el=$id('jcheck-hist'); if(!wrap||!el)return;
+  if(!hist.length){wrap.style.display='none';return;}
+  wrap.style.display='';
+  el.innerHTML=hist.map(q=>`<button class="jcheck-hist-item" onclick="var i=$id('jcheck-input');if(i){i.value='${esc(q).replace(/'/g,"\\'")}';checkJournal();}">${esc(q)}</button>`).join('');
 }
 
 /* ── Main orchestrator ──────────────────────────────────────── */
