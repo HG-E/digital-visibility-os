@@ -481,6 +481,32 @@ img { max-width: 100%; display: block; }
 .collab-info { min-width:0; flex:1; }
 .collab-name { font-size:0.75rem; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .collab-sub  { font-size:0.6875rem; color:var(--txt3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+/* ── PULSE FILTER SYSTEM ─────────────────────────────────────── */
+.pulse-filter-bar{margin-bottom:12px;}
+.pulse-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;}
+.ptab{padding:5px 12px;border-radius:99px;font-size:0.75rem;font-weight:600;border:1px solid var(--border);background:var(--surface);color:var(--txt2);cursor:pointer;white-space:nowrap;transition:all 0.15s;}
+.ptab:hover{border-color:var(--accent);color:var(--accent);}
+.ptab.ptab-active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.ptab-cnt{display:inline-flex;align-items:center;justify-content:center;min-width:14px;height:14px;background:rgba(255,255,255,0.25);border-radius:99px;font-size:0.5rem;font-weight:700;padding:0 3px;margin-left:3px;}
+.pulse-chips{display:flex;gap:5px;flex-wrap:wrap;align-items:center;min-height:22px;}
+.pchip{padding:3px 9px;border-radius:99px;font-size:0.6875rem;font-weight:600;border:1px solid var(--border);background:var(--bg2);color:var(--txt2);cursor:pointer;white-space:nowrap;transition:all 0.15s;}
+.pchip:hover{border-color:var(--accent);color:var(--accent);}
+.pchip.pchip-active{background:var(--accent-bg);color:var(--accent);border-color:var(--accent);}
+.pulse-sub-controls{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;align-items:center;}
+.pulse-select{font-size:0.6875rem;padding:3px 6px;border-radius:var(--r-sm);border:1px solid var(--border);background:var(--bg2);color:var(--txt);cursor:pointer;}
+.pulse-select:focus{outline:2px solid var(--accent);outline-offset:1px;}
+.rel-score{display:inline-block;font-size:0.5rem;padding:1px 4px;border-radius:3px;font-weight:700;background:var(--accent-bg);color:var(--accent);margin-left:3px;vertical-align:middle;}
+.save-btn{font-size:0.75rem;background:none;border:none;cursor:pointer;padding:2px 5px;border-radius:3px;color:var(--txt3);line-height:1;transition:color 0.15s;flex-shrink:0;}
+.save-btn:hover,.save-btn.is-saved{color:var(--amber);}
+.field-temp{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;font-size:0.6875rem;font-weight:600;white-space:nowrap;}
+.ft-hot{background:var(--red-bg);color:var(--red);}
+.ft-warm{background:var(--amber-bg);color:var(--amber);}
+.ft-cool{background:var(--bg3);color:var(--txt3);}
+.pulse-grid-1col{grid-template-columns:1fr !important;}
+.saved-item{display:flex;align-items:flex-start;gap:8px;padding:10px 0;border-bottom:1px solid var(--border);}
+.saved-item:last-child{border-bottom:none;}
+.saved-item-name{font-size:0.8125rem;font-weight:600;line-height:1.4;}
+.saved-item-meta{font-size:0.6875rem;color:var(--txt3);}
 </style>
 </head>
 <body>
@@ -1032,17 +1058,30 @@ img { max-width: 100%; display: block; }
       </div>
       <!-- RESEARCH PULSE -->
       <div class="screen screen-inner" id="screen-pulse">
-        <!-- Streak + score delta bar -->
+        <!-- header bar -->
         <div class="pulse-header">
           <div class="streak-badge">&#128293; <span id="streak-count">1</span>-day streak</div>
           <div class="score-delta score-delta-same" id="score-delta-badge">Score unchanged since last visit</div>
+          <div id="field-temp-wrap" style="display:none;"></div>
           <div style="margin-left:auto;font-size:0.6875rem;color:var(--txt3);" id="pulse-last-updated"></div>
           <button class="btn btn-sm" onclick="loadPulseScreen(true)" style="font-size:0.6875rem;padding:3px 8px;">&#8635; Refresh all</button>
         </div>
-        <div class="pulse-grid">
-          <!-- Left: live papers + trending -->
-          <div style="display:flex;flex-direction:column;gap:14px;">
-            <div class="card">
+        <!-- filter tabs -->
+        <div class="pulse-filter-bar">
+          <div class="pulse-tabs" role="tablist" aria-label="Filter research intelligence">
+            <button class="ptab ptab-active" data-tab="all" onclick="setPulseTab('all')" role="tab" aria-selected="true">All</button>
+            <button class="ptab" data-tab="papers" onclick="setPulseTab('papers')" role="tab" aria-selected="false">Papers</button>
+            <button class="ptab" data-tab="opps" onclick="setPulseTab('opps')" role="tab" aria-selected="false">Opportunities</button>
+            <button class="ptab" data-tab="network" onclick="setPulseTab('network')" role="tab" aria-selected="false">Network</button>
+            <button class="ptab" data-tab="saved" onclick="setPulseTab('saved')" role="tab" aria-selected="false">Saved <span id="saved-count-tab" class="ptab-cnt" style="display:none;"></span></button>
+          </div>
+          <div class="pulse-chips" id="pulse-chips" aria-label="Active topic filters"></div>
+        </div>
+        <!-- main grid -->
+        <div class="pulse-grid" id="pulse-main-grid">
+          <!-- Left: papers + trending + collab -->
+          <div style="display:flex;flex-direction:column;gap:14px;" id="pulse-col-papers">
+            <div class="card" id="pulse-card-arxiv">
               <div class="sec-head">
                 <div class="sec-title">New in your field today</div>
                 <div style="display:flex;gap:6px;align-items:center;">
@@ -1050,16 +1089,21 @@ img { max-width: 100%; display: block; }
                   <span id="arxiv-source-badge" style="font-size:0.6875rem;color:var(--txt3);">arXiv + OpenAlex</span>
                 </div>
               </div>
+              <div class="pulse-sub-controls">
+                <button class="pchip pchip-active" id="sort-recent-btn" onclick="setPaperSort('recent')" aria-pressed="true">Latest first</button>
+                <button class="pchip" id="sort-cited-btn" onclick="setPaperSort('cited')" aria-pressed="false">Reverse order</button>
+                <button class="pchip" id="oa-toggle-btn" onclick="toggleOAFilter()" aria-pressed="false">Open Access only</button>
+              </div>
               <div id="arxiv-feed"><div class="loading-row"><div class="spinner"></div><span>Loading live papers...</span></div></div>
             </div>
-            <div class="card">
+            <div class="card" id="pulse-card-trending">
               <div class="sec-head">
                 <div class="sec-title">Trending in your field</div>
                 <span class="badge badge-blue" style="font-size:0.5rem;">citation velocity &middot; 30 days</span>
               </div>
               <div id="oa-trending"><div class="loading-row"><div class="spinner"></div><span>Loading trending works...</span></div></div>
             </div>
-            <div class="card">
+            <div class="card" id="pulse-card-collab">
               <div class="sec-head">
                 <div class="sec-title">Collaboration radar</div>
                 <span class="badge badge-neutral" style="font-size:0.5rem;">OpenAlex &middot; live</span>
@@ -1069,23 +1113,57 @@ img { max-width: 100%; display: block; }
             </div>
           </div>
           <!-- Right: conferences + grants -->
-          <div style="display:flex;flex-direction:column;gap:14px;">
-            <div class="card">
+          <div style="display:flex;flex-direction:column;gap:14px;" id="pulse-col-opps">
+            <div class="card" id="pulse-card-conf">
               <div class="sec-head">
                 <div class="sec-title">Conferences &amp; events</div>
-                <button class="btn btn-sm" onclick="refreshConferences(true)" style="font-size:0.6875rem;padding:3px 8px;">Refresh</button>
+                <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
+                  <select id="conf-region-filter" class="pulse-select" onchange="applyConfFilters()" aria-label="Filter by region">
+                    <option value="">All regions</option>
+                    <option value="International">International</option>
+                    <option value="Africa">Africa</option>
+                    <option value="Europe">Europe</option>
+                    <option value="Asia">Asia</option>
+                    <option value="Americas">Americas</option>
+                  </select>
+                  <select id="conf-prestige-filter" class="pulse-select" onchange="applyConfFilters()" aria-label="Filter by prestige">
+                    <option value="">All tiers</option>
+                    <option value="flagship">Flagship</option>
+                    <option value="major">Major</option>
+                    <option value="regional">Regional</option>
+                  </select>
+                  <button class="btn btn-sm" onclick="refreshConferences(true)" style="font-size:0.6875rem;padding:3px 8px;">Refresh</button>
+                </div>
               </div>
-              <div style="font-size:0.6875rem;color:var(--amber);margin-bottom:8px;line-height:1.4;">AI-generated based on your field &mdash; verify dates and deadlines at the official conference website before submitting.</div>
+              <div style="font-size:0.6875rem;color:var(--amber);margin-bottom:8px;line-height:1.4;">AI-generated &mdash; verify dates at the official conference website before submitting.</div>
               <div id="conf-feed"><div class="loading-row"><div class="spinner"></div><span>Loading conference radar...</span></div></div>
             </div>
-            <div class="card">
+            <div class="card" id="pulse-card-grants">
               <div class="sec-head">
                 <div class="sec-title">Grant opportunities</div>
-                <span class="badge badge-green" style="font-size:0.5rem;">AI matched</span>
+                <div style="display:flex;gap:4px;align-items:center;">
+                  <select id="grant-size-filter" class="pulse-select" onchange="applyGrantFilters()" aria-label="Filter by grant size">
+                    <option value="">All sizes</option>
+                    <option value="small">Small (&lt;$50K)</option>
+                    <option value="mid">Mid ($50K&ndash;$500K)</option>
+                    <option value="large">Large (&gt;$500K)</option>
+                  </select>
+                  <span class="badge badge-green" style="font-size:0.5rem;">AI matched</span>
+                </div>
               </div>
-              <div style="font-size:0.6875rem;color:var(--amber);margin-bottom:8px;line-height:1.4;">AI-matched to your field and career stage &mdash; verify eligibility and deadlines at the funder&rsquo;s official website.</div>
+              <div style="font-size:0.6875rem;color:var(--amber);margin-bottom:8px;line-height:1.4;">AI-matched to your field &mdash; verify eligibility at the funder&rsquo;s official website.</div>
               <div id="grant-feed"><div class="loading-row"><div class="spinner"></div><span>Scanning opportunities...</span></div></div>
             </div>
+          </div>
+        </div>
+        <!-- Saved panel -->
+        <div id="pulse-saved-panel" style="display:none;">
+          <div class="card">
+            <div class="sec-head">
+              <div class="sec-title">&#128278; Saved items</div>
+              <span style="font-size:0.6875rem;color:var(--txt3);">Bookmarked conferences &amp; grants</span>
+            </div>
+            <div id="saved-items-list"></div>
           </div>
         </div>
       </div>
@@ -1146,6 +1224,25 @@ function saveState(patch){
   Object.assign(S,patch);
 }
 let S=loadState();
+
+/* ── Pulse filter / save state ──────────────────────────────── */
+const PS={
+  tab:'all',
+  sort:'recent',
+  oaOnly:false,
+  topicFilter:null,
+  confAll:null,
+  confFiltered:[],
+  grantAll:null,
+  grantFiltered:[],
+  paperAll:[],
+  saved:(()=>{try{return JSON.parse(localStorage.getItem('dvos_saved')||'{"conf":[],"grants":[]}');}catch(_){return{conf:[],grants:[]};} })(),
+};
+function syncSavedBadge(){
+  const total=(PS.saved.conf||[]).length+(PS.saved.grants||[]).length;
+  const b=$id('saved-count-tab');
+  if(b){b.textContent=total;b.style.display=total?'':'none';}
+}
 
 /* ── THEME ──────────────────────────────────────────────────── */
 function applyTheme(t){
@@ -2313,7 +2410,7 @@ function setPulseCache(key,data,ttlMs){ localStorage.setItem('dvos_pc_'+key,JSON
 async function refreshConferences(force=false){
   const p=S.profile; if(!p?.field)return;
   const cacheKey=`conf_${p.field}_${p.title||''}`;
-  if(!force){ const cached=getPulseCache(cacheKey); if(cached){renderConferences(cached);return;} }
+  if(!force){ const cached=getPulseCache(cacheKey); if(cached){PS.confAll=cached;PS.confFiltered=cached;renderConferences(cached);return;} }
   const el=$id('conf-feed');
   if(el)el.innerHTML='<div class="loading-row"><div class="spinner"></div><span>AI scanning conference calendar...</span></div>';
   if(!S.proxyUrl){renderConferences(null,'proxy');return;}
@@ -2326,26 +2423,36 @@ Return ONLY valid JSON array (no markdown, no text outside the array):
     const raw=await callClaude(prompt);
     const parsed=JSON.parse(raw.replace(/```json|```/g,'').trim());
     setPulseCache(cacheKey,parsed,7*24*60*60*1000);
+    PS.confAll=parsed; PS.confFiltered=parsed;
     renderConferences(parsed);
   }catch(e){ renderConferences(null,e.message); }
 }
 
 function renderConferences(data,err){
   const el=$id('conf-feed'); if(!el)return;
-  if(!data){
-    el.innerHTML=`<div style="font-size:0.75rem;color:var(--txt3);padding:8px 0;line-height:1.5;">${err==='proxy'?'Set up your AI proxy to unlock conference intelligence.':'Could not generate. Check connection and click Refresh.'}</div>`;
+  if(!data||err==='no-match'){
+    el.innerHTML=`<div style="font-size:0.75rem;color:var(--txt3);padding:8px 0;line-height:1.5;">${err==='proxy'?'Set up your AI proxy to unlock conference intelligence.':err==='no-match'?'No conferences match the current filters. Clear the region or prestige filter to see all.':'Could not generate. Check connection and click Refresh.'}</div>`;
     return;
   }
-  el.innerHTML=data.map(c=>`<div class="conf-item">
+  PS.confFiltered=data;
+  el.innerHTML=data.map((c,idx)=>{
+    const saved=isSavedItem('conf',slugId(c.name));
+    const rel=relevanceScore(c.name+' '+c.relevance);
+    const prestBg=c.prestige==='flagship'?'var(--accent-bg)':c.prestige==='major'?'var(--blue-bg)':'var(--bg3)';
+    const prestClr=c.prestige==='flagship'?'var(--accent)':c.prestige==='major'?'var(--blue)':'var(--txt3)';
+    return`<div class="conf-item">
     <div style="display:flex;gap:4px;align-items:center;margin-bottom:4px;flex-wrap:wrap;">
       <span class="conf-type ct-conf">${esc(c.type||'Conf')}</span>
-      <span style="font-size:0.5rem;padding:2px 5px;background:${c.prestige==='flagship'?'var(--accent-bg)':c.prestige==='major'?'var(--blue-bg)':'var(--bg3)'};color:${c.prestige==='flagship'?'var(--accent)':c.prestige==='major'?'var(--blue)':'var(--txt3)'};border-radius:3px;font-weight:700;text-transform:uppercase;">${esc(c.prestige||'')}</span>
+      <span style="font-size:0.5rem;padding:2px 5px;background:${prestBg};color:${prestClr};border-radius:3px;font-weight:700;text-transform:uppercase;">${esc(c.prestige||'')}</span>
+      ${rel>20?`<span class="rel-score">${rel}% match</span>`:''}
+      <button class="save-btn${saved?' is-saved':''}" onclick="togglePulseSave('conf',${idx})" aria-label="${saved?'Remove from saved':'Save conference'}" title="${saved?'Saved — click to remove':'Save'}" style="margin-left:auto;">&#128278;</button>
     </div>
     <div class="conf-name">${esc(c.name)}</div>
     <div class="conf-meta">${esc(c.organizer)} &middot; ${esc(c.region)} &middot; ${esc(c.typical_months)}</div>
     <div class="conf-meta" style="color:var(--amber);margin-top:2px;">&#128197; ${esc(c.submission_note)}</div>
     <div class="conf-meta" style="margin-top:2px;font-style:italic;color:var(--txt2);">${esc(c.relevance)}</div>
-  </div>`).join('');
+  </div>`;
+  }).join('');
 }
 
 /* ── Grant scanner (AI, cached 30 days) ────────────────────── */
@@ -2369,52 +2476,75 @@ Return ONLY valid JSON array (no markdown):
 
 function renderGrants(data,err){
   const el=$id('grant-feed'); if(!el)return;
-  if(!data){
-    el.innerHTML=`<div style="font-size:0.75rem;color:var(--txt3);padding:8px 0;line-height:1.5;">${err==='proxy'?'Set up your AI proxy to scan grant opportunities.':'Could not load. Try again later.'}</div>`;
+  if(!data||err==='no-match'){
+    el.innerHTML=`<div style="font-size:0.75rem;color:var(--txt3);padding:8px 0;line-height:1.5;">${err==='proxy'?'Set up your AI proxy to scan grant opportunities.':err==='no-match'?'No grants match the selected size. Clear the size filter to see all.':'Could not load. Try again later.'}</div>`;
     return;
   }
-  el.innerHTML=data.map(g=>`<div class="conf-item">
-    <div style="display:flex;gap:4px;align-items:center;margin-bottom:4px;">
+  PS.grantFiltered=data;
+  el.innerHTML=data.map((g,idx)=>{
+    const saved=isSavedItem('grants',slugId(g.opportunity));
+    const rel=relevanceScore(g.opportunity+' '+g.relevance);
+    return`<div class="conf-item">
+    <div style="display:flex;gap:4px;align-items:center;margin-bottom:4px;flex-wrap:wrap;">
       <span class="conf-type ct-grant">GRANT</span>
       <span style="font-size:0.75rem;font-weight:700;color:var(--accent);">${esc(g.amount_range||'')}</span>
+      ${rel>20?`<span class="rel-score">${rel}% match</span>`:''}
+      <button class="save-btn${saved?' is-saved':''}" onclick="togglePulseSave('grants',${idx})" aria-label="${saved?'Remove from saved':'Save grant'}" title="${saved?'Saved — click to remove':'Save'}" style="margin-left:auto;">&#128278;</button>
     </div>
     <div class="conf-name">${esc(g.opportunity)}</div>
     <div class="conf-meta">${esc(g.funder)} &middot; ${esc(g.typical_cycle)}</div>
     <div class="conf-meta" style="margin-top:2px;">${esc(g.eligibility_note)}</div>
     <div class="conf-meta" style="margin-top:2px;font-style:italic;color:var(--txt2);">${esc(g.relevance)}</div>
-  </div>`).join('');
+  </div>`;
+  }).join('');
 }
 
 /* ── Render functions ───────────────────────────────────────── */
 function renderArxivFeed(papers){
+  PS.paperAll=papers||[];
   const el=$id('arxiv-feed'); if(!el)return;
   if(!papers||papers.length===0){
     el.innerHTML='<div style="font-size:0.75rem;color:var(--txt3);padding:6px 0;">No recent preprints found on arXiv for this field. See trending works below.</div>';
     setText('arxiv-source-badge','No arXiv data');
     return;
   }
+  // Apply filters
+  let filtered=papers;
+  if(PS.topicFilter)filtered=filtered.filter(p=>(p.title+' '+p.summary).toLowerCase().includes(PS.topicFilter));
+  if(PS.sort==='cited')filtered=[...filtered].reverse();
   setText('arxiv-source-badge','arXiv · live');
   const badge=$id('pulse-badge');
-  if(badge){ badge.textContent=papers.length; badge.style.display='inline-flex'; }
-  el.innerHTML=papers.map(p=>`<div class="pulse-item">
-    <span class="pulse-badge pb-arxiv">preprint</span>
+  if(badge){ badge.textContent=filtered.length; badge.style.display='inline-flex'; }
+  if(!filtered.length){
+    el.innerHTML='<div style="font-size:0.75rem;color:var(--txt3);padding:6px 0;">No papers match the current filters. Clear topic or OA filter.</div>';
+    return;
+  }
+  el.innerHTML=filtered.map(p=>{
+    const rel=relevanceScore(p.title+' '+p.summary);
+    return`<div class="pulse-item">
+    <span class="pulse-badge pb-arxiv">preprint</span><span class="pulse-badge pb-oa">OA</span>${rel>30?`<span class="rel-score">${rel}% match</span>`:''}
     <div class="pulse-title"><a href="${esc(p.url)}" target="_blank" rel="noopener noreferrer">${esc(p.title)}</a></div>
     <div class="pulse-meta">${esc(p.authors.join(', ')+(p.authors.length>=3?' et al.':''))} &middot; ${esc(p.published)}</div>
     ${p.summary?`<div class="pulse-meta" style="margin-top:2px;font-style:italic;">${esc(p.summary)}&hellip;</div>`:''}
-  </div>`).join('');
+  </div>`;
+  }).join('');
 }
 
 function renderOATrending(works){
+  computeFieldTemp(works);
   const el=$id('oa-trending'); if(!el)return;
   if(!works||works.length===0){
     el.innerHTML='<div style="font-size:0.75rem;color:var(--txt3);padding:6px 0;">No trending works found for this field in the last 30 days.</div>';
     return;
   }
-  el.innerHTML=works.map(w=>{
+  const display=PS.oaOnly?works.filter(w=>w.open_access?.is_oa):works;
+  const toRender=display.length?display:works;
+  el.innerHTML=toRender.map(w=>{
     const doi=w.doi?w.doi.replace('https://doi.org/',''):'';
     const isOa=w.open_access?.is_oa;
+    const rel=relevanceScore(w.title);
     return `<div class="pulse-item">
-      <span class="pulse-badge pb-trend">trending</span>${isOa?'<span class="pulse-badge pb-oa">OA</span>':''}
+      <span class="pulse-badge pb-trend">trending</span>${isOa?'<span class="pulse-badge pb-oa">OA</span>':''}${rel>30?`<span class="rel-score">${rel}% match</span>`:''}
       <div class="pulse-title">${esc(w.title||'Untitled')}</div>
       <div class="pulse-meta">${esc(w.primary_location?.source?.display_name||'Journal')} &middot; ${esc(w.publication_year||'')} &middot; <strong>${esc(w.cited_by_count||0)} citations</strong></div>
       ${doi?`<div class="pulse-meta"><a href="https://doi.org/${esc(doi)}" target="_blank" rel="noopener" style="color:var(--accent);">View paper &#8594;</a></div>`:''}
@@ -2469,6 +2599,190 @@ function updateScorePulse(){
   else { el.className='score-delta score-delta-same'; el.textContent='Score unchanged since last visit'; }
 }
 
+/* ══════════════════════════════════════════════════════════════
+   PULSE FILTER ENGINE — tabs, chips, filters, save, relevance
+   ══════════════════════════════════════════════════════════════ */
+
+function setPulseTab(tab){
+  PS.tab=tab;
+  document.querySelectorAll('.ptab').forEach(btn=>{
+    const active=btn.dataset.tab===tab;
+    btn.classList.toggle('ptab-active',active);
+    btn.setAttribute('aria-selected',String(active));
+  });
+  const grid=$id('pulse-main-grid');
+  const savedPanel=$id('pulse-saved-panel');
+  if(!grid||!savedPanel)return;
+  if(tab==='saved'){
+    grid.style.display='none'; savedPanel.style.display='';
+    renderSavedPanel(); return;
+  }
+  grid.style.display=''; savedPanel.style.display='none';
+  const colP=$id('pulse-col-papers'), colO=$id('pulse-col-opps');
+  const cA=$id('pulse-card-arxiv'), cT=$id('pulse-card-trending'), cC=$id('pulse-card-collab');
+  const show=el=>{if(el)el.style.display='';}; const hide=el=>{if(el)el.style.display='none';};
+  grid.classList.remove('pulse-grid-1col');
+  if(tab==='all'){ show(colP);show(colO);show(cA);show(cT);show(cC); }
+  else if(tab==='papers'){ show(colP);hide(colO);show(cA);show(cT);hide(cC); grid.classList.add('pulse-grid-1col'); }
+  else if(tab==='opps'){ hide(colP);show(colO); grid.classList.add('pulse-grid-1col'); }
+  else if(tab==='network'){ show(colP);hide(colO);hide(cA);hide(cT);show(cC); grid.classList.add('pulse-grid-1col'); }
+  renderPulseChips();
+}
+
+function renderPulseChips(){
+  const el=$id('pulse-chips'); if(!el)return;
+  const topics=getProfileTopics();
+  if(!topics.length){el.innerHTML='';return;}
+  el.innerHTML='<span style="font-size:0.6875rem;color:var(--txt3);margin-right:2px;">Topics:</span>'+
+    topics.slice(0,5).map(t=>`<button class="pchip${PS.topicFilter===t.toLowerCase()?' pchip-active':''}" onclick="filterByTopic(this,'${esc(t)}')" aria-pressed="${PS.topicFilter===t.toLowerCase()}">${esc(t)}</button>`).join('');
+}
+
+function filterByTopic(btn,topic){
+  const isActive=btn.classList.contains('pchip-active');
+  document.querySelectorAll('#pulse-chips .pchip').forEach(b=>{b.classList.remove('pchip-active');b.setAttribute('aria-pressed','false');});
+  PS.topicFilter=isActive?null:topic.toLowerCase();
+  if(!isActive){btn.classList.add('pchip-active');btn.setAttribute('aria-pressed','true');}
+  renderArxivFeed(PS.paperAll);
+}
+
+function setPaperSort(sort){
+  PS.sort=sort;
+  const rb=$id('sort-recent-btn'), cb=$id('sort-cited-btn');
+  if(rb){rb.classList.toggle('pchip-active',sort==='recent');rb.setAttribute('aria-pressed',String(sort==='recent'));}
+  if(cb){cb.classList.toggle('pchip-active',sort==='cited');cb.setAttribute('aria-pressed',String(sort==='cited'));}
+  renderArxivFeed(PS.paperAll);
+}
+
+function toggleOAFilter(){
+  PS.oaOnly=!PS.oaOnly;
+  const btn=$id('oa-toggle-btn');
+  if(btn){btn.classList.toggle('pchip-active',PS.oaOnly);btn.setAttribute('aria-pressed',String(PS.oaOnly));}
+  renderArxivFeed(PS.paperAll);
+}
+
+/* ── Relevance scoring (keyword overlap) ─────────────────────── */
+function getProfileTopics(){
+  const topics=[];
+  const field=(S.profile?.field||'').toLowerCase();
+  if(field)topics.push(...field.split(/[\s,&/\-]+/).filter(w=>w.length>3));
+  if(S.metrics?.concepts)(S.metrics.concepts||[]).slice(0,5).forEach(c=>{ if(c.display_name)topics.push(c.display_name.toLowerCase()); });
+  return[...new Set(topics)].filter(t=>t.length>3).slice(0,6);
+}
+
+function relevanceScore(text){
+  const topics=getProfileTopics(); if(!topics.length)return 0;
+  const t=(text||'').toLowerCase();
+  const matches=topics.filter(topic=>t.includes(topic));
+  return Math.min(100,Math.round((matches.length/topics.length)*100));
+}
+
+/* ── Conference filters ──────────────────────────────────────── */
+function applyConfFilters(){
+  if(!PS.confAll)return;
+  const region=$id('conf-region-filter')?.value||'';
+  const prestige=$id('conf-prestige-filter')?.value||'';
+  let filtered=PS.confAll;
+  if(region)filtered=filtered.filter(c=>c.region===region);
+  if(prestige)filtered=filtered.filter(c=>c.prestige===prestige);
+  PS.confFiltered=filtered;
+  renderConferences(filtered.length?filtered:null,filtered.length?null:'no-match');
+}
+
+/* ── Grant filters ───────────────────────────────────────────── */
+function grantSizeKey(amount){
+  const str=(amount||'').replace(/,/g,'');
+  const nums=(str.match(/[\d.]+/g)||[]).map(Number);
+  const max=Math.max(...nums,0);
+  if(max===0)return'mid';
+  // amounts typically in K (e.g. "$50K") or full (e.g. "$500,000")
+  const isK=str.toLowerCase().includes('k');
+  const val=isK?max*1000:max;
+  if(val<50000)return'small';
+  if(val<=500000)return'mid';
+  return'large';
+}
+
+function applyGrantFilters(){
+  if(!PS.grantAll)return;
+  const size=$id('grant-size-filter')?.value||'';
+  let filtered=PS.grantAll;
+  if(size)filtered=filtered.filter(g=>grantSizeKey(g.amount_range)===size);
+  PS.grantFiltered=filtered;
+  renderGrants(filtered.length?filtered:null,filtered.length?null:'no-match');
+}
+
+/* ── Save / bookmark system ──────────────────────────────────── */
+function slugId(str){return(str||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,40);}
+
+function isSavedItem(type,id){return(PS.saved[type]||[]).some(i=>i.id===id);}
+
+function togglePulseSave(type,idx){
+  const arr=type==='conf'?PS.confFiltered:PS.grantFiltered;
+  if(!arr||!arr[idx])return;
+  const data=arr[idx];
+  const rawId=type==='conf'?data.name:data.opportunity;
+  const id=slugId(rawId);
+  if(!PS.saved[type])PS.saved[type]=[];
+  const existIdx=PS.saved[type].findIndex(i=>i.id===id);
+  if(existIdx>=0){ PS.saved[type].splice(existIdx,1); }
+  else{ PS.saved[type].push({id,data,savedAt:Date.now()}); }
+  localStorage.setItem('dvos_saved',JSON.stringify(PS.saved));
+  syncSavedBadge();
+  if(type==='conf')applyConfFilters(); else applyGrantFilters();
+  if(PS.tab==='saved')renderSavedPanel();
+}
+
+function removeSaved(type,id){
+  if(!PS.saved[type])return;
+  PS.saved[type]=PS.saved[type].filter(i=>i.id!==id);
+  localStorage.setItem('dvos_saved',JSON.stringify(PS.saved));
+  syncSavedBadge();
+  renderSavedPanel();
+}
+
+function renderSavedPanel(){
+  const el=$id('saved-items-list'); if(!el)return;
+  const all=[
+    ...(PS.saved.conf||[]).map(i=>({...i,type:'conf'})),
+    ...(PS.saved.grants||[]).map(i=>({...i,type:'grants'})),
+  ].sort((a,b)=>b.savedAt-a.savedAt);
+  if(!all.length){
+    el.innerHTML='<div style="font-size:0.8125rem;color:var(--txt3);padding:20px 0;text-align:center;line-height:1.6;">No saved items yet.<br>Use &#128278; on conferences and grants to bookmark them.</div>';
+    return;
+  }
+  el.innerHTML=all.map(item=>{
+    const d=item.data; const isConf=item.type==='conf';
+    return`<div class="saved-item">
+      <div style="flex:1;min-width:0;">
+        <div style="display:flex;gap:4px;margin-bottom:3px;"><span class="conf-type ${isConf?'ct-conf':'ct-grant'}">${isConf?'CONF':'GRANT'}</span></div>
+        <div class="saved-item-name">${esc(isConf?d.name:d.opportunity)}</div>
+        <div class="saved-item-meta">${esc(isConf?`${d.organizer} · ${d.region} · ${d.typical_months}`:`${d.funder} · ${d.amount_range}`)}</div>
+        ${isConf?`<div class="saved-item-meta" style="color:var(--amber);">&#128197; ${esc(d.submission_note)}</div>`:`<div class="saved-item-meta">${esc(d.eligibility_note)}</div>`}
+      </div>
+      <button class="save-btn is-saved" onclick="removeSaved('${esc(item.type)}','${esc(item.id)}')" aria-label="Remove from saved" title="Remove">&#128278;</button>
+    </div>`;
+  }).join('');
+}
+
+/* ── Field temperature (citation velocity vs baseline) ───────── */
+function computeFieldTemp(works){
+  if(!works||works.length===0)return;
+  const avgCit=works.reduce((s,w)=>s+(w.cited_by_count||0),0)/works.length;
+  const key='dvos_ft_'+(S.profile?.field||'').slice(0,20).replace(/\s/g,'_');
+  const prev=parseFloat(localStorage.getItem(key)||'0');
+  localStorage.setItem(key,avgCit.toFixed(2));
+  const wrap=$id('field-temp-wrap'); if(!wrap)return;
+  if(prev>0&&avgCit>0){
+    const pct=Math.round(((avgCit-prev)/Math.max(prev,1))*100);
+    let cls='ft-cool',icon='⚡',label='Field stable';
+    if(pct>10){cls='ft-hot';icon='🔥';label=`Field trending +${pct}%`;}
+    else if(pct>3){cls='ft-warm';icon='📈';label=`Field warming +${pct}%`;}
+    else if(pct<-5){label=`Field cooling ${pct}%`;}
+    wrap.innerHTML=`<span class="field-temp ${cls}" title="Citation velocity vs stored baseline">${icon} ${label}</span>`;
+    wrap.style.display='';
+  }
+}
+
 /* ── Main orchestrator ──────────────────────────────────────── */
 async function loadPulseScreen(force=false){
   const p=S.profile;
@@ -2480,6 +2794,8 @@ async function loadPulseScreen(force=false){
   }
   updateStreak();
   updateScorePulse();
+  syncSavedBadge();
+  renderPulseChips();
   const now=new Date().toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
   setText('pulse-last-updated','Updated '+now);
 
@@ -2503,7 +2819,7 @@ const _origLoadGrantFeed=loadGrantFeed;
 loadGrantFeed=async function(force=false){
   const p=S.profile; if(!p?.field)return;
   const cacheKey=`grants_${p.field}_${p.title||''}_${new Date().getMonth()}`;
-  if(!force){ const cached=getPulseCache(cacheKey); if(cached){renderGrants(cached);return;} }
+  if(!force){ const cached=getPulseCache(cacheKey); if(cached){PS.grantAll=cached;PS.grantFiltered=cached;renderGrants(cached);return;} }
   if(!S.proxyUrl){renderGrants(null,'proxy');return;}
   try{
     const prompt=`You are a research funding intelligence assistant. List 4 real, active or annually recurring grant opportunities for a ${esc(p.title||'researcher')} in ${esc(p.field)} likely based in ${esc(p.inst||'the Global South or Africa')}.
@@ -2514,6 +2830,7 @@ Return ONLY valid JSON array (no markdown):
     const raw=await callClaude(prompt);
     const parsed=JSON.parse(raw.replace(/```json|```/g,'').trim());
     setPulseCache(cacheKey,parsed,30*24*60*60*1000);
+    PS.grantAll=parsed; PS.grantFiltered=parsed;
     renderGrants(parsed);
   }catch(e){ renderGrants(null,e.message); }
 };
