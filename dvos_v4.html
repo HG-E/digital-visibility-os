@@ -362,8 +362,9 @@ img { max-width: 100%; display: block; }
    MOBILE BOTTOM NAV
    ============================================================ */
 #bottom-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; height: 62px; background: var(--surface); border-top: 1px solid var(--border); z-index: 100; padding: 0 4px; padding-bottom: env(safe-area-inset-bottom, 0); }
-.bnav-items { display: flex; height: 100%; align-items: center; }
-.bnav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 6px 4px; cursor: pointer; border-radius: var(--r-sm); transition: background 0.15s; -webkit-tap-highlight-color: transparent; color: var(--txt3); }
+.bnav-items { display: flex; height: 100%; align-items: center; overflow-x: auto; scrollbar-width: none; gap: 2px; }
+.bnav-items::-webkit-scrollbar { display: none; }
+.bnav-item { flex: 0 0 auto; min-width: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 6px 4px; cursor: pointer; border-radius: var(--r-sm); transition: background 0.15s; -webkit-tap-highlight-color: transparent; color: var(--txt3); }
 .bnav-item.active { color: var(--accent); }
 .bnav-item svg { width: 20px; height: 20px; }
 .bnav-label { font-size: 0.5625rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
@@ -580,31 +581,32 @@ img { max-width: 100%; display: block; }
     <div class="ob-step" id="ob-step-2">
       <p class="t-micro t-faint" style="margin-bottom:10px;">Step 2 of 5 — What becomes possible</p>
       <h1 class="t-display" style="margin-bottom:12px;">Researchers like you. <em>Transformed.</em></h1>
-      <p class="t-body t-muted" style="margin-bottom:20px;">Illustrative outcomes based on what researchers in the Global South achieve when they build a structured digital presence.</p>
+      <p class="t-body t-muted" style="margin-bottom:4px;">The actions DVOS guides you through — ORCID, publications, website, content — are the same steps researchers at well-resourced institutions have long used to build visibility.</p>
+      <p style="font-size:0.6875rem;color:var(--txt3);margin-bottom:16px;padding:6px 10px;background:var(--bg2);border-radius:var(--r-sm);line-height:1.5;">&#9432; The profiles below are illustrative examples showing typical outcomes of these actions. They are not verified case studies.</p>
       <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px;">
         <div class="card card-sm" style="border-left:3px solid var(--accent);border-radius:0 var(--r-md) var(--r-md) 0;">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
             <div style="width:36px;height:36px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:800;color:white;flex-shrink:0;">AO</div>
-            <div><div style="font-size:0.8125rem;font-weight:700;">Dr. Aisha Okonkwo</div><div style="font-size:0.6875rem;color:var(--txt3);">University of Ibadan · Biochemistry</div></div>
+            <div><div style="font-size:0.8125rem;font-weight:700;">Dr. Aisha Okonkwo <span style="font-size:0.5625rem;color:var(--txt3);font-weight:400;">(illustrative)</span></div><div style="font-size:0.6875rem;color:var(--txt3);">Biochemistry researcher · West Africa</div></div>
             <div class="badge badge-green" style="margin-left:auto;">+31 score</div>
           </div>
-          <p style="font-size:0.8125rem;color:var(--txt2);line-height:1.6;font-style:italic;">"Within 3 weeks of setting up my ORCID and website with DVOS, I received a collaboration request from a researcher at KU Leuven who found my work on Google Scholar."</p>
+          <p style="font-size:0.8125rem;color:var(--txt2);line-height:1.6;font-style:italic;">"Within 3 weeks of setting up my ORCID and research website, I received a collaboration request from a researcher who found my work on Google Scholar."</p>
         </div>
         <div class="card card-sm" style="border-left:3px solid var(--amber);border-radius:0 var(--r-md) var(--r-md) 0;">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
             <div style="width:36px;height:36px;border-radius:50%;background:var(--amber-bg);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:800;color:var(--amber);flex-shrink:0;">KM</div>
-            <div><div style="font-size:0.8125rem;font-weight:700;">Prof. Kwame Mensah</div><div style="font-size:0.6875rem;color:var(--txt3);">University of Ghana · Environmental Science</div></div>
-            <div class="badge badge-amber" style="margin-left:auto;">h-index +4</div>
+            <div><div style="font-size:0.8125rem;font-weight:700;">Prof. Kwame Mensah <span style="font-size:0.5625rem;color:var(--txt3);font-weight:400;">(illustrative)</span></div><div style="font-size:0.6875rem;color:var(--txt3);">Environmental Science researcher · East Africa</div></div>
+            <div class="badge badge-amber" style="margin-left:auto;">14 pubs linked</div>
           </div>
-          <p style="font-size:0.8125rem;color:var(--txt2);line-height:1.6;font-style:italic;">"I linked 14 untracked publications through DVOS. My work became properly attributed across databases — which improved my discoverability for a Wellcome Trust grant application."</p>
+          <p style="font-size:0.8125rem;color:var(--txt2);line-height:1.6;font-style:italic;">"I linked 14 publications that had been scattered across databases under different name variations. My work became properly attributed — which matters for grant eligibility verification."</p>
         </div>
         <div class="card card-sm" style="border-left:3px solid var(--blue);border-radius:0 var(--r-md) var(--r-md) 0;">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
             <div style="width:36px;height:36px;border-radius:50%;background:var(--blue-bg);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:800;color:var(--blue);flex-shrink:0;">NR</div>
-            <div><div style="font-size:0.8125rem;font-weight:700;">Dr. Naledi Ramokgopa</div><div style="font-size:0.6875rem;color:var(--txt3);">University of Witwatersrand · Public Health</div></div>
-            <div class="badge badge-blue" style="margin-left:auto;">3.4× citations</div>
+            <div><div style="font-size:0.8125rem;font-weight:700;">Dr. Naledi Ramokgopa <span style="font-size:0.5625rem;color:var(--txt3);font-weight:400;">(illustrative)</span></div><div style="font-size:0.6875rem;color:var(--txt3);">Public Health researcher · Southern Africa</div></div>
+            <div class="badge badge-blue" style="margin-left:auto;">policy reach</div>
           </div>
-          <p style="font-size:0.8125rem;color:var(--txt2);line-height:1.6;font-style:italic;">"The content generator helped me publish 12 plain-language summaries. Now policymakers reference my work in WHO frameworks."</p>
+          <p style="font-size:0.8125rem;color:var(--txt2);line-height:1.6;font-style:italic;">"The content generator helped me write plain-language summaries of my research. Policymakers can now find and understand my work without needing access to the journal."</p>
         </div>
       </div>
       <button class="btn btn-primary btn-full" onclick="obNext()" style="padding:13px;">This could be me →</button>
@@ -623,9 +625,9 @@ img { max-width: 100%; display: block; }
         <div class="field"><label for="ob-field">Research field</label><input type="text" id="ob-field" placeholder="e.g. Epidemiology, AI, Ecology"/></div>
         <div class="field"><label for="ob-title">Academic title</label>
           <select id="ob-title">
-            <option>PhD Candidate</option><option>Postdoctoral Researcher</option>
+            <option>PhD Candidate</option><option selected>Postdoctoral Researcher</option>
             <option>Lecturer</option><option>Senior Lecturer</option>
-            <option>Associate Professor</option><option selected>Professor</option>
+            <option>Associate Professor</option><option>Professor</option>
           </select>
         </div>
       </div>
@@ -854,7 +856,7 @@ img { max-width: 100%; display: block; }
             <div class="field-row">
               <div class="field"><label for="b-field">Research field</label><input id="b-field" type="text" placeholder="e.g. Infectious disease epidemiology"/></div>
               <div class="field"><label for="b-rank">Title / rank</label>
-                <select id="b-rank"><option>PhD Candidate</option><option>Postdoctoral Researcher</option><option>Lecturer</option><option>Senior Lecturer</option><option>Associate Professor</option><option selected>Professor</option></select>
+                <select id="b-rank"><option>PhD Candidate</option><option selected>Postdoctoral Researcher</option><option>Lecturer</option><option>Senior Lecturer</option><option>Associate Professor</option><option>Professor</option></select>
               </div>
             </div>
             <div class="field"><label for="b-topics">Research topics</label><input id="b-topics" type="text" placeholder="malaria, vaccine efficacy, disease surveillance"/></div>
@@ -912,7 +914,7 @@ img { max-width: 100%; display: block; }
               </div>
               <div style="display:flex;gap:8px;">
                 <button class="btn" style="flex:1;font-size:0.75rem;" onclick="regenWebsite()">Regenerate with AI</button>
-                <button class="btn btn-primary" style="flex:1;font-size:0.75rem;" onclick="notify('Published','Your website content has been saved.','green')">Save</button>
+                <button class="btn btn-primary" style="flex:1;font-size:0.75rem;" onclick="notify('Saved','Website content saved to DVOS. Copy the text to publish on your own site.','green')">Save to DVOS</button>
               </div>
             </div>
             <div style="padding:12px;background:var(--amber-bg);border-radius:var(--r-md);border-left:3px solid var(--amber);font-size:0.75rem;color:var(--txt2);line-height:1.6;">
@@ -1032,12 +1034,22 @@ img { max-width: 100%; display: block; }
               <div class="plat-item"><div class="plat-icon" style="background:#0A66C2;">in</div><div class="plat-info"><div class="plat-name">LinkedIn</div><div class="plat-sub" id="plat-li-sub">Not optimized</div></div><div class="plat-prog"><div class="prog-track"><div class="prog-fill pf-accent" id="plat-li-bar" style="width:0%"></div></div></div><div class="plat-score" id="plat-li-score" style="color:var(--txt3)">—</div></div>
               <div class="plat-item"><div class="plat-icon" style="background:var(--accent);">W</div><div class="plat-info"><div class="plat-name">Research website</div><div class="plat-sub" id="plat-ws-sub">Not created</div></div><div class="plat-prog"><div class="prog-track"><div class="prog-fill pf-amber" id="plat-ws-bar" style="width:0%"></div></div></div><div class="plat-score" id="plat-ws-score" style="color:var(--txt3)">—</div></div>
               <div class="plat-item"><div class="plat-icon" style="background:#A6CE39;color:#000;">OR</div><div class="plat-info"><div class="plat-name">ORCID</div><div class="plat-sub" id="plat-or-sub">Not connected</div></div><div class="plat-prog"><div class="prog-track"><div class="prog-fill pf-amber" id="plat-or-bar" style="width:0%"></div></div></div><div class="plat-score" id="plat-or-score" style="color:var(--txt3)">—</div></div>
-              <div class="plat-item" style="opacity:0.55;" title="Google Scholar has no public API — optimize manually using your AI-generated bio and publications list"><div class="plat-icon" style="background:#4285F4;">GS</div><div class="plat-info"><div class="plat-name">Google Scholar</div><div class="plat-sub">Manual — no public API</div></div><div class="plat-prog"><div class="prog-track"><div class="prog-fill" style="width:0%;background:var(--red);"></div></div></div><div class="plat-score" style="color:var(--red)">—</div></div>
-              <div class="plat-item" style="opacity:0.55;" title="ResearchGate has no public API — optimize manually using your AI-generated content"><div class="plat-icon" style="background:#E03D44;">RG</div><div class="plat-info"><div class="plat-name">ResearchGate</div><div class="plat-sub">Manual — no public API</div></div><div class="plat-prog"><div class="prog-track"><div class="prog-fill" style="width:0%;background:var(--red);"></div></div></div><div class="plat-score" style="color:var(--red)">—</div></div>
+              <div class="plat-item" style="opacity:0.6;cursor:default;" aria-label="Google Scholar — manual optimization only, no public API">
+                <div class="plat-icon" style="background:#4285F4;">GS</div>
+                <div class="plat-info"><div class="plat-name">Google Scholar <span style="font-size:0.5rem;background:var(--bg3);color:var(--txt3);padding:1px 5px;border-radius:3px;font-weight:700;text-transform:uppercase;vertical-align:middle;">Manual only</span></div><div class="plat-sub">No public API &mdash; use AI-generated bio to optimize</div></div>
+                <div class="plat-prog" style="pointer-events:none;"><div class="prog-track"><div class="prog-fill" style="width:0%;background:var(--txt3);"></div></div></div>
+                <div class="plat-score" style="color:var(--txt3)">—</div>
+              </div>
+              <div class="plat-item" style="opacity:0.6;cursor:default;" aria-label="ResearchGate — manual optimization only, no public API">
+                <div class="plat-icon" style="background:#E03D44;">RG</div>
+                <div class="plat-info"><div class="plat-name">ResearchGate <span style="font-size:0.5rem;background:var(--bg3);color:var(--txt3);padding:1px 5px;border-radius:3px;font-weight:700;text-transform:uppercase;vertical-align:middle;">Manual only</span></div><div class="plat-sub">No public API &mdash; use AI-generated content to update</div></div>
+                <div class="plat-prog" style="pointer-events:none;"><div class="prog-track"><div class="prog-fill" style="width:0%;background:var(--txt3);"></div></div></div>
+                <div class="plat-score" style="color:var(--txt3)">—</div>
+              </div>
             </div>
             <div style="padding:16px;background:var(--accent-bg);border-radius:var(--r-md);border:1px solid rgba(26,102,71,0.15);">
               <div style="font-size:0.875rem;font-weight:700;color:var(--accent);margin-bottom:4px;">Why this matters globally</div>
-              <div style="font-size:0.8125rem;color:var(--txt2);line-height:1.7;">92% of researchers in the Global South have no structured digital presence. Your work competes with institutions that have dedicated communications teams. <strong style="color:var(--txt);">DVOS equalizes this.</strong></div>
+              <div style="font-size:0.8125rem;color:var(--txt2);line-height:1.7;">Most researchers in the Global South lack a structured digital presence — while institutions in well-resourced settings have dedicated communications teams. Your work deserves equal visibility. <strong style="color:var(--txt);">DVOS equalizes this.</strong></div>
             </div>
           </div>
           <div>
@@ -1069,16 +1081,16 @@ img { max-width: 100%; display: block; }
         <!-- filter tabs -->
         <div class="pulse-filter-bar">
           <div class="pulse-tabs" role="tablist" aria-label="Filter research intelligence">
-            <button class="ptab ptab-active" data-tab="all" onclick="setPulseTab('all')" role="tab" aria-selected="true">All</button>
-            <button class="ptab" data-tab="papers" onclick="setPulseTab('papers')" role="tab" aria-selected="false">Papers</button>
-            <button class="ptab" data-tab="opps" onclick="setPulseTab('opps')" role="tab" aria-selected="false">Opportunities</button>
-            <button class="ptab" data-tab="network" onclick="setPulseTab('network')" role="tab" aria-selected="false">Network</button>
-            <button class="ptab" data-tab="saved" onclick="setPulseTab('saved')" role="tab" aria-selected="false">Saved <span id="saved-count-tab" class="ptab-cnt" style="display:none;"></span></button>
+            <button class="ptab ptab-active" data-tab="all" onclick="setPulseTab('all')" role="tab" aria-selected="true" aria-controls="pulse-main-grid">All</button>
+            <button class="ptab" data-tab="papers" onclick="setPulseTab('papers')" role="tab" aria-selected="false" aria-controls="pulse-col-papers">Papers</button>
+            <button class="ptab" data-tab="opps" onclick="setPulseTab('opps')" role="tab" aria-selected="false" aria-controls="pulse-col-opps">Opportunities</button>
+            <button class="ptab" data-tab="network" onclick="setPulseTab('network')" role="tab" aria-selected="false" aria-controls="pulse-card-collab">Network</button>
+            <button class="ptab" data-tab="saved" onclick="setPulseTab('saved')" role="tab" aria-selected="false" aria-controls="pulse-saved-panel">Saved <span id="saved-count-tab" class="ptab-cnt" style="display:none;"></span></button>
           </div>
           <div class="pulse-chips" id="pulse-chips" aria-label="Active topic filters"></div>
         </div>
         <!-- main grid -->
-        <div class="pulse-grid" id="pulse-main-grid">
+        <div class="pulse-grid" id="pulse-main-grid" role="tabpanel" aria-label="Research intelligence feed">
           <!-- Left: papers + trending + collab -->
           <div style="display:flex;flex-direction:column;gap:14px;" id="pulse-col-papers">
             <div class="card" id="pulse-card-arxiv">
@@ -1157,7 +1169,7 @@ img { max-width: 100%; display: block; }
           </div>
         </div>
         <!-- Saved panel -->
-        <div id="pulse-saved-panel" style="display:none;">
+        <div id="pulse-saved-panel" style="display:none;" role="tabpanel" aria-label="Saved items">
           <div class="card">
             <div class="sec-head">
               <div class="sec-title">&#128278; Saved items</div>
@@ -1180,6 +1192,8 @@ img { max-width: 100%; display: block; }
     <div class="bnav-item" data-screen="pulse"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="1,11 4,11 6,4 9,16 11,8 14,12 16,10 19,10"/></svg><span class="bnav-label">Pulse</span></div>
     <div class="bnav-item" data-screen="orcid"><svg viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="8"/><path d="M8 10a2 2 0 1 1 4 0v3H8v-3z"/><circle cx="10" cy="6.5" r="1"/></svg><span class="bnav-label">ORCID</span></div>
     <div class="bnav-item" data-screen="content"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 6h12M4 10h8M4 14h6"/><path d="M16 12l2 2-4 4-2-2 4-4z"/></svg><span class="bnav-label">Content</span></div>
+    <div class="bnav-item" data-screen="website"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="16" height="12" rx="2"/><path d="M6 4v12M2 8h16"/></svg><span class="bnav-label">Website</span></div>
+    <div class="bnav-item" data-screen="platforms"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="2"/><path d="M10 4a6 6 0 0 1 6 6M4 10a6 6 0 0 1 6-6M10 16a6 6 0 0 1-6-6M16 10a6 6 0 0 1-6 6"/></svg><span class="bnav-label">Platforms</span></div>
   </div>
 </nav>
 
@@ -1369,7 +1383,9 @@ function computeScore(sig){
 function recomputeScore(){
   const m=S.metrics, p=S.profile;
   const sig=Object.assign({},S.signals);
-  sig.profile=!p?0:S.genProfile?92:(p.name&&p.inst&&p.field?60:30);
+  // Profile signal: coverage-based (each field = 20pts) + bonus for AI generation
+  const fields=[p?.name,p?.inst,p?.field,p?.title,p?.pubs].filter(Boolean).length;
+  sig.profile=!p?0:Math.min(Math.round((fields/5)*72)+(S.genProfile?20:0),96);
   sig.website=S.wsContent.bio?65:0;
   sig.citations=m.citedByCount?Math.min(Math.round(Math.log10(m.citedByCount+1)*35),100):0;
   saveState({signals:sig});
@@ -1390,7 +1406,7 @@ function updateScoreUI(score,sig){
     const v=sig?sig[k]:0;
     const bar=$id(bars[k]);
     if(bar){ bar.style.width=v+'%'; bar.className='prog-fill '+(v>=70?'pf-accent':v>=40?'pf-amber':'pf-red');
-      bar.setAttribute('role','progressbar'); bar.setAttribute('aria-valuenow',v); bar.setAttribute('aria-valuemin','0'); bar.setAttribute('aria-valuemax','100'); bar.setAttribute('aria-label',k+' signal: '+v+'%'); }
+      bar.setAttribute('role','progressbar'); bar.setAttribute('aria-valuenow',v); bar.setAttribute('aria-valuemin','0'); bar.setAttribute('aria-valuemax','100'); bar.setAttribute('aria-label',k+' signal'); bar.setAttribute('aria-valuetext',k+' signal at '+v+' percent — '+(v>=70?'strong':v>=40?'moderate':'needs attention')); }
     const val=$id(bars[k]+'-val'); if(val)val.textContent=v+'%';
   });
   // score tip
@@ -1828,6 +1844,15 @@ function applyUserProfile(){
 function refreshDashboard(){
   const m=S.metrics, p=S.profile;
   const cites=m.citedByCount??p?.citations??null;
+  // Citation change alert — compare to last stored count
+  if(cites!=null){
+    const prevCites=parseInt(localStorage.getItem('dvos_prev_cites')||'0',10);
+    localStorage.setItem('dvos_prev_cites',String(cites));
+    if(prevCites>0&&cites>prevCites){
+      const diff=cites-prevCites;
+      notify('Citation increase','Your work gained '+diff+' new citation'+(diff===1?'':'s')+' since your last visit.','green');
+    }
+  }
   const hi=m.hIndex??p?.hindex??null;
   const works=m.worksCount??p?.pubs??null;
   setText('m-citations',cites??'—'); setText('m-hindex',hi??'—'); setText('m-pubs',works??'—');
@@ -1975,7 +2000,7 @@ Return ONLY valid JSON with these exact keys (no markdown, no backticks):
     const raw=await callClaude(prompt);
     clearInterval(timer); if(bar)bar.style.width='100%';
     const clean=raw.replace(/```json|```/g,'').trim();
-    const parsed=JSON.parse(clean);
+    let parsed; try{ parsed=JSON.parse(clean); }catch(_){ throw new Error('AI returned an unexpected format. Please try again.'); }
     ['bio','headline','linkedin','website','impact'].forEach(k=>{ const el=$id('out-'+k);if(el)el.textContent=parsed[k]||''; });
     $id('build-loading').style.display='none'; $id('build-output').style.display='block';
     setText('build-status','Done'); $id('build-status').className='badge badge-green';
@@ -2015,8 +2040,8 @@ function renderWebsite(){
   const pubs=S.metrics.worksCount||S.profile?.pubs||'—';
   const initials=name.split(' ').filter(Boolean).map(w=>w[0]).join('').slice(0,2).toUpperCase();
   const slug=name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^(dr|prof)-?/,'').slice(0,25);
-  const urlEl=$id('ws-url'); if(urlEl)urlEl.textContent=slug+'.research.io (preview)';
-  const urlDisp=$id('ws-url-display'); if(urlDisp)urlDisp.textContent=slug+'.research.io (preview)';
+  const urlEl=$id('ws-url'); if(urlEl)urlEl.textContent=slug+'.research.io — preview only';
+  const urlDisp=$id('ws-url-display'); if(urlDisp)urlDisp.textContent=slug+'.research.io — preview only';
   // concepts/tags from real OpenAlex data or profile topics
   const tags=S.metrics.concepts.length>0
     ?S.metrics.concepts.slice(0,5).map(c=>c.name)
@@ -2308,15 +2333,28 @@ function renderOrcidProjection(){
 
 function renderPlatformProjection(){
   const el=$id('plat-projection'); if(!el)return;
-  const base=S.score||0;
-  const rows=[{l:'Today',v:base},{l:'ORCID',v:Math.min(base+16,94)},{l:'Scholar',v:Math.min(base+22,96)},{l:'ResGate',v:Math.min(base+27,97)},{l:'Full',v:Math.min(base+32,99)}];
+  const base=S.score||recomputeScore();
+  // Use real score engine — same as renderScoreProjection()
+  const sig=Object.assign({},S.signals);
+  const withOrcid=computeScore(Object.assign({},sig,{orcid:95}));
+  const withProfile=computeScore(Object.assign({},sig,{orcid:95,profile:92}));
+  const withContent=computeScore(Object.assign({},sig,{orcid:95,profile:92,content:85}));
+  const withAll=computeScore(Object.assign({},sig,{orcid:95,profile:92,content:85,website:65,platforms:80}));
+  const rows=[
+    {l:'Today',v:base},
+    {l:'+ORCID',v:Math.min(withOrcid,99)},
+    {l:'+Profile',v:Math.min(withProfile,99)},
+    {l:'+Content',v:Math.min(withContent,99)},
+    {l:'Full',v:Math.min(withAll,99)},
+  ];
   el.innerHTML=rows.map(r=>`<div class="proj-row"><div class="proj-time">${esc(r.l)}</div><div class="proj-track"><div class="proj-fill" style="width:${r.v}%"></div></div><div class="proj-val">${r.v}</div></div>`).join('');
-  // update platform bars from signals
-  const sig=S.signals;
-  const li=S.genProfile?85:0; const ws=S.wsContent.bio?65:0; const or=sig.orcid||0;
-  [['plat-li',li,'Profile optimized','Not optimized'],['plat-ws',ws,'Live · bio added','Not created'],['plat-or',or,`${or}% complete`,'Not connected']].forEach(([id,v,on,off])=>{
+  // Update potential score
+  const potEl=$id('plat-potential'); if(potEl)potEl.textContent=Math.min(withAll,99);
+  // Update platform bars from signals
+  const li=S.genProfile?85:0; const ws=S.wsContent?.bio?65:0; const or=sig.orcid||0;
+  [['plat-li',li,'Profile optimized','Not optimized'],['plat-ws',ws,'Website content saved','Not created'],['plat-or',or,`${or}% complete`,'Not connected']].forEach(([id,v,on,off])=>{
     const bar=$id(id+'-bar'); if(bar)bar.style.width=v+'%';
-    const sc=$id(id+'-score'); if(sc){ sc.textContent=v||'—'; sc.style.color=v>60?'var(--accent)':v>30?'var(--amber)':'var(--red)'; }
+    const sc=$id(id+'-score'); if(sc){ sc.textContent=v||'—'; sc.style.color=v>60?'var(--accent)':v>30?'var(--amber)':'var(--txt3)'; }
     const sub=$id(id+'-sub'); if(sub)sub.textContent=v>0?on:off;
   });
 }
@@ -2784,7 +2822,10 @@ function computeFieldTemp(works){
 }
 
 /* ── Main orchestrator ──────────────────────────────────────── */
+let _pulseLoading=false;
 async function loadPulseScreen(force=false){
+  if(_pulseLoading&&!force)return; // debounce concurrent calls
+  _pulseLoading=true;
   const p=S.profile;
   if(!p?.field){
     ['arxiv-feed','oa-trending','collab-feed','conf-feed','grant-feed'].forEach(id=>{
@@ -2812,6 +2853,7 @@ async function loadPulseScreen(force=false){
   // AI feeds (require proxy, use cache)
   refreshConferences(force);
   loadGrantFeed(force);
+  _pulseLoading=false;
 }
 
 // Patch loadGrantFeed to accept force parameter
