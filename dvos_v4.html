@@ -1091,6 +1091,40 @@ function notify(title,sub,type='green'){
   setTimeout(()=>{ n.style.cssText='opacity:0;transform:translateX(8px);transition:all 0.3s'; setTimeout(()=>n.remove(),300); },4500);
 }
 
+/* ── FIELD-NORMALISED CITATION BENCHMARK ───────────────────── */
+// Approximate career-total citation percentiles by field (Scopus/WoS data, 2024).
+// Sources: Hirsch 2005, Bornmann & Marx 2011, Ioannidis et al. 2020 top-cited scientists.
+function citationPercentile(cites,field,title){
+  if(!cites||cites<1)return null;
+  const f=(field||'').toLowerCase();
+  const t=(title||'').toLowerCase();
+  const stage=t.includes('professor')||t.includes('associate')?'senior':
+               t.includes('lecturer')?'mid':'early';
+  // [field_keys, {top10%, top25%, top50%}] — career totals at senior stage (scale for early/mid)
+  const map=[
+    {k:['medicine','medical','clinical','surgery','pharma'],     p:{t10:2000,t25:400,t50:80}},
+    {k:['public health','epidemiology','global health'],         p:{t10:1500,t25:300,t50:60}},
+    {k:['biology','biochemistry','genetics','molecular'],        p:{t10:1500,t25:300,t50:60}},
+    {k:['ecology','environment','conservation'],                 p:{t10:800, t25:200,t50:40}},
+    {k:['chemistry','chemical'],                                 p:{t10:2000,t25:400,t50:80}},
+    {k:['physics','astrophysics','quantum'],                     p:{t10:2000,t25:400,t50:80}},
+    {k:['computer','computing','software','ai','machine'],       p:{t10:1000,t25:250,t50:50}},
+    {k:['engineering','mechanical','civil','electrical'],        p:{t10:600, t25:150,t50:30}},
+    {k:['economics','finance','business'],                       p:{t10:800, t25:200,t50:40}},
+    {k:['social','sociology','political','anthropology'],        p:{t10:400, t25:100,t50:20}},
+    {k:['education','pedagogy'],                                 p:{t10:300, t25:70, t50:15}},
+  ];
+  const match=map.find(r=>r.k.some(k=>f.includes(k)));
+  if(!match)return null;
+  // Scale thresholds for career stage
+  const scale=stage==='senior'?1:stage==='mid'?0.4:0.15;
+  const {t10,t25,t50}=match.p;
+  if(cites>=t10*scale)return `Top 10% in this field`;
+  if(cites>=t25*scale)return `Top 25% in this field`;
+  if(cites>=t50*scale)return `Above median for this field`;
+  return `Growing — median for ${stage}-career: ~${Math.round(t50*scale)}`;
+}
+
 /* ── SCORE ENGINE ───────────────────────────────────────────── */
 // Weights reflect actual research visibility: citations are the primary academic signal,
 // ORCID enables attribution, profile/content drive discoverability.
@@ -1222,6 +1256,36 @@ const PM={
     if(!r.ok)throw new Error('PM_SEARCH_FAIL');
     const d=await r.json();
     return parseInt(d.esearchresult?.count||'0',10);
+  }
+};
+
+/* ── CROSSREF API ───────────────────────────────────────────── */
+// Free, CORS-enabled, polite pool. DOI verification + funder data + citation counts.
+const CR={
+  BASE:'https://api.crossref.org',
+  EMAIL:'dvos-app@research.io',
+  async searchWorks(name,limit=10){
+    const url=`${this.BASE}/works?query.author=${encodeURIComponent(name)}&rows=${limit}&mailto=${this.EMAIL}&select=DOI,title,published,is-referenced-by-count,type,container-title,funder`;
+    const r=await fetch(url);
+    if(!r.ok)throw new Error('CR_FAIL');
+    return (await r.json()).message?.items||[];
+  },
+  async getWork(doi){
+    const r=await fetch(`${this.BASE}/works/${encodeURIComponent(doi)}?mailto=${this.EMAIL}`);
+    if(!r.ok)throw new Error('CR_DOI_FAIL');
+    return (await r.json()).message;
+  }
+};
+
+/* ── UNPAYWALL API ──────────────────────────────────────────── */
+// Free, CORS-enabled. Returns OA full-text URL per DOI — adds "Read free →" links.
+const UP={
+  BASE:'https://api.unpaywall.org/v2',
+  EMAIL:'dvos-app@research.io',
+  async getWork(doi){
+    const r=await fetch(`${this.BASE}/${encodeURIComponent(doi)}?email=${this.EMAIL}`);
+    if(!r.ok)throw new Error('UP_FAIL');
+    return r.json();
   }
 };
 
@@ -1414,10 +1478,11 @@ async function buildScoreReveal(){
   const name=p?.name||'';
 
   // Query all sources in parallel — fastest possible enrichment
-  const [oaRes,ssRes,pmRes]=await Promise.allSettled([
+  const [oaRes,ssRes,pmRes,crRes]=await Promise.allSettled([
     candidateId?Promise.all([OA.getAuthor(candidateId),OA.getWorks(candidateId)]):Promise.reject('no_oa_id'),
     name?SS.searchAuthors(name):Promise.reject('no_name'),
     name?PM.countWorks(name):Promise.reject('no_name'),
+    name?CR.searchWorks(name):Promise.reject('no_name'),
   ]);
 
   let metrics={worksCount:null,citedByCount:null,hIndex:null,inst:null,concepts:[],pubmedCount:null};
@@ -1465,6 +1530,27 @@ async function buildScoreReveal(){
     sources.push('PubMed');
   }
 
+  // Crossref — DOI coverage check + funder data enrichment
+  if(crRes.status==='fulfilled'&&crRes.value.length>0){
+    const nameLower=name.toLowerCase();
+    // Filter to items that likely belong to this author (name token match)
+    const crMatched=crRes.value.filter(item=>{
+      const authors=(item.author||[]).map(a=>`${a.given||''} ${a.family||''}`.toLowerCase()).join(' ');
+      return nameLower.split(' ').some(tok=>tok.length>2&&authors.includes(tok));
+    });
+    if(crMatched.length>0){
+      // Crossref citation total from matched items
+      const crCites=crMatched.reduce((s,i)=>s+(i['is-referenced-by-count']||0),0);
+      if(crCites>(metrics.citedByCount||0))metrics.citedByCount=crCites;
+      // Extract unique funders for display
+      const funders=[...new Set(crMatched.flatMap(i=>(i.funder||[]).map(f=>f.name)).filter(Boolean))].slice(0,3);
+      if(funders.length)metrics.funders=funders;
+      // DOI coverage: how many Crossref works vs OpenAlex
+      metrics.crWorksCount=crMatched.length;
+      sources.push('Crossref');
+    }
+  }
+
   if(metrics.citedByCount!==null||metrics.worksCount!==null){
     saveState({metrics,works,profile:Object.assign({},p,{hindex:metrics.hIndex||0,citations:metrics.citedByCount||0})});
     sig.citations=metrics.citedByCount?Math.min(Math.round(Math.log10(metrics.citedByCount+1)*35),100):0;
@@ -1472,8 +1558,10 @@ async function buildScoreReveal(){
     if(banner){
       banner.style.display='block';
       const pmNote=metrics.pubmedCount?` · ${metrics.pubmedCount} PubMed indexed`:'';
+      const crNote=metrics.crWorksCount&&metrics.crWorksCount>(metrics.worksCount||0)?` · ${metrics.crWorksCount} in Crossref (DOI verified)`:'';
+      const funderNote=metrics.funders?.length?` · Funders: ${metrics.funders.join(', ')}`:'';
       setText('ob-found-title',`Found in ${sources.join(' + ')} ✓`);
-      setText('ob-openalex-summary',`${metrics.worksCount||'?'} publications · ${metrics.citedByCount||0} citations · h-index ${metrics.hIndex||'—'}${pmNote}`);
+      setText('ob-openalex-summary',`${metrics.worksCount||'?'} publications · ${metrics.citedByCount||0} citations · h-index ${metrics.hIndex||'—'}${pmNote}${crNote}${funderNote}`);
     }
   }
   // Database coverage warning for fields with known under-indexing
@@ -1550,6 +1638,10 @@ function refreshDashboard(){
   const hCtx=hi?hIndexContext(hi,S.profile?.field,S.profile?.title):null;
   const hSub=$id('m-hindex-sub'); if(hSub)hSub.textContent=hCtx||'OpenAlex + Semantic Scholar';
   const hSubStat=$id('stat-hindex-sub'); if(hSubStat)hSubStat.textContent=hCtx||'OpenAlex + Semantic Scholar';
+  // Field-normalised citation benchmark
+  const citeBenchmark=cites?citationPercentile(cites,S.profile?.field,S.profile?.title):null;
+  const cSubEl=$id('m-citations-sub'); if(cSubEl)cSubEl.textContent=citeBenchmark||'from OpenAlex';
+  const cSubStat=$id('stat-citations-sub'); if(cSubStat)cSubStat.textContent=citeBenchmark||'OpenAlex indexed';
   const pmEl=$id('m-pubmed'); if(pmEl)pmEl.textContent=m.pubmedCount?`${m.pubmedCount} PubMed`:'—';
   setText('stat-citations',cites??'—'); setText('stat-hindex',hi??'—');
   const pubLinked=S.works.length; const pubTotal=works||'?';
@@ -1603,6 +1695,7 @@ function renderPriorityActions(){
   const el=$id('priority-actions'); if(!el)return;
   const acts=[];
   if(!S.orcidId)acts.push({prio:'crit',screen:'orcid',title:'ORCID not connected',desc:'Without ORCID, your publications may be misattributed across databases — especially if you share a name with another researcher.',impact:'+28 pts visibility'});
+  if(S.orcidId&&S._orcidHasEmployment===false)acts.push({prio:'high',screen:'orcid',title:'ORCID employment missing',desc:'No institution in your ORCID record. Funders and citation systems use this to disambiguate researchers. Edit your ORCID profile at orcid.org to add it.',impact:'+attribution accuracy'});
   if(!S.genProfile)acts.push({prio:'high',screen:'builder',title:'AI profile not generated',desc:'Your bio, LinkedIn summary, and grant statement can be written in one click.',impact:'+22 pts · saves hours of writing'});
   if(!S.wsContent.bio)acts.push({prio:'med',screen:'website',title:'Research website empty',desc:'Funders and collaborators need a professional page to verify your work.',impact:'+18 pts · first impression matters'});
   if(S.works.length===0&&S.oaId)acts.push({prio:'med',screen:'orcid',title:'Publications not loaded',desc:'We found you in OpenAlex. Link your works to get full citation attribution.',impact:'+citations + h-index'});
@@ -1805,8 +1898,16 @@ async function runContent(){
     await callClaude(prompt,chunk=>{ out.textContent=chunk; });
     setText('term-label',fmt+' · generated');
     $id('cg-copy-btn').disabled=false; $id('cg-pub-btn').disabled=false;
-    S.signals.content=Math.min((S.signals.content||0)+15,85); saveState({signals:S.signals});
-    recomputeScore();
+    // Only gain signal for formats not yet generated — rewards format diversity, not button-mashing
+    const generated=S._generatedFmts||{};
+    if(!generated[fmt]){
+      generated[fmt]=true;
+      saveState({_generatedFmts:generated});
+      const fmtCount=Object.keys(generated).length; // 1–6 unique formats
+      S.signals.content=Math.min(Math.round(fmtCount/6*85),85);
+      saveState({signals:S.signals});
+      recomputeScore();
+    }
     notify('Content ready','Your '+fmt+' has been generated.','green');
   }catch(e){
     out.textContent='// Error — '+e.message; setText('term-label','error');
@@ -1868,6 +1969,8 @@ async function verifyOrcid(){
         </div>`).join('')+
         `<div style="margin-top:8px;font-size:0.6875rem;color:var(--txt3);">Complete profile improves grant eligibility verification across Wellcome, NIH, EU Horizon, and African research councils.</div>`;
     }
+    // Save completeness flags for priority actions
+    saveState({_orcidHasEmployment:emp>0,_orcidHasEducation:edu>0});
     // load publications
     if(S.oaId){ loadPublications(S.oaId,orcidWorks); }
     recomputeScore(); renderOrcidProjection(); refreshDashboard();
@@ -1886,9 +1989,42 @@ async function loadPublications(oaId,orcidWorksCount=0){
     const works=S.works.length>0?S.works:await OA.getWorks(oaId);
     if(S.works.length===0)saveState({works});
     renderPublicationsList(works,orcidWorksCount);
+    // Enrich with Unpaywall OA full-text URLs in background (non-blocking)
+    enrichWithUnpaywall(works);
   }catch(e){
     notify('Could not load publications','OpenAlex API unavailable. Try again.','amber');
   }finally{ $id('pub-loading').style.display='none'; }
+}
+
+async function enrichWithUnpaywall(works){
+  const sorted=[...works].sort((a,b)=>(b.publication_year||0)-(a.publication_year||0));
+  for(let i=0;i<Math.min(sorted.length,10);i++){
+    const w=sorted[i];
+    const doi=w.doi?w.doi.replace('https://doi.org/',''):'';
+    if(!doi)continue;
+    // Skip if OpenAlex already confirmed OA with a URL
+    if(w.open_access?.oa_url)continue;
+    try{
+      const up=await UP.getWork(doi);
+      if(up.best_oa_location?.url){
+        const el=$id('pubitem-'+i);
+        if(!el)continue;
+        const meta=el.querySelector('.pub-meta');
+        if(meta&&!meta.querySelector('.up-link')){
+          const link=document.createElement('a');
+          link.href=up.best_oa_location.url;
+          link.target='_blank';
+          link.rel='noopener';
+          link.className='up-link';
+          link.style.cssText='color:var(--accent);font-weight:600;margin-left:6px;font-size:0.6875rem;';
+          link.textContent='Read free →';
+          meta.appendChild(link);
+        }
+      }
+    }catch(_){ /* silent — UP is enrichment only */ }
+    // Polite rate: 1 req/sec max
+    await new Promise(r=>setTimeout(r,1100));
+  }
 }
 
 function renderPublicationsList(works,orcidWorksCount){
