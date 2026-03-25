@@ -2547,12 +2547,12 @@ function toggleCollabCardForm(){
 
 function generateCollabCard(){
   const p=S.profile||{};
-  if(!p.name){showNotif('Complete your profile (name + field) before creating a collab card.','warn');navigateTo('profile');return;}
+  if(!p.name){notify('Profile incomplete','Add your name and field first, then create a collab card.','amber');showScreen('builder');return;}
   const topic=($id('cc-topic')?.value||'').trim();
   const stage=$id('cc-stage')?.value||'';
   const looking=$id('cc-looking')?.value||'';
   const contact=$id('cc-contact')?.value||'';
-  if(!topic){showNotif('Add a brief description of your research first.','warn');return;}
+  if(!topic){notify('Missing description','Describe your research before generating the card.','amber');return;}
   const data={
     v:1,
     name:p.name||'Researcher',
@@ -2562,7 +2562,7 @@ function generateCollabCard(){
     topic,stage,looking,contact,
     ts:Date.now()
   };
-  const encoded=btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+  const encoded=btoa(encodeURIComponent(JSON.stringify(data)));
   const url=`https://digital-visibility-os.vercel.app/app?collab=${encoded}`;
   data._url=url;
   renderCollabCardPreview(data);
@@ -2624,7 +2624,7 @@ function ccCopyLink(){
   navigator.clipboard.writeText(url).then(()=>{
     const c=$id('cc-copy-confirm');
     if(c){c.style.display='block';setTimeout(()=>c.style.display='none',2000);}
-  }).catch(()=>showNotif('Copy failed — try a modern browser.','warn'));
+  }).catch(()=>notify('Copy failed','Use Ctrl+C on the link manually.','amber'));
 }
 
 function ccCopyText(){
@@ -2637,7 +2637,7 @@ Connect: ${window._ccShareUrl}`;
   navigator.clipboard.writeText(txt).then(()=>{
     const c=$id('cc-copy-confirm');
     if(c){c.style.display='block';setTimeout(()=>c.style.display='none',2000);}
-  }).catch(()=>showNotif('Copy failed.','warn'));
+  }).catch(()=>notify('Copy failed','Use Ctrl+C to copy manually.','amber'));
 }
 
 function ccShare(method){
@@ -2664,7 +2664,7 @@ function checkIncomingCollabCard(){
     const params=new URLSearchParams(window.location.search);
     const encoded=params.get('collab');
     if(!encoded)return;
-    const data=JSON.parse(decodeURIComponent(escape(atob(encoded))));
+    const data=JSON.parse(decodeURIComponent(atob(encoded)));
     if(!data||!data.name)return;
     _ccIncomingData=data;
     // Build contact URL
@@ -2701,7 +2701,7 @@ function saveIncomingCard(){
   const saved=JSON.parse(localStorage.getItem('dvos4_saved_collabs')||'[]');
   saved.unshift(_ccIncomingData);
   localStorage.setItem('dvos4_saved_collabs',JSON.stringify(saved.slice(0,50)));
-  showNotif(`${_ccIncomingData.name}'s card saved to Network tab.`,'ok');
+  notify('Saved',''+_ccIncomingData.name+'\'s card is in your Network tab.','green');
   dismissIncomingCard();
 }
 
@@ -2713,7 +2713,7 @@ function renderSavedCollabCards(){
     <div style="font-size:0.6875rem;font-weight:700;color:var(--txt2);margin:10px 0 6px;">Saved collab requests (${saved.length})</div>
     ${saved.map((d,i)=>`
       <div class="cc-preview" style="margin-bottom:8px;position:relative;">
-        <button onclick="removeSavedCollabCard(${i})" style="position:absolute;top:8px;right:8px;background:none;border:none;cursor:pointer;font-size:0.75rem;color:var(--txt3);" title="Remove">&#10005;</button>
+        <button onclick="removeSavedCollabCard(${d.ts||0})" style="position:absolute;top:8px;right:8px;background:none;border:none;cursor:pointer;font-size:0.75rem;color:var(--txt3);" title="Remove">&#10005;</button>
         <div class="cc-preview-name">${esc(d.name)}</div>
         <div class="cc-preview-inst">${esc(d.inst||'')}${d.inst&&d.field?' &middot; ':''}${esc(d.field||'')}</div>
         <div class="cc-tag-row">
@@ -2727,10 +2727,10 @@ function renderSavedCollabCards(){
   `;
 }
 
-function removeSavedCollabCard(idx){
+function removeSavedCollabCard(ts){
   const saved=JSON.parse(localStorage.getItem('dvos4_saved_collabs')||'[]');
-  saved.splice(idx,1);
-  localStorage.setItem('dvos4_saved_collabs',JSON.stringify(saved));
+  const filtered=saved.filter(d=>d.ts!==ts);
+  localStorage.setItem('dvos4_saved_collabs',JSON.stringify(filtered));
   renderSavedCollabCards();
 }
 
@@ -2743,7 +2743,7 @@ function dismissIncomingCard(){
 /* ── INIT ───────────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded',()=>{
   if(S.onboardDone){
-    $id('onboard').classList.add('gone');
+    const ob=$id('onboard'); if(ob) ob.classList.add('gone');
     applyUserProfile();
     refreshDashboard();
     renderWebsite();
