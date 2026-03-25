@@ -19,6 +19,7 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%231A6647'/><text x='50%25' y='55%25' text-anchor='middle' dominant-baseline='middle' fill='white' font-size='16' font-weight='800' font-family='system-ui'>D</text></svg>"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 /* ============================================================
    DESIGN TOKENS — Light / Dark
@@ -176,6 +177,7 @@ img { max-width: 100%; display: block; }
 .tb-score-num { font-family: var(--ff-mono); font-weight: 700; color: var(--accent); font-size: 0.875rem; }
 .tb-score-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse-dot 2s infinite; }
 @keyframes pulse-dot { 0%,100%{opacity:1;} 50%{opacity:0.35;} }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.5;transform:scale(1.5);} }
 .theme-btn { width: 34px; height: 34px; border: 1px solid var(--border2); border-radius: var(--r-sm); background: var(--surface); cursor: pointer; color: var(--txt2); display: flex; align-items: center; justify-content: center; transition: background 0.15s; flex-shrink: 0; }
 .theme-btn:hover { background: var(--bg2); }
 /* ============================================================
@@ -1196,6 +1198,7 @@ img { max-width: 100%; display: block; }
               </div>
               <div style="font-size:0.6875rem;color:var(--txt3);margin-bottom:8px;">Researchers in your field with high-impact recent work</div>
               <div id="collab-feed"><div class="loading-row"><div class="spinner"></div><span>Finding researchers...</span></div></div>
+              <div id="cc-live-feed-wrap"></div>
               <div id="cc-saved-cards-wrap"></div>
               <div class="cc-divider"></div>
               <button class="cc-create-btn" onclick="toggleCollabCardForm()" id="cc-toggle-btn">
@@ -1846,6 +1849,7 @@ function obSaveProfile(){
   const profile={name,inst,field,title,topics,pubs,hindex:0,citations:0};
   saveState({profile});
   applyUserProfile();
+  DB.saveProfile();
   // background OpenAlex search
   if(name){ OA.searchAuthors(name).then(a=>{ if(a.length)_oaCandidates=a; }).catch(()=>{}); }
   obNext();
@@ -2566,6 +2570,10 @@ function generateCollabCard(){
   const url=`https://digital-visibility-os.vercel.app/app?collab=${encoded}`;
   data._url=url;
   renderCollabCardPreview(data);
+  // Publish to DB in background (enables live feed discovery)
+  DB.publishCard(data).then(row=>{
+    if(row) notify('Card live','Your collab card is now discoverable in the DVOS network.','green');
+  });
 }
 
 function renderCollabCardPreview(data){
@@ -2701,8 +2709,43 @@ function saveIncomingCard(){
   const saved=JSON.parse(localStorage.getItem('dvos4_saved_collabs')||'[]');
   saved.unshift(_ccIncomingData);
   localStorage.setItem('dvos4_saved_collabs',JSON.stringify(saved.slice(0,50)));
+  DB.saveItem('collab', String(_ccIncomingData.ts||Date.now()), _ccIncomingData);
   notify('Saved',''+_ccIncomingData.name+'\'s card is in your Network tab.','green');
   dismissIncomingCard();
+}
+
+async function renderLiveCollabCards(){
+  const wrap=$id('cc-live-feed-wrap'); if(!wrap)return;
+  if(!DB.ok){ wrap.innerHTML=''; return; }
+  wrap.innerHTML='<div class="loading-row" style="padding:8px 0;"><div class="spinner"></div><span style="font-size:0.75rem;color:var(--txt3);">Loading network cards\u2026</span></div>';
+  const field=S.profile?.field||'';
+  const cards=await DB.browseCards(field);
+  if(!cards.length){
+    wrap.innerHTML=`<div style="font-size:0.75rem;color:var(--txt3);padding:6px 0 2px;">No open collab requests in your field yet${field?' ('+field+')':''}. Create yours below.</div>`;
+    return;
+  }
+  const ago=ts=>{ const d=(Date.now()-new Date(ts).getTime())/86400000; return d<1?'today':Math.round(d)+'d ago'; };
+  wrap.innerHTML=`
+    <div style="font-size:0.6875rem;font-weight:700;color:var(--txt2);margin:4px 0 8px;display:flex;align-items:center;gap:6px;">
+      <span style="width:6px;height:6px;border-radius:99px;background:var(--accent);display:inline-block;animation:pulse 1.8s infinite;"></span>
+      Live from the DVOS network${field?' &middot; '+esc(field):''}
+    </div>
+    ${cards.map(c=>`
+      <div class="cc-preview" style="margin-bottom:8px;">
+        <div class="cc-preview-name">${esc(c.name)}</div>
+        <div class="cc-preview-inst">${esc(c.institution||'')}${c.institution&&c.field?' &middot; ':''}${esc(c.field||'')}</div>
+        <div class="cc-tag-row">
+          <span class="cc-tag">Stage: ${esc(c.stage||'')}</span>
+          <span class="cc-tag cc-tag-accent">&#128269; ${esc(c.looking_for||'')}</span>
+          <span class="cc-tag" style="margin-left:auto;color:var(--txt3);">${ago(c.created_at)}</span>
+        </div>
+        <div class="cc-preview-topic">${esc(c.topic||'')}</div>
+        <div class="cc-share-row" style="margin-top:6px;">
+          ${c.orcid?`<a href="https://orcid.org/${esc(c.orcid)}" target="_blank" rel="noopener" class="cc-share-btn cc-share-copy" style="text-decoration:none;">View ORCID &rarr;</a>`:''}
+        </div>
+      </div>
+    `).join('')}
+  `;
 }
 
 function renderSavedCollabCards(){
@@ -2731,6 +2774,7 @@ function removeSavedCollabCard(ts){
   const saved=JSON.parse(localStorage.getItem('dvos4_saved_collabs')||'[]');
   const filtered=saved.filter(d=>d.ts!==ts);
   localStorage.setItem('dvos4_saved_collabs',JSON.stringify(filtered));
+  DB.removeItem('collab', String(ts));
   renderSavedCollabCards();
 }
 
@@ -2739,6 +2783,128 @@ function dismissIncomingCard(){
   if(banner)banner.style.display='none';
   _ccIncomingData=null;
 }
+
+/* ══════════════════════════════════════════════════════════════
+   DATABASE — Supabase
+   Pattern : localStorage = instant cache → Supabase = truth
+   Auth     : anonymous sessions (zero friction, auto-created)
+   Degrades : gracefully to localStorage-only if unconfigured
+   ══════════════════════════════════════════════════════════════ */
+const DB = {
+  _sb:  null,
+  _uid: null,
+
+  get ok(){ return !!this._sb && !!this._uid; },
+
+  async init(){
+    try{
+      const r = await fetch('/api/config');
+      if(!r.ok) return;
+      const { url, key } = await r.json();
+      if(!url || !key) return;
+      this._sb = window.supabase.createClient(url, key, {
+        auth:{ persistSession:true, autoRefreshToken:true }
+      });
+      let { data:{ session } } = await this._sb.auth.getSession();
+      if(!session){
+        const { data } = await this._sb.auth.signInAnonymously();
+        session = data.session;
+      }
+      this._uid = session?.user?.id || null;
+      if(this._uid) await this._migrate();
+    } catch(e){ /* Supabase unavailable — localStorage-only mode */ }
+  },
+
+  /* One-time migration: push existing localStorage data to DB */
+  async _migrate(){
+    if(localStorage.getItem('dvos4_db_migrated')) return;
+    if(S.profile?.name) await this.saveProfile();
+    const saved = PS.saved;
+    for(const it of (saved.conf||[]))    await this._upsert('conf',   it.id,         it.data);
+    for(const it of (saved.grants||[])) await this._upsert('grant',  it.id,         it.data);
+    try{
+      const collabs = JSON.parse(localStorage.getItem('dvos4_saved_collabs')||'[]');
+      for(const c of collabs) await this._upsert('collab', String(c.ts||0), c);
+    }catch(_){}
+    localStorage.setItem('dvos4_db_migrated','1');
+  },
+
+  /* ── Profile ──────────────────────────────────────────────── */
+  async saveProfile(){
+    if(!this.ok || !S.profile?.name) return;
+    const { error } = await this._sb.from('profiles').upsert({
+      id:          this._uid,
+      orcid:       S.profile.orcid||null,
+      name:        S.profile.name,
+      institution: S.profile.inst||'',
+      field:       S.profile.field||'',
+      score:       S.score||0,
+      data:        S.profile,
+      updated_at:  new Date().toISOString()
+    });
+    if(error) console.warn('[DB] saveProfile:', error.message);
+  },
+
+  /* ── Collab cards ─────────────────────────────────────────── */
+  async publishCard(card){
+    if(!this.ok) return null;
+    // Deactivate any previous active card (one active card per user)
+    await this._sb.from('collab_cards')
+      .update({ active:false })
+      .eq('user_id', this._uid)
+      .eq('active', true);
+    const { data, error } = await this._sb.from('collab_cards').insert({
+      user_id:     this._uid,
+      name:        card.name,
+      institution: card.inst||'',
+      field:       card.field||'',
+      orcid:       card.orcid||'',
+      topic:       card.topic,
+      stage:       card.stage||'',
+      looking_for: card.looking||'',
+      contact:     card.contact||'',
+      active:      true,
+      expires_at:  new Date(Date.now()+30*86400000).toISOString()
+    }).select().single();
+    if(error) console.warn('[DB] publishCard:', error.message);
+    return data;
+  },
+
+  async browseCards(field){
+    if(!this.ok) return [];
+    let q = this._sb.from('collab_cards')
+      .select('id,name,institution,field,orcid,topic,stage,looking_for,contact,created_at')
+      .eq('active', true)
+      .gt('expires_at', new Date().toISOString())
+      .neq('user_id', this._uid)          // exclude own card
+      .order('created_at',{ ascending:false })
+      .limit(25);
+    if(field) q = q.ilike('field', `%${field}%`);
+    const { data, error } = await q;
+    if(error) console.warn('[DB] browseCards:', error.message);
+    return data||[];
+  },
+
+  /* ── Saved items ──────────────────────────────────────────── */
+  async _upsert(type, item_id, payload){
+    if(!this.ok) return;
+    const { error } = await this._sb.from('saved_items').upsert(
+      { user_id:this._uid, type, item_id, payload, saved_at:new Date().toISOString() },
+      { onConflict:'user_id,type,item_id' }
+    );
+    if(error) console.warn('[DB] _upsert:', error.message);
+  },
+
+  async saveItem(type, item_id, payload){ await this._upsert(type, item_id, payload); },
+
+  async removeItem(type, item_id){
+    if(!this.ok) return;
+    await this._sb.from('saved_items').delete()
+      .eq('user_id', this._uid)
+      .eq('type',    type)
+      .eq('item_id', item_id);
+  },
+};
 
 /* ── INIT ───────────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded',()=>{
@@ -2751,6 +2917,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   }
   checkProxyBanner();
   checkIncomingCollabCard();
+  DB.init(); // async — non-blocking, degrades gracefully
   document.addEventListener('keydown',e=>{ if(e.key==='Escape'){closeSidebar();dismissIncomingCard();} });
 });
 
@@ -3050,7 +3217,7 @@ function setPulseTab(tab){
   if(tab==='all'){ show(colP);show(colO);show(cA);show(cT);show(cC); }
   else if(tab==='papers'){ show(colP);hide(colO);show(cA);show(cT);hide(cC); grid.classList.add('pulse-grid-1col'); }
   else if(tab==='opps'){ hide(colP);show(colO); grid.classList.add('pulse-grid-1col'); }
-  else if(tab==='network'){ show(colP);hide(colO);hide(cA);hide(cT);show(cC); grid.classList.add('pulse-grid-1col'); renderSavedCollabCards(); }
+  else if(tab==='network'){ show(colP);hide(colO);hide(cA);hide(cT);show(cC); grid.classList.add('pulse-grid-1col'); renderLiveCollabCards(); renderSavedCollabCards(); }
   renderPulseChips();
 }
 
@@ -3149,8 +3316,13 @@ function togglePulseSave(type,idx){
   const id=slugId(rawId);
   if(!PS.saved[type])PS.saved[type]=[];
   const existIdx=PS.saved[type].findIndex(i=>i.id===id);
-  if(existIdx>=0){ PS.saved[type].splice(existIdx,1); }
-  else{ PS.saved[type].push({id,data,savedAt:Date.now()}); }
+  if(existIdx>=0){
+    PS.saved[type].splice(existIdx,1);
+    DB.removeItem(type, id);
+  } else {
+    PS.saved[type].push({id,data,savedAt:Date.now()});
+    DB.saveItem(type, id, data);
+  }
   localStorage.setItem('dvos_saved',JSON.stringify(PS.saved));
   syncSavedBadge();
   if(type==='conf')applyConfFilters(); else applyGrantFilters();
@@ -3161,6 +3333,7 @@ function removeSaved(type,id){
   if(!PS.saved[type])return;
   PS.saved[type]=PS.saved[type].filter(i=>i.id!==id);
   localStorage.setItem('dvos_saved',JSON.stringify(PS.saved));
+  DB.removeItem(type, id);
   syncSavedBadge();
   renderSavedPanel();
 }
