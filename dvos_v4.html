@@ -1196,6 +1196,7 @@ img { max-width: 100%; display: block; }
               </div>
               <div style="font-size:0.6875rem;color:var(--txt3);margin-bottom:8px;">Researchers in your field with high-impact recent work</div>
               <div id="collab-feed"><div class="loading-row"><div class="spinner"></div><span>Finding researchers...</span></div></div>
+              <div id="cc-saved-cards-wrap"></div>
               <div class="cc-divider"></div>
               <button class="cc-create-btn" onclick="toggleCollabCardForm()" id="cc-toggle-btn">
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M7 4v6M4 7h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
@@ -1205,7 +1206,8 @@ img { max-width: 100%; display: block; }
                 <div class="cc-form" id="cc-form">
                   <div>
                     <label for="cc-topic">What are you working on?</label>
-                    <textarea id="cc-topic" class="cc-form" rows="2" maxlength="220" placeholder="e.g. Estimating food insecurity in informal settlements using satellite imagery..."></textarea>
+                    <textarea id="cc-topic" class="input" rows="2" maxlength="220" style="resize:none;width:100%;box-sizing:border-box;" placeholder="e.g. Estimating food insecurity in informal settlements using satellite imagery..."></textarea>
+                    <div style="font-size:0.5625rem;color:var(--txt3);text-align:right;margin-top:2px;"><span id="cc-topic-count">0</span>/220</div>
                   </div>
                   <div>
                     <label for="cc-stage">Project stage</label>
@@ -2535,6 +2537,8 @@ function toggleCollabCardForm(){
   if(open){
     wrap.style.display='block';
     btn.innerHTML='<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M4 7h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Cancel';
+    const ta=$id('cc-topic');
+    if(ta&&!ta._ccBound){ta._ccBound=true;ta.addEventListener('input',()=>{const c=$id('cc-topic-count');if(c)c.textContent=ta.value.length;});}
   } else {
     wrap.style.display='none';
     btn.innerHTML='<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M7 4v6M4 7h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Create your collab card &mdash; share what you\'re working on';
@@ -2543,6 +2547,7 @@ function toggleCollabCardForm(){
 
 function generateCollabCard(){
   const p=S.profile||{};
+  if(!p.name){showNotif('Complete your profile (name + field) before creating a collab card.','warn');navigateTo('profile');return;}
   const topic=($id('cc-topic')?.value||'').trim();
   const stage=$id('cc-stage')?.value||'';
   const looking=$id('cc-looking')?.value||'';
@@ -2611,7 +2616,7 @@ function renderCollabCardPreview(data){
   window._ccShareData=data;
 }
 
-function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+// esc() already defined above — no duplicate needed
 
 function ccCopyLink(){
   const url=window._ccShareUrl||'';
@@ -2649,6 +2654,8 @@ function resetCollabCardForm(){
   const formEl=$id('cc-form');
   if(wrap)wrap.style.display='none';
   if(formEl)formEl.style.display='';
+  const btn=$id('cc-toggle-btn');
+  if(btn)btn.innerHTML='<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M7 4v6M4 7h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Create your collab card &mdash; share what you\'re working on';
 }
 
 /* ── Incoming collab card from URL ?collab= ─────────────── */
@@ -2696,6 +2703,35 @@ function saveIncomingCard(){
   localStorage.setItem('dvos4_saved_collabs',JSON.stringify(saved.slice(0,50)));
   showNotif(`${_ccIncomingData.name}'s card saved to Network tab.`,'ok');
   dismissIncomingCard();
+}
+
+function renderSavedCollabCards(){
+  const wrap=$id('cc-saved-cards-wrap'); if(!wrap)return;
+  const saved=JSON.parse(localStorage.getItem('dvos4_saved_collabs')||'[]');
+  if(!saved.length){wrap.innerHTML='';return;}
+  wrap.innerHTML=`
+    <div style="font-size:0.6875rem;font-weight:700;color:var(--txt2);margin:10px 0 6px;">Saved collab requests (${saved.length})</div>
+    ${saved.map((d,i)=>`
+      <div class="cc-preview" style="margin-bottom:8px;position:relative;">
+        <button onclick="removeSavedCollabCard(${i})" style="position:absolute;top:8px;right:8px;background:none;border:none;cursor:pointer;font-size:0.75rem;color:var(--txt3);" title="Remove">&#10005;</button>
+        <div class="cc-preview-name">${esc(d.name)}</div>
+        <div class="cc-preview-inst">${esc(d.inst||'')}${d.inst&&d.field?' &middot; ':''}${esc(d.field||'')}</div>
+        <div class="cc-tag-row">
+          <span class="cc-tag">Stage: ${esc(d.stage||'')}</span>
+          <span class="cc-tag cc-tag-accent">&#128269; ${esc(d.looking||'')}</span>
+        </div>
+        <div class="cc-preview-topic">${esc(d.topic||'')}</div>
+        ${d.orcid?`<a href="https://orcid.org/${esc(d.orcid)}" target="_blank" rel="noopener" style="font-size:0.6875rem;color:var(--accent);">View ORCID &rarr;</a>`:''}
+      </div>
+    `).join('')}
+  `;
+}
+
+function removeSavedCollabCard(idx){
+  const saved=JSON.parse(localStorage.getItem('dvos4_saved_collabs')||'[]');
+  saved.splice(idx,1);
+  localStorage.setItem('dvos4_saved_collabs',JSON.stringify(saved));
+  renderSavedCollabCards();
 }
 
 function dismissIncomingCard(){
@@ -3014,7 +3050,7 @@ function setPulseTab(tab){
   if(tab==='all'){ show(colP);show(colO);show(cA);show(cT);show(cC); }
   else if(tab==='papers'){ show(colP);hide(colO);show(cA);show(cT);hide(cC); grid.classList.add('pulse-grid-1col'); }
   else if(tab==='opps'){ hide(colP);show(colO); grid.classList.add('pulse-grid-1col'); }
-  else if(tab==='network'){ show(colP);hide(colO);hide(cA);hide(cT);show(cC); grid.classList.add('pulse-grid-1col'); }
+  else if(tab==='network'){ show(colP);hide(colO);hide(cA);hide(cT);show(cC); grid.classList.add('pulse-grid-1col'); renderSavedCollabCards(); }
   renderPulseChips();
 }
 
