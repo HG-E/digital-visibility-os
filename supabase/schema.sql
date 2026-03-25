@@ -6,14 +6,18 @@
 -- 1. PROFILES — one row per anonymous session / user
 -- ============================================================
 create table if not exists profiles (
-  id            uuid primary key,           -- = auth.uid()
-  orcid         text,
-  name          text        not null,
-  institution   text        default '',
-  field         text        default '',
-  score         integer     default 0,
-  data          jsonb       default '{}',   -- full S.profile blob
-  updated_at    timestamptz default now()
+  id               uuid        primary key,  -- = auth.uid()
+  orcid            text,
+  name             text        not null,
+  institution      text        default '',
+  field            text        default '',
+  score            integer     default 0,
+  plan             text        default 'trial'
+                               check (plan in ('trial','free','researcher','institution')),
+  trial_ends_at    timestamptz default (now() + interval '14 days'),
+  stripe_customer_id text,                  -- for future Stripe billing integration
+  data             jsonb       default '{}', -- full S.profile blob
+  updated_at       timestamptz default now()
 );
 
 alter table profiles enable row level security;

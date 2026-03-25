@@ -28,7 +28,7 @@
   <meta name="twitter:image" content="https://digital-visibility-os.vercel.app/og-image.svg">
 
   <!-- Structured Data: SoftwareApplication -->
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"DVOS — Digital Visibility OS","applicationCategory":"EducationApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"DVOS is a free research visibility platform that helps academics build their online presence, track citations, optimize ORCID profiles, find grant opportunities, and discover relevant conferences.","url":"https://digital-visibility-os.vercel.app/app","featureList":["ORCID profile verification and optimization","Real-time citation tracking via OpenAlex and Semantic Scholar","h-index tracking with field-normalized benchmarks","AI-generated researcher bio and LinkedIn summary","Research website builder","Conference and grant opportunity finder","Live research intelligence feed (arXiv + OpenAlex)","Collaboration radar"],"audience":{"@type":"Audience","audienceType":"Academic researchers, PhD candidates, postdoctoral researchers, university lecturers"}}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"DVOS — Digital Visibility OS","applicationCategory":"EducationApplication","operatingSystem":"Web","offers":[{"@type":"Offer","name":"Free","price":"0","priceCurrency":"USD"},{"@type":"Offer","name":"Researcher","price":"9","priceCurrency":"USD","billingIncrement":"P1M"}],"description":"DVOS is a free research visibility platform that helps academics build their online presence, track citations, optimize ORCID profiles, find grant opportunities, and discover relevant conferences.","url":"https://digital-visibility-os.vercel.app/app","featureList":["ORCID profile verification and optimization","Real-time citation tracking via OpenAlex and Semantic Scholar","h-index tracking with field-normalized benchmarks","AI-generated researcher bio and LinkedIn summary","Research website builder","Conference and grant opportunity finder","Live research intelligence feed (arXiv + OpenAlex)","Collaboration radar"],"audience":{"@type":"Audience","audienceType":"Academic researchers, PhD candidates, postdoctoral researchers, university lecturers"}}</script>
 
   <!-- Structured Data: FAQPage -->
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is DVOS?","acceptedAnswer":{"@type":"Answer","text":"DVOS (Digital Visibility OS) is a free tool that helps researchers build their online academic presence. It connects your ORCID profile, tracks your citations in real time, helps you write a professional research bio, and keeps you updated on conferences and grant opportunities in your field."}},{"@type":"Question","name":"Is DVOS free to use?","acceptedAnswer":{"@type":"Answer","text":"Yes. DVOS is completely free. No signup required. Open it, enter your name, and get your research visibility score in under 2 minutes."}},{"@type":"Question","name":"How does DVOS track my citations?","acceptedAnswer":{"@type":"Answer","text":"DVOS pulls your citation data from OpenAlex, Semantic Scholar, Crossref, and PubMed — four major open research databases. It shows your total citation count, h-index, and how you compare to peers in your field and career stage."}},{"@type":"Question","name":"What is a research visibility score?","acceptedAnswer":{"@type":"Answer","text":"DVOS computes a visibility score from 0–100 based on six signals: ORCID completeness (25%), citation impact (27%), researcher profile (18%), research website (12%), content output (10%), and platform presence (8%)."}},{"@type":"Question","name":"Does DVOS work for researchers in Africa and the Global South?","acceptedAnswer":{"@type":"Answer","text":"Yes — DVOS was specifically designed for researchers in the Global South. It prioritizes free tools, shows grants from Wellcome Trust, NIH Fogarty, Gates Foundation, African Union, and NRF, and surfaces conferences with known fee-waiver programs."}},{"@type":"Question","name":"What is an ORCID iD and why does it matter?","acceptedAnswer":{"@type":"Answer","text":"ORCID is a free, persistent identifier for researchers. It solves name disambiguation, ensures all your publications are credited to you, and is required for most international grant applications including EU Horizon and Wellcome Trust."}}]}</script>
@@ -322,9 +322,10 @@
     </a>
     <div class="nav-links">
       <a href="#features" class="nav-link hide-mobile">Features</a>
-      <a href="#how-it-works" class="nav-link hide-mobile">How it works</a>
+      <a href="#pricing" class="nav-link hide-mobile">Pricing</a>
       <a href="#faq" class="nav-link hide-mobile">FAQ</a>
-      <a href="/app" class="btn btn-primary btn-sm">Launch free &rarr;</a>
+      <a href="/app" class="nav-link" style="font-weight:600;">Sign in</a>
+      <a href="/app" class="btn btn-primary btn-sm">Start free trial &rarr;</a>
     </div>
   </div>
 </nav>
@@ -340,7 +341,7 @@
     <h1 id="hero-heading">Your research deserves to be <em>found.</em></h1>
     <p class="hero-sub">DVOS builds your digital research presence — tracking citations, verifying your ORCID, surfacing grants, and showing exactly how visible your work is to the world.</p>
     <div class="hero-ctas">
-      <a href="/app" class="btn btn-primary btn-lg">Build my research profile &rarr;</a>
+      <a href="/app" class="btn btn-primary btn-lg">Start free 14-day trial &rarr;</a>
       <a href="#how-it-works" class="btn btn-ghost btn-lg">See how it works</a>
     </div>
     <p class="hero-footnote">Used by researchers across Africa, South Asia &amp; the Americas &nbsp;&mdash;&nbsp; <strong>100% free, forever</strong></p>
@@ -689,6 +690,71 @@
   </div>
 </section>
 
+<!-- PRICING -->
+<section class="section bg-surface" id="pricing" aria-labelledby="pricing-heading">
+  <div class="container">
+    <div class="sec-hd reveal">
+      <div class="eyebrow">Pricing</div>
+      <h2 id="pricing-heading">Start free. Upgrade when you&rsquo;re ready.</h2>
+      <p class="sec-desc">14-day free trial, no credit card required. After your trial, keep the core tools free forever or upgrade for full AI-powered access.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;max-width:960px;margin:48px auto 0;" class="reveal pricing-grid">
+      <!-- Free -->
+      <div style="border:1.5px solid var(--border2);border-radius:var(--r);padding:28px 24px;background:var(--surface);">
+        <div style="font-size:0.625rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:var(--txt3);margin-bottom:10px;">Free</div>
+        <div style="font-size:2.25rem;font-weight:800;letter-spacing:-0.04em;color:var(--txt);line-height:1;">$0</div>
+        <div style="font-size:0.75rem;color:var(--txt3);margin-bottom:20px;margin-top:3px;">forever</div>
+        <a href="/app" class="btn btn-sm" style="display:block;text-align:center;margin-bottom:20px;border:1.5px solid var(--border2);">Get started free</a>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:9px;font-size:0.8125rem;color:var(--txt2);">
+          <li style="display:flex;gap:8px;"><span style="color:var(--green);font-weight:700;">✓</span>Visibility score (0–100)</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--green);font-weight:700;">✓</span>ORCID verification</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--green);font-weight:700;">✓</span>Basic research feed (arXiv)</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--green);font-weight:700;">✓</span>Research website (static)</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--txt3);">–</span><span style="color:var(--txt3);">AI Profile Builder</span></li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--txt3);">–</span><span style="color:var(--txt3);">AI Content Engine</span></li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--txt3);">–</span><span style="color:var(--txt3);">Collaboration Cards</span></li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--txt3);">–</span><span style="color:var(--txt3);">Journal Check &amp; AI Pulse</span></li>
+        </ul>
+      </div>
+      <!-- Researcher (featured) -->
+      <div style="border:2px solid var(--green);border-radius:var(--r);padding:28px 24px;background:var(--surface);position:relative;box-shadow:var(--shadow-md);">
+        <div style="position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--green);color:white;font-size:0.5625rem;font-weight:800;padding:3px 12px;border-radius:99px;white-space:nowrap;letter-spacing:0.06em;text-transform:uppercase;">Most popular</div>
+        <div style="font-size:0.625rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:var(--green);margin-bottom:10px;">Researcher</div>
+        <div style="font-size:2.25rem;font-weight:800;letter-spacing:-0.04em;color:var(--txt);line-height:1;">$9<span style="font-size:1rem;font-weight:500;color:var(--txt3);">/mo</span></div>
+        <div style="font-size:0.75rem;color:var(--txt3);margin-bottom:20px;margin-top:3px;">or <strong style="color:var(--txt);">$79/year</strong> &mdash; save 27%</div>
+        <a href="/app" class="btn btn-primary btn-sm" style="display:block;text-align:center;margin-bottom:20px;">Start free trial &rarr;</a>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:9px;font-size:0.8125rem;color:var(--txt2);">
+          <li style="display:flex;gap:8px;"><span style="color:var(--green);font-weight:700;">✓</span>Everything in Free</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--green);font-weight:700;">✓</span>AI Profile Builder (bio, LinkedIn, grants)</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--green);font-weight:700;">✓</span>AI Content Engine</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--green);font-weight:700;">✓</span>Full Research Pulse (AI grants &amp; conferences)</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--green);font-weight:700;">✓</span>Collaboration Cards &amp; live network feed</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--green);font-weight:700;">✓</span>Journal Legitimacy Check</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--green);font-weight:700;">✓</span>Priority support</li>
+        </ul>
+      </div>
+      <!-- Institution -->
+      <div style="border:1.5px solid var(--border2);border-radius:var(--r);padding:28px 24px;background:var(--surface);">
+        <div style="font-size:0.625rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:var(--txt3);margin-bottom:10px;">Institution</div>
+        <div style="font-size:1.75rem;font-weight:800;letter-spacing:-0.03em;color:var(--txt);line-height:1;">Custom</div>
+        <div style="font-size:0.75rem;color:var(--txt3);margin-bottom:20px;margin-top:3px;">per seat &middot; annual contract</div>
+        <a href="mailto:hello@digital-visibility-os.vercel.app?subject=Institution%20Plan" class="btn btn-sm" style="display:block;text-align:center;margin-bottom:20px;border:1.5px solid var(--border2);">Contact us</a>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:9px;font-size:0.8125rem;color:var(--txt2);">
+          <li style="display:flex;gap:8px;"><span style="color:var(--green);font-weight:700;">✓</span>Everything in Researcher</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--green);font-weight:700;">✓</span>Bulk seat management</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--green);font-weight:700;">✓</span>Department-level analytics</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--green);font-weight:700;">✓</span>Custom integrations</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--green);font-weight:700;">✓</span>Dedicated onboarding &amp; support</li>
+        </ul>
+      </div>
+    </div>
+    <p class="reveal" style="text-align:center;font-size:0.8125rem;color:var(--txt3);margin-top:24px;">All plans include a 14-day free trial with full Researcher access. No credit card required.</p>
+  </div>
+</section>
+<style>
+@media(max-width:720px){.pricing-grid{grid-template-columns:1fr!important;}}
+</style>
+
 <!-- FAQ -->
 <section class="section bg-bg" id="faq" aria-labelledby="faq-heading">
   <div class="container">
@@ -746,11 +812,11 @@
 <!-- CTA -->
 <section class="cta-sec" aria-labelledby="cta-heading">
   <div class="container cta-inner">
-    <h2 id="cta-heading">Start building your<br>research presence today.</h2>
-    <p>Free, no signup, works in 2 minutes. Your research already exists — DVOS makes the world see it.</p>
-    <a href="/app" class="btn btn-white btn-lg">Build my research profile &rarr;</a>
+    <h2 id="cta-heading">Start your free trial<br>today.</h2>
+    <p>14 days full access, no credit card required. Your research already exists &mdash; DVOS makes the world see it.</p>
+    <a href="/app" class="btn btn-white btn-lg">Start free 14-day trial &rarr;</a>
     <div class="cta-badges">
-      <span class="cta-badge">No signup required</span>
+      <span class="cta-badge">14-day free trial</span>
       <span class="cta-badge">Works on mobile</span>
       <span class="cta-badge">Free forever</span>
       <span class="cta-badge">No institutional access needed</span>

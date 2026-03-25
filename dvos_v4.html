@@ -570,9 +570,226 @@ img { max-width: 100%; display: block; }
 .cc-incoming-meta{font-size:0.6875rem;color:var(--txt2);margin-bottom:8px;}
 .cc-incoming-topic{font-size:0.75rem;color:var(--txt1);line-height:1.5;border-left:2px solid var(--accent);padding-left:8px;margin-bottom:10px;}
 .cc-incoming-row{display:flex;gap:6px;}
+/* ── AUTH GATE ────────────────────────────────────────────── */
+#auth-gate{display:none;position:fixed;inset:0;z-index:1000;flex-direction:row;background:#0a1a0f;}
+.ag-left{flex:1;display:flex;flex-direction:column;justify-content:center;padding:64px 56px;background:linear-gradient(145deg,#071510 0%,#0f2d1e 50%,#183d28 100%);position:relative;overflow:hidden;}
+.ag-left::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 30% 50%,rgba(46,204,136,0.13) 0%,transparent 70%);}
+.ag-logo{display:flex;align-items:center;gap:12px;margin-bottom:52px;position:relative;z-index:1;}
+.ag-logo-mark{width:44px;height:44px;border-radius:11px;background:#2ECC88;display:flex;align-items:center;justify-content:center;font-size:1.125rem;font-weight:800;color:#071510;letter-spacing:-0.02em;}
+.ag-logo-text{font-size:1.0625rem;font-weight:700;color:white;letter-spacing:-0.01em;}
+.ag-headline{font-family:var(--ff-display,Georgia,serif);font-size:clamp(1.75rem,3vw,2.75rem);color:white;line-height:1.2;margin-bottom:14px;position:relative;z-index:1;}
+.ag-sub{font-size:0.9375rem;color:rgba(255,255,255,0.6);line-height:1.75;margin-bottom:44px;position:relative;z-index:1;max-width:400px;}
+.ag-feats{display:flex;flex-direction:column;gap:11px;position:relative;z-index:1;}
+.ag-feat{display:flex;align-items:center;gap:11px;font-size:0.8125rem;color:rgba(255,255,255,0.72);}
+.ag-feat-dot{width:22px;height:22px;border-radius:50%;background:rgba(46,204,136,0.15);border:1px solid rgba(46,204,136,0.35);display:flex;align-items:center;justify-content:center;font-size:0.625rem;color:#2ECC88;flex-shrink:0;font-weight:700;}
+.ag-right{width:500px;display:flex;align-items:center;justify-content:center;padding:48px 44px;background:var(--bg1,#111d16);overflow-y:auto;}
+.ag-card{width:100%;max-width:380px;}
+.ag-card-title{font-size:1.375rem;font-weight:800;color:var(--txt1,#e8f0ec);margin-bottom:4px;letter-spacing:-0.025em;}
+.ag-card-sub{font-size:0.875rem;color:var(--txt3,#6a8070);margin-bottom:28px;line-height:1.6;}
+.ag-tabs{display:flex;background:rgba(255,255,255,0.05);border-radius:10px;padding:3px;gap:3px;margin-bottom:24px;}
+.ag-tab{flex:1;padding:7px 10px;border-radius:8px;border:none;background:transparent;font-size:0.8125rem;font-weight:600;color:rgba(255,255,255,0.45);cursor:pointer;transition:all 0.15s;}
+.ag-tab.active{background:rgba(255,255,255,0.1);color:var(--txt1,#e8f0ec);}
+.ag-field{margin-bottom:12px;}
+.ag-field label{display:block;font-size:0.625rem;font-weight:700;color:var(--txt3,#6a8070);margin-bottom:5px;letter-spacing:0.08em;text-transform:uppercase;}
+.ag-input{width:100%;padding:10px 12px;border-radius:9px;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.06);color:var(--txt1,#e8f0ec);font-size:0.9375rem;font-family:inherit;transition:border-color 0.15s;outline:none;}
+.ag-input:focus{border-color:var(--accent,#2ECC88);}
+.ag-input::placeholder{color:rgba(255,255,255,0.25);}
+.ag-btn-primary{width:100%;padding:12px;border-radius:9px;background:var(--accent,#2ECC88);color:#071510;border:none;font-size:0.9375rem;font-weight:800;cursor:pointer;transition:all 0.15s;letter-spacing:-0.01em;margin-top:4px;}
+.ag-btn-primary:hover:not(:disabled){background:#3de09a;transform:translateY(-1px);}
+.ag-btn-primary:disabled{opacity:0.55;cursor:not-allowed;transform:none;}
+.ag-btn-ghost{width:100%;padding:10px;border-radius:9px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.6);border:1.5px solid rgba(255,255,255,0.1);font-size:0.875rem;font-weight:500;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px;}
+.ag-btn-ghost:hover{border-color:rgba(46,204,136,0.4);color:var(--accent,#2ECC88);}
+.ag-divider{display:flex;align-items:center;gap:10px;margin:18px 0;color:rgba(255,255,255,0.25);font-size:0.6875rem;letter-spacing:0.05em;text-transform:uppercase;}
+.ag-divider::before,.ag-divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.08);}
+.ag-msg{padding:10px 13px;border-radius:9px;font-size:0.8125rem;margin-bottom:14px;line-height:1.55;display:none;}
+.ag-msg-ok{background:rgba(46,204,136,0.12);color:#2ECC88;border:1px solid rgba(46,204,136,0.2);}
+.ag-msg-err{background:rgba(220,38,38,0.1);color:#f87171;border:1px solid rgba(220,38,38,0.2);}
+.ag-trial-note{text-align:center;font-size:0.6875rem;color:rgba(255,255,255,0.3);margin-top:20px;line-height:1.7;}
+.ag-trial-note strong{color:rgba(46,204,136,0.8);}
+.ag-forgot{display:block;text-align:right;font-size:0.6875rem;color:rgba(255,255,255,0.3);cursor:pointer;margin-top:3px;background:none;border:none;}
+.ag-forgot:hover{color:var(--accent,#2ECC88);}
+@media(max-width:860px){#auth-gate{flex-direction:column;}.ag-left{display:none;}.ag-right{width:100%;padding:36px 20px;min-height:100svh;}}
+/* ── TRIAL BANNER ─────────────────────────────────────────── */
+#trial-banner{display:none;align-items:center;gap:10px;padding:7px 16px;background:linear-gradient(90deg,rgba(46,204,136,0.08),rgba(46,204,136,0.03));border-bottom:1px solid rgba(46,204,136,0.12);font-size:0.75rem;}
+.tb-days{font-weight:700;color:var(--accent);}
+.tb-msg{color:var(--txt2);flex:1;}
+.tb-upgrade-btn{padding:4px 12px;border-radius:99px;background:var(--accent);color:white;font-size:0.625rem;font-weight:800;border:none;cursor:pointer;white-space:nowrap;letter-spacing:0.03em;text-transform:uppercase;}
+.tb-dismiss{background:none;border:none;color:var(--txt3);cursor:pointer;padding:2px 4px;font-size:1rem;line-height:1;flex-shrink:0;}
+/* ── UPGRADE MODAL ────────────────────────────────────────── */
+#upgrade-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:600;align-items:center;justify-content:center;padding:20px;}
+#upgrade-overlay.open{display:flex;}
+.upm{background:var(--bg1);border-radius:var(--r);max-width:720px;width:100%;max-height:92vh;overflow-y:auto;padding:36px;box-shadow:0 24px 80px rgba(0,0,0,0.4);}
+.upm-title{font-size:1.375rem;font-weight:800;color:var(--txt1);letter-spacing:-0.025em;margin-bottom:4px;}
+.upm-sub{font-size:0.875rem;color:var(--txt3);margin-bottom:32px;line-height:1.6;}
+.upm-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px;}
+.upm-plan{border:1.5px solid var(--border);border-radius:var(--r);padding:22px 18px;position:relative;transition:border-color 0.15s;}
+.upm-plan.featured{border-color:var(--accent);background:var(--accent-bg);}
+.upm-badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--accent);color:white;font-size:0.5rem;font-weight:800;padding:2px 10px;border-radius:99px;white-space:nowrap;letter-spacing:0.06em;text-transform:uppercase;}
+.upm-name{font-size:0.625rem;font-weight:800;color:var(--txt3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;}
+.upm-price{font-size:2rem;font-weight:800;color:var(--txt1);letter-spacing:-0.04em;line-height:1;}
+.upm-period{font-size:0.6875rem;color:var(--txt3);margin-bottom:16px;margin-top:2px;}
+.upm-feats{list-style:none;display:flex;flex-direction:column;gap:7px;font-size:0.75rem;color:var(--txt2);margin-bottom:16px;}
+.upm-feats li{display:flex;align-items:flex-start;gap:7px;}
+.upm-feats li::before{content:'✓';color:var(--accent);font-weight:700;flex-shrink:0;}
+.upm-feats li.dim{color:var(--txt3);}
+.upm-feats li.dim::before{content:'–';color:var(--txt3);}
+.upm-btn{width:100%;padding:9px;border-radius:var(--r-sm);font-size:0.8125rem;font-weight:700;border:none;cursor:pointer;transition:all 0.15s;}
+.upm-btn-primary{background:var(--accent);color:white;}
+.upm-btn-primary:hover{background:#27b577;}
+.upm-btn-outline{background:transparent;color:var(--txt2);border:1.5px solid var(--border);}
+.upm-btn-outline:hover{border-color:var(--accent);color:var(--accent);}
+.upm-close-row{text-align:center;margin-top:16px;}
+.upm-close-row button{background:none;border:none;font-size:0.8125rem;color:var(--txt3);cursor:pointer;}
+.upm-close-row button:hover{color:var(--txt1);}
+@media(max-width:600px){.upm-grid{grid-template-columns:1fr;}.upm{padding:24px 20px;}}
 </style>
 </head>
 <body>
+
+<!-- AUTH GATE — shown until Supabase session confirmed -->
+<div id="auth-gate" role="dialog" aria-label="Sign in to DVOS" aria-modal="true">
+  <!-- Left: brand panel -->
+  <div class="ag-left" aria-hidden="true">
+    <div class="ag-logo">
+      <div class="ag-logo-mark">D</div>
+      <div class="ag-logo-text">DVOS &mdash; Digital Visibility OS</div>
+    </div>
+    <h1 class="ag-headline">Your research<br>deserves to be found.</h1>
+    <p class="ag-sub">The research visibility platform built for academics who can't afford to be invisible. ORCID, citations, grants, collaborators &mdash; all in one place.</p>
+    <div class="ag-feats">
+      <div class="ag-feat"><div class="ag-feat-dot">✓</div>Real-time ORCID &amp; citation tracking</div>
+      <div class="ag-feat"><div class="ag-feat-dot">✓</div>AI-generated research bio &amp; website</div>
+      <div class="ag-feat"><div class="ag-feat-dot">✓</div>Live grants, conferences &amp; collaborators</div>
+      <div class="ag-feat"><div class="ag-feat-dot">✓</div>Research visibility score 0–100</div>
+    </div>
+  </div>
+  <!-- Right: form -->
+  <div class="ag-right">
+    <div class="ag-card">
+      <div class="ag-card-title">Welcome back</div>
+      <div class="ag-card-sub">Sign in to your account or start your free 14-day trial.</div>
+      <div class="ag-msg ag-msg-ok" id="ag-msg"></div>
+      <div class="ag-tabs" role="tablist">
+        <button class="ag-tab active" data-tab="signin" onclick="agTab('signin')" role="tab" aria-selected="true">Sign in</button>
+        <button class="ag-tab" data-tab="signup" onclick="agTab('signup')" role="tab" aria-selected="false">Create account</button>
+      </div>
+      <!-- Sign in form -->
+      <div id="ag-signin-form">
+        <div class="ag-field">
+          <label for="ag-si-email">Email</label>
+          <input id="ag-si-email" type="email" class="ag-input" placeholder="you@university.edu" autocomplete="email"/>
+        </div>
+        <div class="ag-field">
+          <label for="ag-si-pass">Password</label>
+          <input id="ag-si-pass" type="password" class="ag-input" placeholder="Your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')agSignIn()"/>
+          <button class="ag-forgot" onclick="agForgot()">Forgot password?</button>
+        </div>
+        <button id="ag-si-btn" class="ag-btn-primary" onclick="agSignIn()">Sign in</button>
+        <div class="ag-divider">or</div>
+        <button id="ag-ml-btn" class="ag-btn-ghost" onclick="agMagicLink()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Send magic link instead
+        </button>
+        <button class="ag-btn-ghost" onclick="agGoogle()" style="margin-top:0;">
+          <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Continue with Google
+        </button>
+      </div>
+      <!-- Sign up form -->
+      <div id="ag-signup-form" style="display:none;">
+        <div class="ag-field">
+          <label for="ag-su-name">Full name</label>
+          <input id="ag-su-name" type="text" class="ag-input" placeholder="Dr. Amina Osei" autocomplete="name"/>
+        </div>
+        <div class="ag-field">
+          <label for="ag-su-email">Email</label>
+          <input id="ag-su-email" type="email" class="ag-input" placeholder="you@university.edu" autocomplete="email"/>
+        </div>
+        <div class="ag-field">
+          <label for="ag-su-pass">Password <span style="font-weight:400;text-transform:none;letter-spacing:0;">(min 8 characters)</span></label>
+          <input id="ag-su-pass" type="password" class="ag-input" placeholder="Create a password" autocomplete="new-password" onkeydown="if(event.key==='Enter')agSignUp()"/>
+        </div>
+        <button id="ag-su-btn" class="ag-btn-primary" onclick="agSignUp()">Start 14-day free trial &rarr;</button>
+        <button class="ag-btn-ghost" onclick="agGoogle()" style="margin-top:8px;">
+          <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Sign up with Google instead
+        </button>
+      </div>
+      <div class="ag-trial-note">
+        <strong>14 days free</strong> &mdash; no credit card required<br>
+        After trial: free tier available · Researcher plan from $9/mo
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TRIAL BANNER — shown inside app during trial period -->
+<div id="trial-banner" role="status" aria-live="polite">
+  <span class="tb-days" id="tb-days-text"></span>
+  <span class="tb-msg">left in your free trial &mdash; upgrade to keep full access.</span>
+  <button class="tb-upgrade-btn" onclick="showUpgradeModal()">Upgrade</button>
+  <button class="tb-dismiss" onclick="dismissTrialBanner()" aria-label="Dismiss trial banner">&#10005;</button>
+</div>
+
+<!-- UPGRADE MODAL -->
+<div id="upgrade-overlay" role="dialog" aria-label="Upgrade your plan" aria-modal="true" onclick="if(event.target===this)closeUpgradeModal()">
+  <div class="upm">
+    <div class="upm-title">Upgrade your plan</div>
+    <div class="upm-sub" id="upm-sub">Unlock the full DVOS platform and supercharge your research visibility.</div>
+    <div class="upm-grid">
+      <!-- Free -->
+      <div class="upm-plan">
+        <div class="upm-name">Free</div>
+        <div class="upm-price">$0</div>
+        <div class="upm-period">forever</div>
+        <ul class="upm-feats">
+          <li>Visibility score (0–100)</li>
+          <li>ORCID verification</li>
+          <li>Basic arXiv feed</li>
+          <li>Website builder (static)</li>
+          <li class="dim">AI Profile Builder</li>
+          <li class="dim">Content Engine</li>
+          <li class="dim">Research Pulse (AI)</li>
+          <li class="dim">Collaboration Cards</li>
+          <li class="dim">Journal Check</li>
+        </ul>
+        <button class="upm-btn upm-btn-outline" onclick="closeUpgradeModal()">Stay on Free</button>
+      </div>
+      <!-- Researcher (featured) -->
+      <div class="upm-plan featured">
+        <div class="upm-badge">Most popular</div>
+        <div class="upm-name">Researcher</div>
+        <div class="upm-price">$9</div>
+        <div class="upm-period">/ month &nbsp;&middot;&nbsp; <strong>$79/year</strong> (save 27%)</div>
+        <ul class="upm-feats">
+          <li>Everything in Free</li>
+          <li>AI Profile Builder</li>
+          <li>Content Engine (bio, LinkedIn, grants)</li>
+          <li>Full Research Pulse (AI)</li>
+          <li>Collaboration Cards &amp; live feed</li>
+          <li>Journal Legitimacy Check</li>
+          <li>Priority support</li>
+        </ul>
+        <button class="upm-btn upm-btn-primary" onclick="goUpgrade('researcher')">Upgrade to Researcher &rarr;</button>
+      </div>
+      <!-- Institution -->
+      <div class="upm-plan">
+        <div class="upm-name">Institution</div>
+        <div class="upm-price" style="font-size:1.375rem;">Custom</div>
+        <div class="upm-period">per seat / year</div>
+        <ul class="upm-feats">
+          <li>Everything in Researcher</li>
+          <li>Bulk seats &amp; admin dashboard</li>
+          <li>Department analytics</li>
+          <li>Priority onboarding</li>
+          <li>Custom integrations</li>
+        </ul>
+        <button class="upm-btn upm-btn-outline" onclick="goUpgrade('institution')">Contact us &rarr;</button>
+      </div>
+    </div>
+    <div class="upm-close-row"><button onclick="closeUpgradeModal()">Maybe later &mdash; stay on free</button></div>
+  </div>
+</div>
 
 <!-- NOTIFICATIONS -->
 <div id="notif-container" aria-live="polite" aria-label="Notifications"></div>
@@ -820,11 +1037,17 @@ img { max-width: 100%; display: block; }
           <svg id="theme-icon" width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 2a5 5 0 0 1 0 10V3z"/></svg>
         </button>
       </div>
-      <div class="user-card" id="user-card">
-        <div class="user-avatar" id="user-avatar">?</div>
-        <div class="user-info">
-          <div class="user-name" id="user-name">Your name</div>
-          <div class="user-inst" id="user-inst">Your institution</div>
+      <div class="user-card" id="user-card" style="flex-direction:column;align-items:stretch;gap:8px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="user-avatar" id="user-avatar">?</div>
+          <div class="user-info" style="flex:1;min-width:0;">
+            <div class="user-name" id="user-name">Your name</div>
+            <div class="user-inst" id="user-inst">Your institution</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">
+          <span id="sidebar-plan-badge" style="display:none;font-size:0.5625rem;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--accent-bg);color:var(--accent);letter-spacing:0.04em;text-transform:uppercase;"></span>
+          <button onclick="authSignOut()" style="margin-left:auto;background:none;border:none;font-size:0.6875rem;color:var(--txt3);cursor:pointer;padding:2px 0;" title="Sign out">Sign out</button>
         </div>
       </div>
     </div>
@@ -2144,6 +2367,7 @@ function renderScoreProjection(){
 /* ── AI PROFILE BUILDER ─────────────────────────────────────── */
 const BUILD_STAGES=['Analyzing your research field...','Mapping global visibility opportunities...','Crafting professional bio...','Writing LinkedIn content...','Generating grant impact statement...','Finalizing outputs...'];
 async function runBuilder(){
+  if(!PLAN.gate('ai')) return;
   if(!S.proxyUrl){ openProxyModal(); return; }
   const name=$id('b-name').value.trim(); const inst=$id('b-inst').value.trim();
   const field=$id('b-field').value.trim(); const rank=$id('b-rank').value;
@@ -2277,6 +2501,7 @@ const FMT={
   press:()=>`Press release: HEADLINE (all caps), DATELINE, lead paragraph (who/what/when/where/why), body with researcher quote, background, standard boilerplate. Max 300 words.`
 };
 async function runContent(){
+  if(!PLAN.gate('ai_content')) return;
   if(!S.proxyUrl){ openProxyModal(); return; }
   const input=$id('cg-input').value.trim();
   if(!input){ notify('Input required','Paste your research content first.','amber'); return; }
@@ -2551,6 +2776,7 @@ function toggleCollabCardForm(){
 
 function generateCollabCard(){
   const p=S.profile||{};
+  if(!PLAN.gate('collab')) return;
   if(!p.name){notify('Profile incomplete','Add your name and field first, then create a collab card.','amber');showScreen('builder');return;}
   const topic=($id('cc-topic')?.value||'').trim();
   const stage=$id('cc-stage')?.value||'';
@@ -2785,10 +3011,10 @@ function dismissIncomingCard(){
 }
 
 /* ══════════════════════════════════════════════════════════════
-   DATABASE — Supabase
-   Pattern : localStorage = instant cache → Supabase = truth
-   Auth     : anonymous sessions (zero friction, auto-created)
-   Degrades : gracefully to localStorage-only if unconfigured
+   DATABASE — Supabase + Auth
+   Auth     : email/password · magic link · Google OAuth
+   Pattern  : localStorage = instant cache → Supabase = truth
+   Degrades : to localStorage-only if Supabase not configured
    ══════════════════════════════════════════════════════════════ */
 const DB = {
   _sb:  null,
@@ -2799,34 +3025,90 @@ const DB = {
   async init(){
     try{
       const r = await fetch('/api/config');
-      if(!r.ok) return;
+      if(!r.ok) return this._noAuth();
       const { url, key } = await r.json();
-      if(!url || !key) return;
-      this._sb = window.supabase.createClient(url, key, {
+      if(!url || !key) return this._noAuth();
+      // Show gate immediately — before session resolves
+      this._gateVisible(true);
+      this._sb = window.supabase.createClient(url, key,{
         auth:{ persistSession:true, autoRefreshToken:true }
       });
-      let { data:{ session } } = await this._sb.auth.getSession();
-      if(!session){
-        const { data } = await this._sb.auth.signInAnonymously();
-        session = data.session;
-      }
-      this._uid = session?.user?.id || null;
-      if(this._uid) await this._migrate();
-    } catch(e){ /* Supabase unavailable — localStorage-only mode */ }
+      this._sb.auth.onAuthStateChange(async (event, session)=>{
+        this._uid = session?.user?.id || null;
+        if(session){
+          this._gateVisible(false);
+          if(event==='SIGNED_IN'||event==='INITIAL_SESSION') await this._onSignedIn(session);
+        } else {
+          this._gateVisible(true);
+        }
+      });
+    } catch(e){ console.warn('[DB]',e); this._noAuth(); }
   },
 
-  /* One-time migration: push existing localStorage data to DB */
-  async _migrate(){
-    if(localStorage.getItem('dvos4_db_migrated')) return;
-    if(S.profile?.name) await this.saveProfile();
-    const saved = PS.saved;
-    for(const it of (saved.conf||[]))    await this._upsert('conf',   it.id,         it.data);
-    for(const it of (saved.grants||[])) await this._upsert('grant',  it.id,         it.data);
-    try{
-      const collabs = JSON.parse(localStorage.getItem('dvos4_saved_collabs')||'[]');
-      for(const c of collabs) await this._upsert('collab', String(c.ts||0), c);
-    }catch(_){}
-    localStorage.setItem('dvos4_db_migrated','1');
+  _gateVisible(show){
+    const g=$id('auth-gate');
+    if(g) g.style.display = show ? 'flex' : 'none';
+  },
+
+  /* No Supabase config — run in localStorage-only mode (dev/demo) */
+  _noAuth(){
+    this._gateVisible(false);
+    if(S.onboardDone){
+      const ob=$id('onboard'); if(ob) ob.classList.add('gone');
+      applyUserProfile(); refreshDashboard(); renderWebsite(); recomputeScore();
+    }
+  },
+
+  /* Called once per session (INITIAL_SESSION or SIGNED_IN) */
+  async _onSignedIn(session){
+    // Load profile from DB
+    const { data:prof } = await this._sb.from('profiles')
+      .select('*').eq('id', this._uid).single();
+    if(prof){
+      S._plan     = prof.plan     || 'trial';
+      S._trialEnd = prof.trial_ends_at || null;
+      // Sync profile data to local state
+      if(prof.data?.name){
+        saveState({ profile:prof.data, score:prof.score||0, onboardDone:true });
+      }
+      // Sync saved items from DB → local (enables cross-device sync)
+      const { data:savedRows } = await this._sb.from('saved_items')
+        .select('*').eq('user_id', this._uid);
+      if(savedRows?.length){
+        const conf   = savedRows.filter(i=>i.type==='conf')
+          .map(i=>({id:i.item_id, data:i.payload, savedAt:new Date(i.saved_at).getTime()}));
+        const grants = savedRows.filter(i=>i.type==='grant')
+          .map(i=>({id:i.item_id, data:i.payload, savedAt:new Date(i.saved_at).getTime()}));
+        PS.saved = {conf, grants};
+        localStorage.setItem('dvos_saved', JSON.stringify(PS.saved));
+        const collabs = savedRows.filter(i=>i.type==='collab').map(i=>i.payload);
+        if(collabs.length) localStorage.setItem('dvos4_saved_collabs', JSON.stringify(collabs));
+      }
+    } else {
+      // New user — set trial period on first sign-in
+      S._plan     = 'trial';
+      S._trialEnd = new Date(Date.now()+14*86400000).toISOString();
+      await this._sb.from('profiles').upsert({
+        id:           this._uid,
+        orcid:        null,
+        name:         session.user.user_metadata?.full_name || 'Researcher',
+        institution:  '',
+        field:        '',
+        score:        0,
+        plan:         'trial',
+        trial_ends_at: S._trialEnd,
+        data:         {},
+        updated_at:   new Date().toISOString()
+      });
+    }
+    // Initialize app UI
+    if(S.onboardDone){
+      const ob=$id('onboard'); if(ob) ob.classList.add('gone');
+      applyUserProfile(); refreshDashboard(); renderWebsite(); recomputeScore();
+    }
+    updateSidebarPlanBadge();
+    showTrialBanner();
+    await this._migrate();
   },
 
   /* ── Profile ──────────────────────────────────────────────── */
@@ -2848,11 +3130,8 @@ const DB = {
   /* ── Collab cards ─────────────────────────────────────────── */
   async publishCard(card){
     if(!this.ok) return null;
-    // Deactivate any previous active card (one active card per user)
     await this._sb.from('collab_cards')
-      .update({ active:false })
-      .eq('user_id', this._uid)
-      .eq('active', true);
+      .update({active:false}).eq('user_id',this._uid).eq('active',true);
     const { data, error } = await this._sb.from('collab_cards').insert({
       user_id:     this._uid,
       name:        card.name,
@@ -2874,12 +3153,10 @@ const DB = {
     if(!this.ok) return [];
     let q = this._sb.from('collab_cards')
       .select('id,name,institution,field,orcid,topic,stage,looking_for,contact,created_at')
-      .eq('active', true)
-      .gt('expires_at', new Date().toISOString())
-      .neq('user_id', this._uid)          // exclude own card
-      .order('created_at',{ ascending:false })
-      .limit(25);
-    if(field) q = q.ilike('field', `%${field}%`);
+      .eq('active',true).gt('expires_at',new Date().toISOString())
+      .neq('user_id',this._uid)
+      .order('created_at',{ascending:false}).limit(25);
+    if(field) q = q.ilike('field',`%${field}%`);
     const { data, error } = await q;
     if(error) console.warn('[DB] browseCards:', error.message);
     return data||[];
@@ -2889,8 +3166,8 @@ const DB = {
   async _upsert(type, item_id, payload){
     if(!this.ok) return;
     const { error } = await this._sb.from('saved_items').upsert(
-      { user_id:this._uid, type, item_id, payload, saved_at:new Date().toISOString() },
-      { onConflict:'user_id,type,item_id' }
+      {user_id:this._uid, type, item_id, payload, saved_at:new Date().toISOString()},
+      {onConflict:'user_id,type,item_id'}
     );
     if(error) console.warn('[DB] _upsert:', error.message);
   },
@@ -2900,25 +3177,183 @@ const DB = {
   async removeItem(type, item_id){
     if(!this.ok) return;
     await this._sb.from('saved_items').delete()
-      .eq('user_id', this._uid)
-      .eq('type',    type)
-      .eq('item_id', item_id);
+      .eq('user_id',this._uid).eq('type',type).eq('item_id',item_id);
+  },
+
+  /* ── One-time localStorage → DB migration ─────────────────── */
+  async _migrate(){
+    if(localStorage.getItem('dvos4_db_migrated')) return;
+    if(S.profile?.name) await this.saveProfile();
+    for(const it of (PS.saved.conf||[]))    await this._upsert('conf',  it.id, it.data);
+    for(const it of (PS.saved.grants||[])) await this._upsert('grant', it.id, it.data);
+    try{
+      const cc=JSON.parse(localStorage.getItem('dvos4_saved_collabs')||'[]');
+      for(const c of cc) await this._upsert('collab',String(c.ts||0),c);
+    }catch(_){}
+    localStorage.setItem('dvos4_db_migrated','1');
   },
 };
 
+/* ══════════════════════════════════════════════════════════════
+   PLAN — freemium tier management
+   Tiers: trial (14 days full) → free (limited) → researcher → institution
+   ══════════════════════════════════════════════════════════════ */
+const PLAN = {
+  get tier(){ return S._plan||'trial'; },
+  get trialEnd(){ return S._trialEnd ? new Date(S._trialEnd) : null; },
+  get daysLeft(){
+    const e=this.trialEnd; if(!e) return 14;
+    return Math.max(0, Math.ceil((e-Date.now())/86400000));
+  },
+  get active(){
+    const t=this.tier;
+    if(t==='researcher'||t==='institution') return true;
+    return t==='trial' && this.daysLeft>0;
+  },
+  canUse(feat){
+    if(this.active) return true;
+    return ['score','orcid','platforms','basic_pulse','website_basic'].includes(feat);
+  },
+  gate(feat){
+    if(this.canUse(feat)) return true;
+    const msg={
+      ai:        'AI Profile Builder &amp; Content Engine',
+      ai_content:'Content Engine',
+      collab:    'Collaboration Cards',
+      jcheck:    'Journal Legitimacy Check',
+      ai_pulse:  'AI Research Pulse (grants &amp; conferences)',
+    };
+    const el=$id('upm-sub');
+    if(el) el.textContent=`${msg[feat]||'This feature'} requires the Researcher plan. Upgrade to keep full access.`;
+    showUpgradeModal(); return false;
+  },
+};
+
+/* ── AUTH FUNCTIONS ─────────────────────────────────────────── */
+function agTab(tab){
+  $id('ag-signin-form').style.display = tab==='signin'?'':'none';
+  $id('ag-signup-form').style.display = tab==='signup'?'':'none';
+  document.querySelectorAll('.ag-tab').forEach(t=>{
+    t.classList.toggle('active',t.dataset.tab===tab);
+    t.setAttribute('aria-selected',String(t.dataset.tab===tab));
+  });
+  agClearMsg();
+}
+function agMsg(text,type='ok'){
+  const el=$id('ag-msg'); if(!el) return;
+  el.className=`ag-msg ag-msg-${type}`;
+  el.textContent=text; el.style.display='block';
+}
+function agClearMsg(){ const el=$id('ag-msg'); if(el) el.style.display='none'; }
+function _agBtnState(id,loading,label){
+  const b=$id(id); if(!b) return;
+  b.disabled=loading; b.textContent=loading?'Please wait\u2026':label;
+}
+async function agSignIn(){
+  const email=($id('ag-si-email')?.value||'').trim();
+  const pass=$id('ag-si-pass')?.value||'';
+  if(!email||!pass){agMsg('Enter your email and password.','err');return;}
+  _agBtnState('ag-si-btn',true,'Sign in');
+  const {error}=await DB._sb.auth.signInWithPassword({email,password:pass});
+  _agBtnState('ag-si-btn',false,'Sign in');
+  if(error) agMsg(error.message.includes('Invalid')?'Incorrect email or password.':error.message,'err');
+}
+async function agSignUp(){
+  const name=($id('ag-su-name')?.value||'').trim();
+  const email=($id('ag-su-email')?.value||'').trim();
+  const pass=$id('ag-su-pass')?.value||'';
+  if(!name||!email||!pass){agMsg('Please fill in all fields.','err');return;}
+  if(pass.length<8){agMsg('Password must be at least 8 characters.','err');return;}
+  _agBtnState('ag-su-btn',true,'Start 14-day free trial \u2192');
+  const {error}=await DB._sb.auth.signUp({
+    email, password:pass,
+    options:{data:{full_name:name}, emailRedirectTo:'https://digital-visibility-os.vercel.app/app'}
+  });
+  _agBtnState('ag-su-btn',false,'Start 14-day free trial \u2192');
+  if(error) agMsg(error.message,'err');
+  else agMsg('Account created! Check your email to verify, then sign in here.','ok');
+}
+async function agMagicLink(){
+  const email=($id('ag-si-email')?.value||'').trim();
+  if(!email){agMsg('Enter your email address first.','err');return;}
+  _agBtnState('ag-ml-btn',true,'Send magic link');
+  const {error}=await DB._sb.auth.signInWithOtp({
+    email, options:{emailRedirectTo:'https://digital-visibility-os.vercel.app/app'}
+  });
+  _agBtnState('ag-ml-btn',false,'Send magic link instead');
+  if(error) agMsg(error.message,'err');
+  else agMsg('Magic link sent \u2014 check your inbox (and spam folder).','ok');
+}
+async function agGoogle(){
+  if(!DB._sb) return;
+  await DB._sb.auth.signInWithOAuth({
+    provider:'google',
+    options:{redirectTo:'https://digital-visibility-os.vercel.app/app'}
+  });
+}
+async function agForgot(){
+  const email=($id('ag-si-email')?.value||'').trim();
+  if(!email){agMsg('Enter your email address, then click Forgot password.','err');return;}
+  const {error}=await DB._sb.auth.resetPasswordForEmail(email,{
+    redirectTo:'https://digital-visibility-os.vercel.app/app'
+  });
+  if(error) agMsg(error.message,'err');
+  else agMsg('Password reset email sent \u2014 check your inbox.','ok');
+}
+async function authSignOut(){
+  if(!DB._sb) return;
+  await DB._sb.auth.signOut();
+  // Clear in-memory app state but keep localStorage for graceful resume
+  S._plan=null; S._trialEnd=null;
+}
+
+/* ── TRIAL / PLAN UI ────────────────────────────────────────── */
+function showTrialBanner(){
+  const banner=$id('trial-banner');
+  if(!banner) return;
+  if(PLAN.tier==='trial' && PLAN.daysLeft>0 && PLAN.daysLeft<=14){
+    const d=PLAN.daysLeft;
+    const daysEl=$id('tb-days-text');
+    if(daysEl) daysEl.textContent=d===1?'1 day':d+' days';
+    if(!localStorage.getItem('dvos4_trial_banner_dismissed')){
+      banner.style.display='flex';
+    }
+  }
+}
+function dismissTrialBanner(){
+  const b=$id('trial-banner'); if(b) b.style.display='none';
+  localStorage.setItem('dvos4_trial_banner_dismissed','1');
+}
+function showUpgradeModal(){ const o=$id('upgrade-overlay'); if(o) o.classList.add('open'); }
+function closeUpgradeModal(){ const o=$id('upgrade-overlay'); if(o) o.classList.remove('open'); }
+function goUpgrade(plan){
+  if(plan==='researcher'){
+    // Stripe checkout URL — set this once Stripe is configured
+    window.open('mailto:hello@digital-visibility-os.vercel.app?subject=Upgrade%20to%20Researcher%20Plan','_blank');
+  } else {
+    window.open('mailto:hello@digital-visibility-os.vercel.app?subject=Institution%20Plan%20Enquiry','_blank');
+  }
+  closeUpgradeModal();
+}
+function updateSidebarPlanBadge(){
+  const badge=$id('sidebar-plan-badge'); if(!badge) return;
+  const t=PLAN.tier;
+  if(t==='researcher'){ badge.textContent='Researcher'; badge.style.display=''; badge.style.background='var(--accent-bg)'; badge.style.color='var(--accent)'; }
+  else if(t==='institution'){ badge.textContent='Institution'; badge.style.display=''; }
+  else if(t==='trial'){ const d=PLAN.daysLeft; badge.textContent=d+' day'+(d!==1?'s':'')+' trial'; badge.style.display=''; badge.style.background='var(--amber-bg)'; badge.style.color='var(--amber)'; }
+  else { badge.textContent='Free'; badge.style.display=''; badge.style.background='var(--bg3)'; badge.style.color='var(--txt3)'; }
+}
+
 /* ── INIT ───────────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded',()=>{
-  if(S.onboardDone){
-    const ob=$id('onboard'); if(ob) ob.classList.add('gone');
-    applyUserProfile();
-    refreshDashboard();
-    renderWebsite();
-    recomputeScore();
-  }
+  // App initialization is now handled by DB.init() → DB._onSignedIn() or DB._noAuth()
+  // This ensures auth gate is shown before any app content is visible
   checkProxyBanner();
   checkIncomingCollabCard();
-  DB.init(); // async — non-blocking, degrades gracefully
-  document.addEventListener('keydown',e=>{ if(e.key==='Escape'){closeSidebar();dismissIncomingCard();} });
+  DB.init();
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'){ closeSidebar(); dismissIncomingCard(); closeUpgradeModal(); }
+  });
 });
 
 /* ══════════════════════════════════════════════════════════════
@@ -3383,6 +3818,7 @@ function computeFieldTemp(works){
 
 /* ── Journal Checker ─────────────────────────────────────────── */
 async function checkJournal(){
+  if(!PLAN.gate('jcheck')) return;
   const input=$id('jcheck-input');
   const btn=$id('jcheck-btn');
   const resultEl=$id('jcheck-result');
