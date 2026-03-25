@@ -33,6 +33,7 @@
   <!-- Structured Data: FAQPage -->
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is DVOS?","acceptedAnswer":{"@type":"Answer","text":"DVOS (Digital Visibility OS) is a free tool that helps researchers build their online academic presence. It connects your ORCID profile, tracks your citations in real time, helps you write a professional research bio, and keeps you updated on conferences and grant opportunities in your field."}},{"@type":"Question","name":"Is DVOS free to use?","acceptedAnswer":{"@type":"Answer","text":"Yes. DVOS is completely free. No signup required. Open it, enter your name, and get your research visibility score in under 2 minutes."}},{"@type":"Question","name":"How does DVOS track my citations?","acceptedAnswer":{"@type":"Answer","text":"DVOS pulls your citation data from OpenAlex, Semantic Scholar, Crossref, and PubMed — four major open research databases. It shows your total citation count, h-index, and how you compare to peers in your field and career stage."}},{"@type":"Question","name":"What is a research visibility score?","acceptedAnswer":{"@type":"Answer","text":"DVOS computes a visibility score from 0–100 based on six signals: ORCID completeness (25%), citation impact (27%), researcher profile (18%), research website (12%), content output (10%), and platform presence (8%)."}},{"@type":"Question","name":"Does DVOS work for researchers in Africa and the Global South?","acceptedAnswer":{"@type":"Answer","text":"Yes — DVOS was specifically designed for researchers in the Global South. It prioritizes free tools, shows grants from Wellcome Trust, NIH Fogarty, Gates Foundation, African Union, and NRF, and surfaces conferences with known fee-waiver programs."}},{"@type":"Question","name":"What is an ORCID iD and why does it matter?","acceptedAnswer":{"@type":"Answer","text":"ORCID is a free, persistent identifier for researchers. It solves name disambiguation, ensures all your publications are credited to you, and is required for most international grant applications including EU Horizon and Wellcome Trust."}}]}</script>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
@@ -307,6 +308,54 @@
       .demo-bar-fill,.btn,.bento-card,.whom-card,.source-chip{transition:none;}
       #hero-ring{transition:none;}
     }
+
+    /* ── AUTH MODAL ───────────────────────────────────────────── */
+    #auth-modal{display:none;position:fixed;inset:0;z-index:500;align-items:center;justify-content:center;padding:16px;}
+    #auth-modal.open{display:flex;}
+    .am-backdrop{position:absolute;inset:0;background:rgba(10,26,15,0.72);backdrop-filter:blur(4px);}
+    .am-box{position:relative;background:var(--surface);border-radius:20px;max-width:840px;width:100%;max-height:95svh;overflow:hidden;display:flex;box-shadow:0 32px 80px rgba(0,0,0,0.22);}
+    .am-brand{width:300px;flex-shrink:0;background:linear-gradient(150deg,#0a2318 0%,#1A6647 60%,#183d28 100%);padding:44px 36px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;}
+    .am-brand::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 90% 60% at 20% 40%,rgba(46,204,136,0.15) 0%,transparent 70%);}
+    .am-brand-logo{display:flex;align-items:center;gap:10px;margin-bottom:36px;position:relative;z-index:1;}
+    .am-brand-logo-mark{width:38px;height:38px;border-radius:10px;background:#2ECC88;color:#071510;font-weight:800;font-size:1rem;display:flex;align-items:center;justify-content:center;}
+    .am-brand-logo-text{font-size:0.9375rem;font-weight:700;color:white;}
+    .am-brand-headline{font-family:'DM Serif Display',Georgia,serif;font-size:1.625rem;color:white;line-height:1.25;margin-bottom:12px;position:relative;z-index:1;}
+    .am-brand-sub{font-size:0.8125rem;color:rgba(255,255,255,0.6);line-height:1.7;margin-bottom:32px;position:relative;z-index:1;}
+    .am-brand-feats{display:flex;flex-direction:column;gap:9px;position:relative;z-index:1;}
+    .am-brand-feat{display:flex;align-items:center;gap:9px;font-size:0.75rem;color:rgba(255,255,255,0.75);}
+    .am-brand-feat-dot{width:18px;height:18px;border-radius:50%;background:rgba(46,204,136,0.18);border:1px solid rgba(46,204,136,0.35);display:flex;align-items:center;justify-content:center;font-size:0.5625rem;color:#2ECC88;flex-shrink:0;font-weight:700;}
+    .am-brand-trial{margin-top:auto;padding-top:28px;font-size:0.6875rem;color:rgba(255,255,255,0.45);position:relative;z-index:1;line-height:1.6;}
+    .am-brand-trial strong{color:rgba(46,204,136,0.8);}
+    .am-form{flex:1;padding:36px 36px 32px;overflow-y:auto;}
+    .am-close{position:absolute;top:16px;right:16px;background:none;border:none;font-size:1.25rem;color:var(--txt3);cursor:pointer;z-index:1;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:background 0.15s;}
+    .am-close:hover{background:var(--bg2);}
+    .am-form-title{font-size:1.25rem;font-weight:800;color:var(--txt);letter-spacing:-0.025em;margin-bottom:4px;}
+    .am-form-sub{font-size:0.8125rem;color:var(--txt3);margin-bottom:22px;line-height:1.6;}
+    .am-msg{padding:10px 13px;border-radius:9px;font-size:0.8125rem;line-height:1.55;margin-bottom:14px;display:none;}
+    .am-msg-ok{background:var(--green-bg);color:var(--green);border:1px solid rgba(26,102,71,0.18);}
+    .am-msg-err{background:#fef2f2;color:#dc2626;border:1px solid rgba(220,38,38,0.18);}
+    .am-tabs{display:flex;background:var(--bg2);border-radius:10px;padding:3px;gap:3px;margin-bottom:22px;}
+    .am-tab{flex:1;padding:7px 10px;border-radius:8px;border:none;background:transparent;font-size:0.8125rem;font-weight:600;color:var(--txt3);cursor:pointer;transition:all 0.15s;}
+    .am-tab.active{background:var(--surface);color:var(--txt);box-shadow:var(--shadow-sm);}
+    .am-field{margin-bottom:11px;}
+    .am-field label{display:block;font-size:0.625rem;font-weight:700;color:var(--txt3);margin-bottom:4px;letter-spacing:0.07em;text-transform:uppercase;}
+    .am-input{width:100%;padding:10px 12px;border-radius:9px;border:1.5px solid var(--border2);background:var(--surface);color:var(--txt);font-size:0.9375rem;font-family:inherit;transition:border-color 0.15s;outline:none;}
+    .am-input:focus{border-color:var(--green);}
+    .am-btn-primary{width:100%;padding:12px;border-radius:9px;background:var(--green);color:white;border:none;font-size:0.9375rem;font-weight:800;cursor:pointer;letter-spacing:-0.01em;transition:all 0.15s;margin-top:4px;}
+    .am-btn-primary:hover:not(:disabled){background:#15543a;transform:translateY(-1px);}
+    .am-btn-primary:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+    .am-btn-ghost{width:100%;padding:9px 12px;border-radius:9px;background:var(--surface);color:var(--txt2);border:1.5px solid var(--border2);font-size:0.875rem;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;transition:all 0.15s;margin-top:7px;}
+    .am-btn-ghost:hover:not(:disabled){border-color:var(--green);color:var(--green);}
+    .am-btn-ghost:disabled{opacity:0.4;cursor:not-allowed;}
+    .am-btn-ghost img,.am-btn-ghost svg{width:18px;height:18px;flex-shrink:0;}
+    .am-divider{display:flex;align-items:center;gap:10px;margin:18px 0;color:var(--txt3);font-size:0.6875rem;letter-spacing:0.06em;text-transform:uppercase;}
+    .am-divider::before,.am-divider::after{content:'';flex:1;height:1px;background:var(--border);}
+    .am-forgot{display:block;text-align:right;font-size:0.6875rem;color:var(--txt3);cursor:pointer;background:none;border:none;margin-top:4px;}
+    .am-forgot:hover{color:var(--green);}
+    .am-footer{text-align:center;font-size:0.6875rem;color:var(--txt3);margin-top:18px;line-height:1.7;}
+    .am-footer a{color:var(--green);}
+    .am-provider-badge{font-size:0.5625rem;padding:1px 6px;border-radius:99px;background:var(--green-bg);color:var(--green);font-weight:700;letter-spacing:0.04em;text-transform:uppercase;margin-left:4px;vertical-align:middle;}
+    @media(max-width:720px){.am-brand{display:none;}.am-form{padding:32px 24px 28px;}.am-box{max-width:440px;border-radius:16px;}}
   </style>
 </head>
 <body>
@@ -324,8 +373,8 @@
       <a href="#features" class="nav-link hide-mobile">Features</a>
       <a href="#pricing" class="nav-link hide-mobile">Pricing</a>
       <a href="#faq" class="nav-link hide-mobile">FAQ</a>
-      <a href="/app" class="nav-link" style="font-weight:600;">Sign in</a>
-      <a href="/app" class="btn btn-primary btn-sm">Start free trial &rarr;</a>
+      <button onclick="openAuthModal('signin')" class="nav-link" style="font-weight:600;background:none;border:none;cursor:pointer;font-family:inherit;font-size:0.875rem;color:var(--txt2);padding:6px 12px;border-radius:8px;">Sign in</button>
+      <button onclick="openAuthModal('signup')" class="btn btn-primary btn-sm">Start free trial &rarr;</button>
     </div>
   </div>
 </nav>
@@ -336,12 +385,12 @@
   <div class="container hero-inner">
     <div class="hero-badge" role="note">
       <span class="hero-badge-dot" aria-hidden="true"></span>
-      Free &middot; No signup &middot; Works anywhere
+      14-day free trial &middot; No credit card &middot; Works anywhere
     </div>
     <h1 id="hero-heading">Your research deserves to be <em>found.</em></h1>
     <p class="hero-sub">DVOS builds your digital research presence — tracking citations, verifying your ORCID, surfacing grants, and showing exactly how visible your work is to the world.</p>
     <div class="hero-ctas">
-      <a href="/app" class="btn btn-primary btn-lg">Start free 14-day trial &rarr;</a>
+      <button onclick="openAuthModal('signup')" class="btn btn-primary btn-lg">Start free 14-day trial &rarr;</button>
       <a href="#how-it-works" class="btn btn-ghost btn-lg">See how it works</a>
     </div>
     <p class="hero-footnote">Used by researchers across Africa, South Asia &amp; the Americas &nbsp;&mdash;&nbsp; <strong>100% free, forever</strong></p>
@@ -768,42 +817,56 @@
           What is DVOS?
           <span class="faq-icon" aria-hidden="true">+</span>
         </button>
-        <div class="faq-a" id="faq-a1">DVOS (Digital Visibility OS) is a free tool that helps researchers build their online academic presence. It connects your ORCID profile, tracks your citations in real time, generates a professional researcher bio, and keeps you updated on conferences and grant opportunities in your field.</div>
+        <div class="faq-a" id="faq-a1">DVOS (Digital Visibility OS) is a research visibility platform that helps academics build their online presence. It tracks your citations in real time, verifies your ORCID profile, generates an AI-powered researcher bio, surfaces grant opportunities and conferences, and shows exactly how discoverable your work is to funders and collaborators. A free account gives you core tools forever; the Researcher plan unlocks full AI capabilities.</div>
       </div>
       <div class="faq-item">
         <button class="faq-q" aria-expanded="false" aria-controls="faq-a2">
-          Is DVOS completely free?
+          How does pricing work?
           <span class="faq-icon" aria-hidden="true">+</span>
         </button>
-        <div class="faq-a" id="faq-a2">Yes. DVOS is completely free — no signup, no subscription, no credit card. Open it, enter your name, and get your visibility score in under two minutes. AI features (bio generation, grant intelligence) require an optional AI proxy setup, but all live data and scoring are free.</div>
+        <div class="faq-a" id="faq-a2">DVOS is freemium. Every new account gets a <strong>14-day free trial</strong> with full access to all features — no credit card required. After the trial, the <strong>Free plan</strong> keeps your visibility score, ORCID tracking, and basic arXiv feed forever at no cost. The <strong>Researcher plan</strong> ($9/month or $79/year) unlocks the AI Profile Builder, AI Content Engine, full Research Pulse (grants + conferences), Collaboration Cards, and Journal Check. <strong>Institutions</strong> can contact us for custom multi-seat pricing.</div>
       </div>
       <div class="faq-item">
         <button class="faq-q" aria-expanded="false" aria-controls="faq-a3">
-          How does DVOS track my citations?
+          What happens after my free trial ends?
           <span class="faq-icon" aria-hidden="true">+</span>
         </button>
-        <div class="faq-a" id="faq-a3">DVOS queries OpenAlex, Semantic Scholar, Crossref, and PubMed simultaneously — the four largest open research databases. It cross-references results, takes the highest verified count, and shows your total citations, h-index, and how you compare to peers at your career stage and field.</div>
+        <div class="faq-a" id="faq-a3">When your 14-day trial ends, your account automatically moves to the Free plan. You keep your visibility score, ORCID verification, and basic research feed forever. Premium features (AI builder, content engine, grants intelligence, collab cards, journal check) become locked until you upgrade. Your data is always safe — nothing is deleted. You can upgrade any time from inside the app.</div>
       </div>
       <div class="faq-item">
         <button class="faq-q" aria-expanded="false" aria-controls="faq-a4">
-          What is a research visibility score?
+          How do I sign in? What accounts are accepted?
           <span class="faq-icon" aria-hidden="true">+</span>
         </button>
-        <div class="faq-a" id="faq-a4">DVOS computes a score from 0–100 across six signals: ORCID completeness (25%), citation impact (27%), researcher profile (18%), research website (12%), content output (10%), and platform presence (8%). The score reflects how discoverable your work is to collaborators, funders, and journals.</div>
+        <div class="faq-a" id="faq-a4">You can sign in with your <strong>email and password</strong>, receive a <strong>magic link</strong> (no password needed), or use <strong>Google</strong>, <strong>Apple</strong>, or <strong>ORCID</strong> single sign-on. ORCID sign-in automatically links your verified researcher identity to your DVOS profile. Signing up takes under 30 seconds — just click "Start free trial" above.</div>
       </div>
       <div class="faq-item">
         <button class="faq-q" aria-expanded="false" aria-controls="faq-a5">
-          Does it work for researchers in Africa and the Global South?
+          How does DVOS track my citations?
           <span class="faq-icon" aria-hidden="true">+</span>
         </button>
-        <div class="faq-a" id="faq-a5">Yes — DVOS was specifically designed for researchers in the Global South. It prioritizes free, openly accessible tools, surfaces grants from Wellcome Trust, NIH Fogarty, Gates Foundation, African Union, and NRF South Africa, and shows conferences with known fee-waiver programs. No institutional subscription required.</div>
+        <div class="faq-a" id="faq-a5">DVOS queries OpenAlex, Semantic Scholar, Crossref, and PubMed simultaneously — the four largest open research databases. It cross-references results, uses the highest verified count, and shows your total citations, h-index, and how you compare to peers at your career stage and field. All citation data is free and updates in real time.</div>
       </div>
       <div class="faq-item">
         <button class="faq-q" aria-expanded="false" aria-controls="faq-a6">
+          Does it work for researchers in Africa and the Global South?
+          <span class="faq-icon" aria-hidden="true">+</span>
+        </button>
+        <div class="faq-a" id="faq-a6">Yes — DVOS was specifically designed for researchers in the Global South. The Free plan includes everything researchers in under-resourced institutions need most: visibility score, ORCID verification, and live arXiv feed. The Researcher plan is priced at $9/month — below one conference registration fee. Grants from Wellcome Trust, NIH Fogarty, Gates Foundation, African Union, and NRF South Africa are surfaced in the platform.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false" aria-controls="faq-a7">
+          What is a research visibility score?
+          <span class="faq-icon" aria-hidden="true">+</span>
+        </button>
+        <div class="faq-a" id="faq-a7">DVOS computes a score from 0–100 across six signals: ORCID completeness (25%), citation impact (27%), researcher profile (18%), research website (12%), content output (10%), and platform presence (8%). The score reflects how discoverable your work is to collaborators, funders, and journals. It updates every time you improve a signal.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false" aria-controls="faq-a8">
           What is an ORCID iD and why does it matter?
           <span class="faq-icon" aria-hidden="true">+</span>
         </button>
-        <div class="faq-a" id="faq-a6">ORCID is a free, persistent identifier for researchers — like a passport for your academic work. It solves the name disambiguation problem (two researchers with the same name), ensures all your publications are attributed to you across databases, and is required for most international grant applications including EU Horizon and Wellcome Trust.</div>
+        <div class="faq-a" id="faq-a8">ORCID is a free, persistent identifier for researchers — like a passport for your academic work. It solves name disambiguation, ensures all your publications are attributed to you across databases, and is required for most international grant applications including EU Horizon and Wellcome Trust. DVOS can sign you in directly with ORCID, automatically populating your profile.</div>
       </div>
     </div>
   </div>
@@ -814,11 +877,11 @@
   <div class="container cta-inner">
     <h2 id="cta-heading">Start your free trial<br>today.</h2>
     <p>14 days full access, no credit card required. Your research already exists &mdash; DVOS makes the world see it.</p>
-    <a href="/app" class="btn btn-white btn-lg">Start free 14-day trial &rarr;</a>
+    <button onclick="openAuthModal('signup')" class="btn btn-white btn-lg">Start free 14-day trial &rarr;</button>
     <div class="cta-badges">
       <span class="cta-badge">14-day free trial</span>
-      <span class="cta-badge">Works on mobile</span>
-      <span class="cta-badge">Free forever</span>
+      <span class="cta-badge">No credit card required</span>
+      <span class="cta-badge">Free tier available</span>
       <span class="cta-badge">No institutional access needed</span>
     </div>
   </div>
@@ -907,6 +970,278 @@
       }
     });
   });
+</script>
+
+<!-- ══════════════════════════════════════════════════════════════
+     AUTH MODAL
+     ══════════════════════════════════════════════════════════════ -->
+<div id="auth-modal" role="dialog" aria-modal="true" aria-label="Sign in to DVOS">
+  <div class="am-backdrop" onclick="closeAuthModal()"></div>
+  <div class="am-box">
+    <!-- Brand panel -->
+    <aside class="am-brand" aria-hidden="true">
+      <div>
+        <div class="am-brand-logo">
+          <div class="am-brand-logo-mark">D</div>
+          <span class="am-brand-logo-text">DVOS</span>
+        </div>
+        <div class="am-brand-headline">Visibility starts here.</div>
+        <div class="am-brand-sub">Join thousands of researchers building their digital presence and getting found globally.</div>
+        <div class="am-brand-feats">
+          <div class="am-brand-feat"><div class="am-brand-feat-dot">✓</div>Real-time citation tracking</div>
+          <div class="am-brand-feat"><div class="am-brand-feat-dot">✓</div>ORCID profile optimisation</div>
+          <div class="am-brand-feat"><div class="am-brand-feat-dot">✓</div>Grant &amp; conference radar</div>
+          <div class="am-brand-feat"><div class="am-brand-feat-dot">✓</div>AI research bio &amp; LinkedIn summary</div>
+          <div class="am-brand-feat"><div class="am-brand-feat-dot">✓</div>Live collaboration network</div>
+        </div>
+      </div>
+      <div class="am-brand-trial"><strong>14-day free trial</strong> · No credit card required · Cancel any time</div>
+    </aside>
+
+    <!-- Form panel -->
+    <div class="am-form" id="am-form-panel">
+      <button class="am-close" onclick="closeAuthModal()" aria-label="Close">&times;</button>
+
+      <!-- Message banner -->
+      <div id="am-msg" class="am-msg" role="alert"></div>
+
+      <!-- Tabs -->
+      <div class="am-tabs" role="tablist">
+        <button class="am-tab active" id="am-tab-signin" role="tab" aria-selected="true" aria-controls="am-panel-signin" onclick="amShowTab('signin')">Sign in</button>
+        <button class="am-tab" id="am-tab-signup" role="tab" aria-selected="false" aria-controls="am-panel-signup" onclick="amShowTab('signup')">Create account</button>
+      </div>
+
+      <!-- ── Sign-in panel ── -->
+      <div id="am-panel-signin" role="tabpanel">
+        <div class="am-form-title">Welcome back</div>
+        <div class="am-form-sub">Sign in to your DVOS account</div>
+        <div class="am-field"><label for="am-si-email">Email</label><input id="am-si-email" class="am-input" type="email" placeholder="you@university.edu" autocomplete="email"></div>
+        <div class="am-field"><label for="am-si-pass">Password</label><input id="am-si-pass" class="am-input" type="password" placeholder="••••••••" autocomplete="current-password"></div>
+        <button class="am-forgot" onclick="amForgot()" type="button">Forgot password?</button>
+        <button class="am-btn-primary" id="am-si-btn" onclick="hpSignIn()">Sign in</button>
+        <div class="am-divider">or continue with</div>
+        <button class="am-btn-ghost" id="am-google-btn" onclick="hpGoogle()">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Continue with Google
+        </button>
+        <button class="am-btn-ghost" id="am-apple-btn" onclick="hpApple()" style="display:none">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+          Continue with Apple
+        </button>
+        <button class="am-btn-ghost" id="am-orcid-btn" onclick="hpORCID()" style="display:none">
+          <svg viewBox="0 0 24 24" fill="#A6CE39"><path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm-1.374 5.256a.966.966 0 110 1.932.966.966 0 010-1.932zM9.548 8.25h1.818v7.5H9.548V8.25zm3.272 0h3.272c3.065 0 4.362 2.194 4.362 3.75 0 2.054-1.534 3.75-4.362 3.75h-3.272V8.25zm1.818 1.5v4.5h1.454c1.454 0 2.544-.818 2.544-2.25s-1.09-2.25-2.544-2.25h-1.454z"/></svg>
+          Sign in with ORCID <span class="am-provider-badge">iD</span>
+        </button>
+        <div class="am-divider">or use a magic link</div>
+        <button class="am-btn-ghost" onclick="hpMagicLink('signin')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+          Email me a magic link
+        </button>
+        <div class="am-footer">No account? <button onclick="amShowTab('signup')" style="background:none;border:none;color:var(--green);cursor:pointer;font-size:inherit;padding:0;font-weight:600;">Create one free</button></div>
+      </div>
+
+      <!-- ── Sign-up panel ── -->
+      <div id="am-panel-signup" role="tabpanel" style="display:none">
+        <div class="am-form-title">Start your free trial</div>
+        <div class="am-form-sub">14 days full access · No credit card required</div>
+        <div class="am-field"><label for="am-su-name">Full name</label><input id="am-su-name" class="am-input" type="text" placeholder="Dr. Your Name" autocomplete="name"></div>
+        <div class="am-field"><label for="am-su-email">Email</label><input id="am-su-email" class="am-input" type="email" placeholder="you@university.edu" autocomplete="email"></div>
+        <div class="am-field"><label for="am-su-pass">Password <span style="font-weight:400;text-transform:none;letter-spacing:0;">(min 8 characters)</span></label><input id="am-su-pass" class="am-input" type="password" placeholder="••••••••" autocomplete="new-password"></div>
+        <button class="am-btn-primary" id="am-su-btn" onclick="hpSignUp()">Create account &amp; start trial</button>
+        <div class="am-divider">or sign up with</div>
+        <button class="am-btn-ghost" id="am-google-btn2" onclick="hpGoogle()">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Continue with Google
+        </button>
+        <button class="am-btn-ghost" id="am-apple-btn2" onclick="hpApple()" style="display:none">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+          Continue with Apple
+        </button>
+        <button class="am-btn-ghost" id="am-orcid-btn2" onclick="hpORCID()" style="display:none">
+          <svg viewBox="0 0 24 24" fill="#A6CE39"><path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm-1.374 5.256a.966.966 0 110 1.932.966.966 0 010-1.932zM9.548 8.25h1.818v7.5H9.548V8.25zm3.272 0h3.272c3.065 0 4.362 2.194 4.362 3.75 0 2.054-1.534 3.75-4.362 3.75h-3.272V8.25zm1.818 1.5v4.5h1.454c1.454 0 2.544-.818 2.544-2.25s-1.09-2.25-2.544-2.25h-1.454z"/></svg>
+          Sign up with ORCID <span class="am-provider-badge">iD</span>
+        </button>
+        <div class="am-footer">Already have an account? <button onclick="amShowTab('signin')" style="background:none;border:none;color:var(--green);cursor:pointer;font-size:inherit;padding:0;font-weight:600;">Sign in</button></div>
+      </div>
+    </div><!-- /am-form -->
+  </div><!-- /am-box -->
+</div><!-- /auth-modal -->
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// HOMEPAGE AUTH MODULE
+// ══════════════════════════════════════════════════════════════
+(function(){
+  'use strict';
+
+  const SITE = 'https://digital-visibility-os.vercel.app';
+  let _sb = null;   // Supabase client (lazy-init)
+  let _cfg = null;  // config from /api/config
+
+  // ── Supabase lazy init ────────────────────────────────────────
+  async function getSB(){
+    if(_sb) return _sb;
+    try{
+      if(!_cfg){
+        const r = await fetch('/api/config');
+        if(!r.ok) return null;
+        _cfg = await r.json();
+      }
+      if(!_cfg.url || !_cfg.key) return null;
+      _sb = window.supabase.createClient(_cfg.url, _cfg.key, { auth:{ persistSession:true, autoRefreshToken:true } });
+      // Show/hide OAuth buttons based on server config
+      const show = (ids, visible) => ids.forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display = visible ? '' : 'none'; });
+      show(['am-google-btn','am-google-btn2'], true); // Google always available via Supabase
+      show(['am-apple-btn','am-apple-btn2'], !!_cfg.hasApple);
+      show(['am-orcid-btn','am-orcid-btn2'], !!_cfg.hasOrcid);
+      // If already signed in, redirect immediately
+      const { data:{ session } } = await _sb.auth.getSession();
+      if(session){ window.location.href = SITE+'/app'; return null; }
+      return _sb;
+    } catch(e){ console.warn('[HP Auth] init failed', e); return null; }
+  }
+
+  // ── Modal open / close ────────────────────────────────────────
+  window.openAuthModal = async function(tab){
+    const modal = document.getElementById('auth-modal');
+    if(!modal) return;
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    amShowTab(tab || 'signin');
+    amMsg('','');
+    await getSB(); // init + show correct OAuth buttons
+  };
+
+  window.closeAuthModal = function(){
+    const modal = document.getElementById('auth-modal');
+    if(modal) modal.classList.remove('open');
+    document.body.style.overflow = '';
+  };
+
+  // Close on Escape
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') window.closeAuthModal(); });
+
+  // ── Tab switching ─────────────────────────────────────────────
+  window.amShowTab = function(tab){
+    const isSignin = tab !== 'signup';
+    document.getElementById('am-tab-signin').classList.toggle('active', isSignin);
+    document.getElementById('am-tab-signup').classList.toggle('active', !isSignin);
+    document.getElementById('am-tab-signin').setAttribute('aria-selected', isSignin);
+    document.getElementById('am-tab-signup').setAttribute('aria-selected', !isSignin);
+    document.getElementById('am-panel-signin').style.display = isSignin ? '' : 'none';
+    document.getElementById('am-panel-signup').style.display = isSignin ? 'none' : '';
+    amMsg('','');
+  };
+
+  // ── Message helper ────────────────────────────────────────────
+  function amMsg(text, type){
+    const el = document.getElementById('am-msg');
+    if(!el) return;
+    if(!text){ el.style.display='none'; el.textContent=''; return; }
+    el.className = 'am-msg ' + (type==='ok' ? 'am-msg-ok' : 'am-msg-err');
+    el.textContent = text;
+    el.style.display = 'block';
+  }
+
+  function amBusy(btnId, busy){
+    const el = document.getElementById(btnId);
+    if(el) el.disabled = busy;
+  }
+
+  // ── Sign in ───────────────────────────────────────────────────
+  window.hpSignIn = async function(){
+    const email = document.getElementById('am-si-email').value.trim();
+    const pass  = document.getElementById('am-si-pass').value;
+    if(!email || !pass){ amMsg('Please enter your email and password.','err'); return; }
+    amBusy('am-si-btn', true);
+    amMsg('','');
+    const sb = await getSB();
+    if(!sb){ amMsg('Authentication not available. Try the app directly.','err'); amBusy('am-si-btn',false); return; }
+    const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+    if(error){
+      amMsg(error.message.includes('Invalid') ? 'Incorrect email or password.' : error.message, 'err');
+      amBusy('am-si-btn', false);
+    } else {
+      amMsg('Signed in! Redirecting…','ok');
+      setTimeout(()=>{ window.location.href = SITE+'/app'; }, 800);
+    }
+  };
+
+  // ── Sign up ───────────────────────────────────────────────────
+  window.hpSignUp = async function(){
+    const name  = document.getElementById('am-su-name').value.trim();
+    const email = document.getElementById('am-su-email').value.trim();
+    const pass  = document.getElementById('am-su-pass').value;
+    if(!name)              { amMsg('Please enter your full name.','err'); return; }
+    if(!email)             { amMsg('Please enter your email address.','err'); return; }
+    if(pass.length < 8)    { amMsg('Password must be at least 8 characters.','err'); return; }
+    amBusy('am-su-btn', true);
+    amMsg('','');
+    const sb = await getSB();
+    if(!sb){ amMsg('Authentication not available. Try the app directly.','err'); amBusy('am-su-btn',false); return; }
+    const { error } = await sb.auth.signUp({
+      email, password: pass,
+      options:{ data:{ full_name: name }, emailRedirectTo: SITE+'/app' }
+    });
+    if(error){
+      amMsg(error.message, 'err');
+      amBusy('am-su-btn', false);
+    } else {
+      amMsg('Account created! Check your email for a confirmation link, then sign in.','ok');
+      amBusy('am-su-btn', false);
+      // Switch to sign-in tab after 3s
+      setTimeout(()=>amShowTab('signin'), 3000);
+    }
+  };
+
+  // ── Magic link ────────────────────────────────────────────────
+  window.hpMagicLink = async function(panel){
+    const emailId = panel === 'signup' ? 'am-su-email' : 'am-si-email';
+    const email = document.getElementById(emailId)?.value.trim();
+    if(!email){ amMsg('Enter your email above first, then click magic link.','err'); return; }
+    amMsg('Sending magic link…','ok');
+    const sb = await getSB();
+    if(!sb){ amMsg('Authentication not available.','err'); return; }
+    const { error } = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: SITE+'/app' } });
+    if(error) amMsg(error.message,'err');
+    else amMsg('Magic link sent! Check your inbox — it expires in 1 hour.','ok');
+  };
+
+  // ── Google OAuth ──────────────────────────────────────────────
+  window.hpGoogle = async function(){
+    const sb = await getSB();
+    if(!sb){ amMsg('Google sign-in is not configured yet.','err'); return; }
+    await sb.auth.signInWithOAuth({ provider:'google', options:{ redirectTo: SITE+'/app' } });
+  };
+
+  // ── Apple OAuth ───────────────────────────────────────────────
+  window.hpApple = async function(){
+    const sb = await getSB();
+    if(!sb){ amMsg('Apple sign-in is not configured yet.','err'); return; }
+    await sb.auth.signInWithOAuth({ provider:'apple', options:{ redirectTo: SITE+'/app' } });
+  };
+
+  // ── ORCID OAuth ───────────────────────────────────────────────
+  window.hpORCID = async function(){
+    const sb = await getSB();
+    if(!sb || !_cfg?.orcidClientId){ amMsg('ORCID sign-in is not configured yet.','err'); return; }
+    const redirectUri = encodeURIComponent(SITE+'/api/auth/orcid');
+    const clientId    = encodeURIComponent(_cfg.orcidClientId);
+    window.location.href = `https://orcid.org/oauth/authorize?client_id=${clientId}&response_type=code&scope=/authenticate&redirect_uri=${redirectUri}`;
+  };
+
+  // ── Forgot password ───────────────────────────────────────────
+  window.amForgot = async function(){
+    const email = document.getElementById('am-si-email').value.trim();
+    if(!email){ amMsg('Enter your email address above, then click Forgot password.','err'); return; }
+    const sb = await getSB();
+    if(!sb){ amMsg('Not available — try the app directly.','err'); return; }
+    const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: SITE+'/app' });
+    if(error) amMsg(error.message,'err');
+    else amMsg('Password reset email sent! Check your inbox.','ok');
+  };
+
+})();
 </script>
 </body>
 </html>
